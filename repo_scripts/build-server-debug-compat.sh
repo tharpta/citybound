@@ -6,10 +6,7 @@ REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 
 cd "$REPO_ROOT"
 
-if [[ ! -d cb_browser_ui/dist ]]; then
-    echo "cb_browser_ui/dist is missing. Run npm run build-browser-compat first." >&2
-    exit 1
-fi
+"$SCRIPT_DIR/check-browser-dist-compat.sh"
 
 export CARGO_TARGET_X86_64_APPLE_DARWIN_LINKER="$REPO_ROOT/repo_scripts/cc-strip-rmeta.sh"
 

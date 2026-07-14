@@ -5,6 +5,40 @@ modernization starts.
 
 ## Current Checks
 
+### `npm run test-compat`
+
+Current status: passes.
+
+This is the umbrella local safety command. It currently runs:
+
+- `npm run test-planning-compat`
+- `npm run check-browser-dist-compat`
+- `npm run smoke-server-compat`
+
+### `npm run check-browser-dist-compat`
+
+Current status: passes.
+
+This verifies that `cb_browser_ui/dist` contains the browser artifacts the
+server needs to embed:
+
+- `index.html`
+- `cb_browser_ui.wasm`
+- at least one JavaScript bundle
+- at least one CSS bundle
+
+### `npm run smoke-server-compat`
+
+Current status: passes.
+
+This verifies that `target/debug/citybound` can start with a temporary city,
+serve the browser UI over HTTP, return status `200`, and shut down through the
+Ctrl-C/SIGINT path.
+
+This is intentionally not a full browser connection test yet. The browser still
+hardcodes simulation port `9999`, while this smoke uses configurable local ports
+by default.
+
 ### `npm run test-planning-compat`
 
 Current status: passes.
