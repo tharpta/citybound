@@ -117,7 +117,6 @@ Interpretation:
    `cb_simulation`.
 8. Only after server-side crates are understood, split browser modernization
    into:
-   - hardcoded simulation port fix
    - `stdweb` boundary inventory
    - `wasm-bindgen` spike
    - Parcel-to-Vite or equivalent bundler spike

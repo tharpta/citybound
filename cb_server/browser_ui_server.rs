@@ -19,6 +19,14 @@ pub fn start_browser_ui_server(version: &'static str, network_config: ::init::Ne
             let rendered = template
                 .replace("CB_VERSION", version.trim())
                 .replace(
+                    "CB_SIMULATION_PORT",
+                    network_config
+                        .bind_sim
+                        .rsplit(':')
+                        .next()
+                        .expect("simulation bind address should include a port"),
+                )
+                .replace(
                     "CB_BATCH_MESSAGE_BYTES",
                     &format!("{}", network_config.batch_msg_bytes),
                 )

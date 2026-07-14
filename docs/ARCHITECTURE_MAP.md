@@ -112,10 +112,9 @@ The browser receives network tuning values from `cb_server/browser_ui_server.rs`
 which templates `CB_BATCH_MESSAGE_BYTES`, `CB_ACCEPTABLE_TURN_DISTANCE`, and
 `CB_SKIP_TURNS_PER_TURN_AHEAD` into `cb_browser_ui/index.html`.
 
-Important bug/risk: the browser currently constructs its simulation address as
-`<server hostname>:9999`. The server CLI supports `--bind-sim`, but the browser
-HTML does not receive that port. Custom simulation ports can pass the HTTP smoke
-test while the browser still tries to connect to `9999`.
+The browser constructs its simulation address from the page hostname and a
+`simulationPort` value templated into `window.cbNetworkSettings` by the server.
+This keeps `--bind-sim` port overrides aligned with the browser connection path.
 
 ## Shared Actor Registration
 

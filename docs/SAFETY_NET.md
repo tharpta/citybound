@@ -35,9 +35,9 @@ This verifies that `target/debug/citybound` can start with a temporary city,
 serve the browser UI over HTTP, return status `200`, and shut down through the
 Ctrl-C/SIGINT path.
 
-This is intentionally not a full browser connection test yet. The browser still
-hardcodes simulation port `9999`, while this smoke uses configurable local ports
-by default.
+This is intentionally not a full browser connection test yet. It does verify
+that the served HTML includes the configured simulation port so the browser does
+not silently fall back to `9999`.
 
 ### `npm run test-planning-compat`
 

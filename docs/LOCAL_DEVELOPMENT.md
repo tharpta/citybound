@@ -69,5 +69,5 @@ npm run smoke-server-compat
   copies.
 - `cargo fmt -- ./cb_planning/src/lib.rs` currently scans broader workspace
   modules and fails on pre-existing long lines.
-- Browser code hardcodes simulation port `9999`; custom `--bind-sim` values are
-  not yet passed through the served HTML.
+- The browser uses the page hostname plus the simulation port templated into
+  `window.cbNetworkSettings`; the smoke test checks this for custom local ports.

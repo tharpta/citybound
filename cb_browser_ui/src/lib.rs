@@ -63,9 +63,15 @@ pub fn start() {
 
     use stdweb::unstable::TryFrom;
 
+    let simulation_port =
+        u32::try_from(network_settings.remove("simulationPort").unwrap()).unwrap() as usize;
+
     let mut system = kay::ActorSystem::new(kay::Networking::new(
         1,
-        vec![format!("{}:{}", server_host, 9999), "ws-client".to_owned()],
+        vec![
+            format!("{}:{}", server_host, simulation_port),
+            "ws-client".to_owned(),
+        ],
         u32::try_from(network_settings.remove("batchMessageBytes").unwrap()).unwrap() as usize,
         u32::try_from(network_settings.remove("acceptableTurnDistance").unwrap()).unwrap() as usize,
         u32::try_from(network_settings.remove("skipTurnsPerTurnAhead").unwrap()).unwrap() as usize,

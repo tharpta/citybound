@@ -55,8 +55,15 @@ for _ in {1..80}; do
         exit 1
     fi
 
-    status="$(curl -s -o /dev/null -w "%{http_code}" "$URL" || true)"
+    body="$(curl -s -w "\n%{http_code}" "$URL" || true)"
+    status="$(printf '%s' "$body" | tail -n 1)"
     if [[ "$status" == "200" ]]; then
+        page="$(printf '%s' "$body" | sed '$d')"
+        sim_port="${BIND_SIM##*:}"
+        if ! printf '%s' "$page" | grep -q "simulationPort: $sim_port"; then
+            echo "Server page did not include expected simulation port $sim_port." >&2
+            exit 1
+        fi
         echo "Server smoke passed: $URL returned HTTP 200"
         exit 0
     fi
