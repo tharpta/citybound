@@ -204,6 +204,8 @@ Exit criteria:
 
 Goal: choose the modernization route based on evidence.
 
+Current toolchain strategy lives in `docs/TOOLCHAIN_STRATEGY.md`.
+
 Evaluate two tracks side by side:
 
 - Compatibility track: keep the old toolchain long enough to produce a working
