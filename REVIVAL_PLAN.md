@@ -179,6 +179,8 @@ Exit criteria:
 
 Goal: make future modernization measurable.
 
+Current safety-net notes live in `docs/SAFETY_NET.md`.
+
 - Add minimal Rust smoke tests around pure logic first:
   - deterministic `PrototypeID` behavior
   - `PlanHistory` update/apply behavior

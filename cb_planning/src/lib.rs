@@ -775,3 +775,132 @@ pub trait PlanningLogic: Compact + 'static {
         Ok(result)
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use construction::{ConstructableID, PrototypeKind, GestureIntent};
+    use kay::World;
+
+    #[derive(Compact, Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+    struct TestIntent(u8);
+
+    impl GestureIntent for TestIntent {}
+
+    #[derive(Compact, Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+    struct TestPrototypeKind {
+        shape: u8,
+        morph_group: u8,
+    }
+
+    impl PrototypeKind for TestPrototypeKind {
+        fn construct(
+            &self,
+            _prototype_id: PrototypeID,
+            _report_to: construction::ConstructionID<Self>,
+            _world: &mut World,
+        ) -> CVec<ConstructableID<Self>> {
+            CVec::new()
+        }
+
+        fn morphable_from(&self, other: &Self) -> bool {
+            self.morph_group == other.morph_group && self.shape != other.shape
+        }
+    }
+
+    fn test_kind(shape: u8, morph_group: u8) -> TestPrototypeKind {
+        TestPrototypeKind { shape, morph_group }
+    }
+
+    fn test_prototype(
+        influence: &'static str,
+        kind: TestPrototypeKind,
+        x: N,
+    ) -> Prototype<TestPrototypeKind> {
+        Prototype::new_with_influences(influence, kind, P2::new(x, 0.0))
+    }
+
+    fn test_result(prototypes: Vec<Prototype<TestPrototypeKind>>) -> PlanResult<TestPrototypeKind> {
+        let mut result = PlanResult::new();
+
+        for prototype in prototypes {
+            result.grid.add_protoype(&prototype);
+            result.prototypes.insert(prototype.id, prototype);
+        }
+
+        result
+    }
+
+    fn group_contains(group: &IndependentActions, action: Action) -> bool {
+        group.0.iter().any(|candidate| *candidate == action)
+    }
+
+    #[test]
+    fn prototype_id_is_deterministic_from_influences() {
+        let first = PrototypeID::from_influences(("road", 42, true));
+        let second = PrototypeID::from_influences(("road", 42, true));
+        let different = PrototypeID::from_influences(("road", 42, false));
+
+        assert_eq!(first, second);
+        assert_ne!(first, different);
+        assert_eq!(first.add_influences("lane"), second.add_influences("lane"));
+    }
+
+    #[test]
+    fn plan_history_update_can_recreate_newer_history() {
+        let base = PlanHistory::<TestIntent>::new();
+        let known_base = base.as_known_state();
+
+        let first_gesture_id = GestureID::new();
+        let second_gesture_id = GestureID::new();
+        let first_plan = Plan::from_gestures(Some((first_gesture_id, Gesture::new(TestIntent(1)))));
+        let second_plan =
+            Plan::from_gestures(Some((second_gesture_id, Gesture::new(TestIntent(2)))));
+        let newer = base.and_then(vec![&first_plan, &second_plan]);
+
+        let update = newer.update_for(&known_base);
+        let mut recreated = base.clone();
+        recreated.apply_update(&update);
+
+        assert!(!update.is_empty());
+        assert_eq!(recreated.latest_step_id(), newer.latest_step_id());
+        assert_eq!(recreated.steps.len(), newer.steps.len());
+        assert!(recreated.gestures.contains_key(first_gesture_id));
+        assert!(recreated.gestures.contains_key(second_gesture_id));
+        assert!(newer.update_for(&newer.as_known_state()).is_empty());
+    }
+
+    #[test]
+    fn plan_result_actions_group_destruct_morph_and_construct() {
+        let kept = test_prototype("kept", test_kind(1, 1), 0.0);
+        let morph_old = test_prototype("morph-old", test_kind(1, 2), 10.0);
+        let morph_new = test_prototype("morph-new", test_kind(2, 2), 10.0);
+        let destructed = test_prototype("destructed", test_kind(1, 3), 20.0);
+        let constructed = test_prototype("constructed", test_kind(1, 4), 30.0);
+
+        let existing = test_result(vec![kept.clone(), morph_old.clone(), destructed.clone()]);
+        let next = test_result(vec![kept, morph_new.clone(), constructed.clone()]);
+
+        let (actions, new_prototypes) = existing.actions_to(&next);
+
+        assert_eq!(actions.0.len(), 3);
+        assert!(group_contains(
+            &actions.0[0],
+            Action::Destruct(destructed.id)
+        ));
+        assert!(group_contains(
+            &actions.0[1],
+            Action::Morph(morph_old.id, morph_new.id)
+        ));
+        assert!(group_contains(
+            &actions.0[2],
+            Action::Construct(constructed.id)
+        ));
+        assert!(new_prototypes
+            .iter()
+            .any(|prototype| prototype.id == morph_new.id));
+        assert!(new_prototypes
+            .iter()
+            .any(|prototype| prototype.id == constructed.id));
+    }
+}

@@ -4,6 +4,7 @@
         "build-browser-compat": "repo_scripts/build-browser-compat.sh",
         "build-server-debug-compat": "repo_scripts/build-server-debug-compat.sh",
         "build-compat": "repo_scripts/build-compat.sh",
+        "test-planning-compat": "repo_scripts/test-planning-compat.sh",
         "build-browser": "cd cb_browser_ui && npm install && npm run build",
         "watch-browser": "cd cb_browser_ui && npm install && npm start",
         "build-server": "git describe > .version && npm run ensure-tooling -- -q && cargo build --release",
