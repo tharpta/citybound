@@ -238,6 +238,8 @@ Exit criteria:
 
 Goal: reduce old-toolchain risk without changing game behavior.
 
+Current local development commands live in `docs/LOCAL_DEVELOPMENT.md`.
+
 Suggested order:
 
 1. Make root scripts explicit and non-mutating. Tooling checks should report

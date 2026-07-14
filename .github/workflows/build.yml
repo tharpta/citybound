@@ -1,9 +1,7 @@
-name: Build Citybound
+name: Legacy Release Build
 
 on:
-  push:
-    branches: 
-      - master
+  workflow_dispatch:
 
 jobs:
   build:
@@ -11,10 +9,10 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest, macOS-latest]
+        os: [ubuntu-latest, windows-latest, macos-latest]
 
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v4
     - name: Ensure tooling installed
       run: npm run ensure-tooling
     - name: Build browser client
