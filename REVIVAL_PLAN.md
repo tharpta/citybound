@@ -137,6 +137,8 @@ Exit criteria:
 
 Goal: understand what exists before moving anything.
 
+Current architecture notes live in `docs/ARCHITECTURE_MAP.md`.
+
 - Document the aeplay engine stack before changing it:
   - how `kay` actors are declared, stored, addressed, and messaged
   - how `kay_codegen` turns source annotations into `kay_auto.rs`
@@ -160,6 +162,13 @@ Goal: understand what exists before moving anything.
   - construct/morph/destruct action groups
   - simulation actors created from prototypes
 - Document save/persistence assumptions around mmap state and versioning.
+- Track known architecture risks found during mapping:
+  - browser networking currently hardcodes simulation port `9999`, while the
+    server CLI exposes `--bind-sim`
+  - `kay_auto.rs` files are committed generated actor glue and must not be
+    regenerated casually
+  - save compatibility likely depends on actor registration/codegen identity and
+    `compact`/`chunky` layout assumptions
 
 Exit criteria:
 
