@@ -284,6 +284,8 @@ Exit criteria:
 
 Feature work begins only after:
 
+Current gate notes live in `docs/GAMEPLAY_READINESS.md`.
+
 - The server and browser build reproducibly.
 - We can run a small city locally.
 - The planning loop is documented.
