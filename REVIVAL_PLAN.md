@@ -263,6 +263,8 @@ Exit criteria:
 
 Goal: make the city simulation understandable while running.
 
+Current observability notes live in `docs/OBSERVABILITY.md`.
+
 - Keep and modernize the existing in-game debug UI.
 - Add structured logs around:
   - planning project implementation
