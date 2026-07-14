@@ -44,7 +44,9 @@ by default.
 Current status: passes.
 
 This runs `cargo test -p cb_planning` through the macOS linker compatibility
-wrapper. It currently covers:
+wrapper. It ensures only the historical Rust toolchain, not the browser
+`cargo-web` toolchain, so it can run as the first lightweight CI check. It
+currently covers:
 
 - deterministic `PrototypeID` generation from hashed influences
 - `PlanHistory::update_for` plus `apply_update`
@@ -71,3 +73,5 @@ test result: ok. 3 passed; 0 failed
   planning behavior.
 - The next checks should cover server asset readiness and a real browser/server
   connection using the default simulation port or a fixed custom-port template.
+- `.github/workflows/revival-compat.yml` runs the planning safety tests on
+  pull requests, pushes to revival branches, and manual dispatch.
