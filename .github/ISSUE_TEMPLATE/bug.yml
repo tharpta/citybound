@@ -43,7 +43,9 @@ body:
     id: dependencies
     attributes:
       label: Dependencies and links
-      description: Link dependencies, related issues, branch, PR, and any retained evidence.
+      description: Link dependencies, related issues, branch, PR, and retained evidence. Write "None" where applicable; branch/PR links may be added when created.
+    validations:
+      required: true
   - type: textarea
     id: risk
     attributes:

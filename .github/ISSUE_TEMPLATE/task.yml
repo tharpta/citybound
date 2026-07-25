@@ -38,11 +38,26 @@ body:
       description: List exact automated checks and visible/manual evidence.
     validations:
       required: true
+  - type: dropdown
+    id: role
+    attributes:
+      label: Owning role
+      description: Select the role accountable when this issue becomes Ready.
+      options:
+        - Integration / technical lead
+        - Platform engineer
+        - Simulation / gameplay engineer
+        - QA / reliability
+        - Producer / Scrum master
+    validations:
+      required: true
   - type: textarea
     id: dependencies
     attributes:
       label: Dependencies and links
-      description: Link prerequisite issues and the issue branch/PR when created.
+      description: Link prerequisite issues and the issue branch/PR when created. Write "None" where applicable.
+    validations:
+      required: true
   - type: textarea
     id: risk
     attributes:

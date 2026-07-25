@@ -64,7 +64,9 @@ body:
     id: dependencies
     attributes:
       label: Dependencies and links
-      description: Link related issues, ADRs, experiments, branch, and PR.
+      description: Link related issues, ADRs, experiments, branch, and PR. Write "None" where applicable; branch/PR links may be added when created.
+    validations:
+      required: true
   - type: textarea
     id: risk
     attributes:
