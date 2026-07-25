@@ -11,7 +11,9 @@
   [`2ee0db7`](https://github.com/tharpta/citybound/commit/2ee0db7), parent
   [`7d7172f`](https://github.com/tharpta/citybound/commit/7d7172f);
   ADR workflow [#16](https://github.com/tharpta/citybound/issues/16);
-  quarantine implementation [PR #24](https://github.com/tharpta/citybound/pull/24)
+  quarantine implementation [PR #24](https://github.com/tharpta/citybound/pull/24);
+  issue #7 evidence update
+  [PR #35](https://github.com/tharpta/citybound/pull/35)
 - Supersedes: None
 - Superseded by: None
 
@@ -271,7 +273,8 @@ to the experiment.
   for adoption. Retain isolated research; authorize no spike or migration.
 - Independent verification: PR #24 independently verified the initial
   quarantine. A separate visible read-only reviewer must verify this issue #7
-  evidence update before integration.
+  evidence update in [PR #35](https://github.com/tharpta/citybound/pull/35)
+  before integration.
 - Accepted quarantine integration commit:
   [`9a7b4bd`](https://github.com/tharpta/citybound/commit/9a7b4bd).
 - Issue #7 evidence integration commit: Pending review and merge.
