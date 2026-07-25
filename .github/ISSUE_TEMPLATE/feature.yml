@@ -1,0 +1,65 @@
+name: Feature or gameplay idea
+description: Add a player-facing idea to the prioritized Citybound Revival queue.
+title: "[FEATURE] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        A suggestion becomes a Backlog issue, not an automatic commitment. The integration lead assigns Project Priority from player impact, dependencies, risk, and cost. The product owner may explicitly say “do it next” to override sequencing.
+  - type: textarea
+    id: outcome
+    attributes:
+      label: Observable player outcome
+      description: What should a player be able to do or see when this is complete?
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Motivation and evidence
+      description: Explain the player problem, reference, prototype, or other background.
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: Scope and non-goals
+      description: Bound the smallest useful version and what it should not attempt.
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      value: |
+        - [ ]
+    validations:
+      required: true
+  - type: textarea
+    id: verification
+    attributes:
+      label: Visible verification
+      description: Describe the playtest/demo evidence that would prove the outcome.
+    validations:
+      required: true
+  - type: textarea
+    id: dependencies
+    attributes:
+      label: Dependencies and links
+      description: Link prerequisites, related issues/ADRs, branch, and PR. Write "None" where applicable; implementation links may be added later.
+    validations:
+      required: true
+  - type: textarea
+    id: risk
+    attributes:
+      label: Save and architecture impact
+      description: Identify persistence, compatibility, shared-boundary, security, migration, and rollback risk. Write "None known" when applicable.
+    validations:
+      required: true
+  - type: textarea
+    id: cost
+    attributes:
+      label: Cost impact
+      description: Identify monetary, CI, hosted-service, and licensing impact. Write "None" when applicable.
+    validations:
+      required: true

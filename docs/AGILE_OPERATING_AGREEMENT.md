@@ -103,6 +103,34 @@ priority, prefer the issue that unblocks the most other work, then the oldest
 ready issue. A blocked issue does not consume an implementation slot; record the
 blocker and pull the next highest-priority ready item.
 
+## Product Idea Intake And “Do It Next”
+
+Every feature, mechanic, UX idea, modernization proposal, or other substantial
+change suggested by the product owner becomes a GitHub issue before
+implementation. When an idea arrives conversationally, the integration lead
+creates and links the issue; the product owner does not need to rewrite it in a
+template. A clarification that remains inside an active issue's existing scope
+updates that issue instead of creating a duplicate.
+
+New ideas start in `Backlog`. The integration lead assigns Project Priority
+from player impact, milestone value, dependencies, save/architecture/security
+risk, and cost. Priority describes impact and urgency; it is not inflated merely
+to force queue order.
+
+When the product owner says **“do it next”**, that is an explicit sequencing
+override:
+
+1. record the override on the requested issue;
+2. safely checkpoint and push active work without misrepresenting it as done;
+3. move the requested issue to `Ready`, or to `Blocked` with the exact blocker
+   and unblock condition;
+4. start it next when executable, ahead of the normal pull order.
+
+The override does not bypass a required ADR, dependency, safety constraint, or
+the zero-cost guardrail. If one prevents immediate execution, report it
+directly, preserve the requested issue at the front of the executable queue,
+and do not substitute unrelated work as though the request were completed.
+
 ## Definition Of Ready
 
 An issue is ready when it has one observable outcome, scope and non-goals,
