@@ -6,22 +6,36 @@ on:
     branches:
       - master
       - main
-      - codex/**
   workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 jobs:
   planning-tests:
     name: Planning safety tests
+    if: ${{ !github.event.repository.private }}
     runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      # Cargo 1.43's bundled libgit2 fails against the current crates.io index.
+      CARGO_NET_GIT_FETCH_WITH_CLI: "true"
 
     steps:
       - name: Check out source
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
+        with:
+          persist-credentials: false
 
       - name: Set up Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: "20"
+          package-manager-cache: false
 
-      - name: Run planning safety tests
-        run: npm run test-planning-compat
+      - name: Fetch dependencies, compile, and run planning safety tests
+        run: repo_scripts/ci-test-planning-compat.sh

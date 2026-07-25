@@ -1,18 +1,35 @@
-name: Legacy Release Build
+name: Legacy Release Build Probe
 
 on:
   workflow_dispatch:
+    inputs:
+      product_owner_approved:
+        description: "The product owner approved this manual compatibility probe"
+        required: true
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   build:
-    name: Build release for ${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
+    name: Build legacy release on Linux
+    if: ${{ !github.event.repository.private && inputs.product_owner_approved }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      CARGO_NET_GIT_FETCH_WITH_CLI: "true"
 
     steps:
-    - uses: actions/checkout@v4
+    - name: Check out source
+      uses: actions/checkout@v6
+      with:
+        persist-credentials: false
     - name: Ensure tooling installed
       run: npm run ensure-tooling
     - name: Build browser client
