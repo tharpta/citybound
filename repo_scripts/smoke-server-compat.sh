@@ -3,11 +3,17 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
-BIND="${CITYBOUND_SMOKE_BIND:-127.0.0.1:43210}"
-BIND_SIM="${CITYBOUND_SMOKE_BIND_SIM:-127.0.0.1:43211}"
+source "$SCRIPT_DIR/runtime-teardown.sh"
+
+BIND="${CITYBOUND_SMOKE_BIND:-127.0.0.1:$(runtime_allocate_loopback_port)}"
+BIND_SIM="${CITYBOUND_SMOKE_BIND_SIM:-127.0.0.1:$(runtime_allocate_loopback_port)}"
+while [[ "$BIND_SIM" == "$BIND" ]]; do
+    BIND_SIM="127.0.0.1:$(runtime_allocate_loopback_port)"
+done
 CITY_DIR="${CITYBOUND_SMOKE_CITY_DIR:-}"
 LOG_FILE="${CITYBOUND_SMOKE_LOG:-${TMPDIR:-/tmp}/citybound-server-smoke.log}"
 REMOVE_CITY_DIR=0
+TEARDOWN_FAILED=0
 
 cd "$REPO_ROOT"
 
@@ -26,14 +32,16 @@ fi
 rm -f "$LOG_FILE"
 
 cleanup() {
-    if [[ -n "${SERVER_PID:-}" ]] && kill -0 "$SERVER_PID" >/dev/null 2>&1; then
-        kill -INT "$SERVER_PID" >/dev/null 2>&1 || true
-        wait "$SERVER_PID" >/dev/null 2>&1 || true
+    if ! runtime_stop_child "server smoke cleanup" "$LOG_FILE.teardown"; then
+        TEARDOWN_FAILED=1
     fi
 
-    if [[ "$REMOVE_CITY_DIR" -eq 1 ]]; then
+    if [[ "$REMOVE_CITY_DIR" -eq 1 && "$TEARDOWN_FAILED" -eq 0 ]]; then
         rm -rf "$CITY_DIR"
+    elif [[ "$REMOVE_CITY_DIR" -eq 1 ]]; then
+        echo "Disposable city preserved at $CITY_DIR because teardown failed." >&2
     fi
+    return "$TEARDOWN_FAILED"
 }
 
 trap cleanup EXIT
@@ -45,6 +53,8 @@ target/debug/citybound \
     "$CITY_DIR" \
     >"$LOG_FILE" 2>&1 &
 SERVER_PID=$!
+SERVER_COMMAND="target/debug/citybound"
+SERVER_PORTS="${BIND##*:} ${BIND_SIM##*:}"
 
 URL="http://$BIND/"
 

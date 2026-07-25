@@ -42,6 +42,30 @@ This verifies the HTTP/server path independently of browser startup. It also
 checks that the served HTML includes the configured simulation port so the
 browser does not silently fall back to `9999`.
 
+All runtime smokes use bounded child teardown. The shell smokes validate the
+exact child command before signalling it, escalate SIGINT to SIGTERM and
+SIGKILL, and never wait without a deadline. A surviving child is a surfaced
+failure: process state, command, cwd/executable, and listening-port diagnostics
+are preserved beside the smoke log, and the disposable city is retained for
+inspection rather than deleted underneath the process.
+
+Run `npm run test-runtime-teardown-compat` for deterministic fake-child coverage
+of signal escalation, timeout/identity reporting, sibling safety, and dynamic
+port reuse. These tests do not launch Citybound.
+
+### Runtime teardown classification
+
+| Factor | Evidence | Classification |
+| --- | --- | --- |
+| Compatibility harness | Source allowed unbounded waits and incomplete escalation; deterministic fake-child tests cover the replacement | Confirmed harness reliability defect; fixed here |
+| Application shutdown | Historical child printed/received prior signal attempts, but no bounded isolated reproduction is safe while it remains present | Unresolved; no root-cause claim |
+| Fixture/mmap/filesystem I/O | Historical child uses a disposable mmap city and is in an uninterruptible state; no kernel wait-channel evidence identifies the blocked operation | Possible factor, not established |
+| macOS/Rosetta state | Historical x86 process remains `UNE` after SIGKILL and retains its port | Confirmed uncontrollable host state; restart recovery required |
+
+The deterministic checks are sufficient to validate controllable harness
+teardown. A trustworthy real-runtime acceptance pass still requires a clean
+host where the historical child and retained port are gone.
+
 ### `npm run smoke-save-reload-compat`
 
 Current status: passes.
@@ -118,6 +142,12 @@ test result: ok. 3 passed; 0 failed
 ```
 
 ## Notes
+
+- A macOS process in uninterruptible state (for example `U`/`UNE`) can remain
+  after SIGKILL because the kernel has not returned from the blocked operation.
+  Do not launch more probes or kill broad process sets. Preserve `ps`/`lsof`
+  evidence, close unrelated work, and restart the host to recover the process
+  and port. The harness cannot safely repair that OS state.
 
 - Root `cargo fmt -- ./cb_planning/src/lib.rs` currently scans broader workspace
   modules and fails on pre-existing long lines in unrelated files. Use targeted
