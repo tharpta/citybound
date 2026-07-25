@@ -18,7 +18,7 @@ impl LogicalTick {
     }
 }
 
-/// Temporary migration component used to verify `Temporal::tick` semantics.
+/// Historical research probe used to compare `Temporal::tick` semantics.
 #[derive(Component, Default, Debug, PartialEq, Eq)]
 pub struct TemporalProbe {
     pub ticks: u64,
@@ -29,14 +29,14 @@ pub struct TemporalProbe {
 #[derive(Component, Clone, Copy, Debug, PartialEq, Eq)]
 pub struct SleepUntil(pub u64);
 
-/// Temporary migration component used to verify `Sleeper::wake` semantics.
+/// Historical research probe used to compare `Sleeper::wake` semantics.
 #[derive(Component, Default, Debug, PartialEq, Eq)]
 pub struct WakeProbe {
     pub wakes: u64,
     pub last_instant: Option<u64>,
 }
 
-/// Standalone Bevy ECS runtime for incrementally replacing Kay.
+/// Standalone historical Bevy ECS probe; not an approved Kay replacement.
 pub struct NextSimulation {
     world: World,
     logical_tick_schedule: Schedule,

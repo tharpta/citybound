@@ -1,20 +1,21 @@
-# Kay Replacement: Parallel Simulation Core
+# Quarantined Bevy ECS Research
 
-`cb_simulation_next` is the executable migration target for replacing Kay with
-standalone Bevy ECS. It deliberately does not participate in the historical
-Citybound Cargo workspace yet.
+`cb_simulation_next` is a historical experiment created before Citybound
+Revival adopted an architecture-decision process. ADR-0001 retains it as
+quarantined research and provenance evidence; it is not an approved migration
+target or Kay replacement.
 
-## Why it is parallel
+It deliberately does not participate in the historical Citybound Cargo
+workspace or production runtime. Do not connect production code to it, migrate
+another subsystem into it, or extend its dependency graph without a new
+accepted ADR.
 
-The running game still relies on Kay for actor dispatch, browser networking,
-and memory-mapped saves. Replacing those responsibilities simultaneously would
-make behavioral regressions and save incompatibility difficult to isolate.
-Instead, each simulation subsystem moves here with tests while the Kay runtime
-remains the reference implementation.
+Decision record:
+[ADR-0001](../docs/adr/0001-retain-quarantined-bevy-experiment.md).
 
-## First migrated behavior: time
+## Historical probe: time
 
-The first slice mirrors `cb_time/src/actors/mod.rs`:
+The experiment mirrors a small part of `cb_time/src/actors/mod.rs`:
 
 | Kay behavior | Bevy ECS replacement |
 | --- | --- |
@@ -26,7 +27,7 @@ The first slice mirrors `cb_time/src/actors/mod.rs`:
 
 The strict Kay wake condition, `deadline < current_instant`, is preserved even
 though `<=` might appear more intuitive. Changing it is a gameplay decision,
-not part of the framework migration.
+not evidence for a framework migration.
 
 ## Run
 
@@ -34,8 +35,9 @@ not part of the framework migration.
 cargo test --manifest-path cb_simulation_next/Cargo.toml
 ```
 
-## Next boundary
+## Quarantine boundary
 
-Replace the temporary probe components with real time messages and migrate one
-small production consumer. Vegetation is the preferred first consumer because
-it is narrower than transport, planning, land use, or the economy.
+There is no approved next subsystem or production consumer. The earlier
+suggestion to migrate vegetation is revoked by ADR-0001. Any future proposal to
+reuse this experiment must begin with a new ADR and compatibility evidence for
+the affected production boundary.
