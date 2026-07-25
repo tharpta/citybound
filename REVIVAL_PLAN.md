@@ -88,6 +88,8 @@ replace only specific pieces after their behavior is documented.
 ## Revival Principles
 
 - Preserve the original simulation model until we understand it well.
+- Treat the original game, prior revival work, and new work as separate
+  provenance layers until each change has been reviewed.
 - Modernize in thin, reversible layers.
 - Keep the original behavior observable before changing it.
 - Prefer documentation, smoke tests, and build reproducibility over new features.
@@ -98,6 +100,81 @@ replace only specific pieces after their behavior is documented.
   engine source.
 - Do not rewrite the game just to escape old tooling. First learn what the old
   tooling is protecting.
+
+## Execution Model
+
+The revival uses milestone-driven work with no more than three active roles:
+
+- An integration lead owns the work queue, reviews completed work, runs the full
+  safety net, and keeps the repository coherent.
+- A platform/reliability agent takes bounded infrastructure assignments such as
+  browser automation, saves, codegen, CI, and dependency modernization.
+- A gameplay-loop agent takes player-visible vertical slices after the relevant
+  baseline is trusted.
+
+Agents should use separate worktrees for concurrent implementation. Each
+assignment must have a bounded scope, explicit non-goals, acceptance criteria,
+and repeatable verification. Completed work is integrated before more work is
+dispatched indefinitely. `docs/WORK_QUEUE.md` is the authoritative live queue.
+
+Milestones end in a clean, tested, manually exercised build:
+
+- M0: Revival audit and provenance baseline
+- M1: Reliable and reproducible baseline
+- M2: First functioning town
+- M3: Understandable town
+- M4: Supported modern development base
+- M5: Consequential town
+- M6: Playable session
+- M7: Presentable release
+
+## M0: Revival Audit And Provenance Baseline
+
+Goal: determine exactly what was inherited, what earlier revival work changed,
+which changes are trustworthy, and which dependencies or workarounds need
+reconsideration before treating the current branch as a baseline.
+
+M0 is an evidence-gathering and classification milestone, not permission for a
+broad cleanup or rewrite.
+
+Required audits:
+
+1. Verify the original Citybound fork point mechanically and review every commit
+   after it.
+2. Classify material revival changes as keep, keep temporarily, revise, revert,
+   investigate, or generated.
+3. Record every compatibility workaround, why it exists, what it mutates, and
+   its exit condition.
+4. Audit direct and important transitive Cargo and npm dependencies for
+   maintenance, licensing, advisories, reproducibility, and modernization
+   disposition.
+5. Audit generated actor glue, actor identity, persistence layouts, and save
+   compatibility assumptions.
+6. Identify external runtime services, remote assets, update checks, analytics,
+   and modding/plugin boundaries.
+7. Exercise the actual game from startup through browser networking, basic
+   planning, construction, simulation response, shutdown, and reload.
+8. Establish the small set of trusted setup, build, test, run, codegen-check,
+   dependency-audit, and save/reload commands.
+
+The accidental `cb_simulation_next` Bevy ECS experiment at commit `2ee0db7` is
+not an approved architecture decision. Preserve it for provenance during M0 and
+classify it through review before deciding whether to retain, relocate, or
+revert it.
+
+M0 exit criteria:
+
+- The fork point is verified.
+- Every post-fork commit and current working-tree change is attributed and
+  classified.
+- Compatibility hacks have documented assumptions and exit conditions.
+- Critical Cargo, npm, engine, external-service, and plugin/modding dependencies
+  have a recorded modernization disposition.
+- Generated-code and save compatibility risks are documented with evidence.
+- A factual runtime baseline and manual playtest record exist.
+- Trusted commands are documented, including whether they mutate the checkout
+  or access the network.
+- No unexplained change is part of the integration baseline.
 
 ## Phase 0: Establish A Baseline
 
