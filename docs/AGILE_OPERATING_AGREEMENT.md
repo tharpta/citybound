@@ -1,9 +1,10 @@
 # Citybound Revival Agile Operating Agreement
 
 GitHub Issues are the source of truth for scope, acceptance, discussion,
-evidence, and closure. The Citybound Revival GitHub Project is the sole live
-source for flow status and priority. Use continuous-flow Kanban during M0, then
-one-week playable iterations from M1 onward.
+evidence, and closure. The
+[Citybound Revival GitHub Project](https://github.com/users/tharpta/projects/1)
+is the sole live source for flow status and priority. Use continuous-flow
+Kanban during M0, then one-week playable iterations from M1 onward.
 
 ## Roles
 

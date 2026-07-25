@@ -9,8 +9,10 @@ keeps a lightweight milestone index for local/offline use. The Citybound Revival
 GitHub Project is the sole live source for Status and Priority; neither field nor
 current ownership is duplicated here.
 
-Project setup and its eventual URL are tracked by
-[issue #12](https://github.com/tharpta/citybound/issues/12).
+Use the
+[Citybound Revival Project](https://github.com/users/tharpta/projects/1)
+for live triage, priority, iteration, and workflow status. Its setup is tracked
+by [issue #12](https://github.com/tharpta/citybound/issues/12).
 
 ## M0 GitHub Issues
 
