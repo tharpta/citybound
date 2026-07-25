@@ -27,7 +27,7 @@ Each task must include:
 ### M0-01: Establish provenance and classify revival commits
 
 - Owner: integration lead
-- Status: ACTIVE
+- Status: REVIEW
 - Dependencies: none
 - Goal: identify the verified fork point and classify every post-fork commit.
 - Scope: Git history and `docs/audit/`.
@@ -42,8 +42,8 @@ Each task must include:
 
 ### M0-02: Audit compatibility workarounds
 
-- Owner: unassigned
-- Status: READY
+- Owner: integration lead
+- Status: ACTIVE
 - Dependencies: M0-01
 - Goal: explain each revival build workaround and define its exit condition.
 - Scope: `repo_scripts/`, toolchain configuration, and relevant documentation.
