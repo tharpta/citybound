@@ -6,7 +6,47 @@ REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 ONLINE="${CITYBOUND_AUDIT_ONLINE:-0}"
 
 cd "$REPO_ROOT"
-before_status="$(git status --porcelain=v1 --untracked-files=all)"
+
+workspace_fingerprint() {
+    git ls-files --cached --others --exclude-standard -z \
+        | LC_ALL=C sort -z \
+        | while IFS= read -r -d '' path; do
+            if [[ -f "$path" ]]; then
+                file_hash="$(shasum -a 256 "$path" | awk '{print $1}')"
+                printf '%s\0%s\0' "$path" "$file_hash"
+            fi
+        done \
+        | shasum -a 256 \
+        | awk '{print $1}'
+}
+
+summarize_cargo_metadata() {
+    local label="$1"
+    shift
+    echo "$label"
+    "$@" | node -e '
+let input = "";
+process.stdin.on("data", chunk => input += chunk);
+process.stdin.on("end", () => {
+    const metadata = JSON.parse(input);
+    const packages = metadata.packages.map(pkg => ({
+        name: pkg.name,
+        version: pkg.version,
+        manifestPath: pkg.manifest_path,
+        dependencies: pkg.dependencies.map(dependency => ({
+            name: dependency.name,
+            requirement: dependency.req,
+            source: dependency.source,
+            kind: dependency.kind,
+            target: dependency.target,
+            optional: dependency.optional,
+        })),
+    }));
+    console.log(JSON.stringify(packages, null, 2));
+});'
+}
+
+before_fingerprint="$(workspace_fingerprint)"
 
 echo "Citybound dependency inventory (read-only)"
 echo "Lockfile fingerprints:"
@@ -58,12 +98,18 @@ console.log(JSON.stringify({
 }, null, 2));
 NODE
 
-echo "Cargo registry and git dependency declarations:"
-rg -n '^[A-Za-z0-9_-]+[[:space:]]*=.*(git[[:space:]]*=|version[[:space:]]*=)' \
-    --glob 'Cargo.toml' \
-    --glob '!target/**' \
-    --glob '!cb_simulation_next/target/**' \
-    . || true
+echo "Complete direct Cargo dependency declarations:"
+summarize_cargo_metadata \
+    "Native server workspace:" \
+    cargo metadata --offline --locked --no-deps --format-version 1
+summarize_cargo_metadata \
+    "Browser workspace:" \
+    cargo metadata --offline --locked --no-deps --format-version 1 \
+        --manifest-path cb_browser_ui/Cargo.toml
+summarize_cargo_metadata \
+    "Quarantined simulation-next workspace:" \
+    cargo +stable metadata --offline --locked --no-deps --format-version 1 \
+        --manifest-path cb_simulation_next/Cargo.toml
 
 case "$ONLINE" in
     0)
@@ -72,18 +118,37 @@ case "$ONLINE" in
         ;;
     1)
         echo "Querying npm advisories for the historical browser lockfile..."
+        audit_output="$(mktemp "${TMPDIR:-/tmp}/citybound-npm-audit.XXXXXX")"
+        trap 'rm -f "$audit_output"' EXIT
         set +e
         (
             cd cb_browser_ui
             npm audit --package-lock-only --ignore-scripts --json
-        )
+        ) >"$audit_output"
         audit_status=$?
         set -e
         if [[ "$audit_status" -ne 0 && "$audit_status" -ne 1 ]]; then
+            cat "$audit_output" >&2
             echo "npm audit failed unexpectedly with status $audit_status." >&2
             exit "$audit_status"
         fi
-        echo "npm audit status: $audit_status (1 means advisories were found)."
+        if ! node - "$audit_output" <<'NODE'
+const fs = require("fs");
+const report = JSON.parse(fs.readFileSync(process.argv[2], "utf8"));
+if (
+    typeof report.auditReportVersion !== "number"
+    || typeof report.metadata?.vulnerabilities?.total !== "number"
+) {
+    throw new Error("Response is not a complete npm audit report.");
+}
+NODE
+        then
+            cat "$audit_output" >&2
+            echo "npm audit did not return a valid advisory report." >&2
+            exit 1
+        fi
+        cat "$audit_output"
+        echo "npm audit returned a valid report with process status $audit_status."
         ;;
     *)
         echo "CITYBOUND_AUDIT_ONLINE must be 0 or 1." >&2
@@ -91,11 +156,10 @@ case "$ONLINE" in
         ;;
 esac
 
-after_status="$(git status --porcelain=v1 --untracked-files=all)"
-if [[ "$after_status" != "$before_status" ]]; then
-    echo "Dependency audit mutated the working tree." >&2
-    diff -u <(printf '%s\n' "$before_status") <(printf '%s\n' "$after_status") >&2 || true
+after_fingerprint="$(workspace_fingerprint)"
+if [[ "$after_fingerprint" != "$before_fingerprint" ]]; then
+    echo "Dependency audit changed tracked or nonignored untracked repository content." >&2
     exit 1
 fi
 
-echo "Dependency audit left the working tree unchanged."
+echo "Dependency audit left tracked and nonignored untracked content unchanged."
