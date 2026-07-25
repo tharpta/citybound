@@ -13,7 +13,7 @@ Create an ADR before implementation changes any of these boundaries:
 - persisted layout, save versioning, save migration, or recovery guarantees
 - network protocol, serialization, or browser/server compatibility
 - simulation framework or engine ownership
-- browser Rust/WASM integration or renderer contract
+- browser Rust/WASM integration, bundler replacement, or renderer contract
 - workspace-wide dependency or toolchain policy
 - public extension, plugin, or external-service architecture
 - security, licensing, or recurring monetary-cost posture

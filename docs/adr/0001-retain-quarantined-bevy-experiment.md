@@ -7,7 +7,8 @@
 - Decision issue: [#7](https://github.com/tharpta/citybound/issues/7)
 - Implementation: experiment commit
   [`2ee0db7`](https://github.com/tharpta/citybound/commit/2ee0db7);
-  ADR workflow [#16](https://github.com/tharpta/citybound/issues/16)
+  ADR workflow [#16](https://github.com/tharpta/citybound/issues/16);
+  implementation [PR #24](https://github.com/tharpta/citybound/pull/24)
 - Supersedes: None
 - Superseded by: None
 
@@ -129,4 +130,5 @@ to the experiment.
   audited before it influences the game architecture.
 - Technical review: M0 evidence does not support Bevy adoption.
 - Independent verification: required on the issue #16 pull request.
-- Accepted implementation commit: documentation commit for issue #16.
+- Accepted integration commit: Pending merge of
+  [PR #24](https://github.com/tharpta/citybound/pull/24).

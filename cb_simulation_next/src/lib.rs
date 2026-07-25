@@ -1,8 +1,8 @@
-//! Modern simulation core developed alongside the Kay runtime.
+//! Historical Bevy ECS experiment retained as quarantined research.
 //!
-//! This crate is intentionally standalone while Citybound still depends on its
-//! historical Rust toolchain. Subsystems move here behind behavioral tests
-//! before the server or browser is switched away from Kay.
+//! This crate is intentionally standalone and is not an approved migration
+//! target or Kay replacement. Do not connect production code or migrate another
+//! subsystem here without a new accepted ADR.
 
 mod time;
 
