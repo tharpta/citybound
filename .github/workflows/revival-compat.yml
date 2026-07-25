@@ -27,14 +27,15 @@ jobs:
 
     steps:
       - name: Check out source
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           persist-credentials: false
 
       - name: Set up Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: "20"
+          package-manager-cache: false
 
-      - name: Run planning safety tests
-        run: npm run test-planning-compat
+      - name: Fetch dependencies, compile, and run planning safety tests
+        run: repo_scripts/ci-test-planning-compat.sh

@@ -64,6 +64,18 @@ Cargo 1.43's bundled libgit2 repeatedly produced zlib/index read failures on
 current runners; using system Git avoids repeated failed jobs without adding a
 cache, service, runner, or cost.
 
+The planning workflow separates locked dependency retrieval from compilation
+and tests. Dependency fetch receives at most three attempts; after a failed
+attempt, CI removes only the ephemeral runner's crates.io registry index before
+retrying. Once retrieval succeeds, planning tests run with `--locked --offline`.
+Compilation and tests are never retried or hidden, and GitHub annotations state
+which phase failed.
+
+GitHub-maintained JavaScript actions use their Node 24 releases:
+`actions/checkout@v6` and `actions/setup-node@v6`. The project test environment
+remains Node 20 for compatibility, and setup-node package-manager caching is
+explicitly disabled so this workflow does not create cache storage.
+
 ## Matrix Decision
 
 The legacy workflow previously launched Linux, Windows, and macOS jobs for each
