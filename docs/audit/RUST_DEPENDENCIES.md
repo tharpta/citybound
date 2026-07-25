@@ -2,7 +2,8 @@
 
 GitHub issue: <https://github.com/tharpta/citybound/issues/2>
 
-Status: evidence collected; requires independent verification.
+Status: independently verified against the locked manifests and cached package
+metadata on 2026-07-24. Issue #2 closure records the review verdict.
 
 Registry packages are locked by crates.io version and package checksum. Short
 upstream commit mappings from prior revival research are not Cargo lock
