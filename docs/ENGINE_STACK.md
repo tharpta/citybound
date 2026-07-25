@@ -27,24 +27,24 @@ map, not as a modernization decision.
 | `WebFlood` | `https://github.com/aeplay/WebFlood` | Earlier WebGL/GPGPU shallow-water city simulation. | Inspiration only unless a concrete reusable asset or algorithm is found. |
 | `parcel-plugin-cargo-web` | `https://github.com/aeplay/parcel-plugin-cargo-web` | Archived fork related to the old browser Rust toolchain. | Useful for understanding the historical build path, not a long-term dependency. |
 
-## Initial Ownership Strategy
+## Ownership Strategy
 
-1. Keep the lockfiles unchanged until the historical build path is attempted.
-2. Mirror or fork `kay`, `kay_codegen`, `chunky`, `compact`, `compact_macros`,
-   `descartes`, `michelangelo`, `rust-embed`, and `monet` before inviting
-   broader contributor work.
-3. Prefer small compatibility patches over replacement until smoke tests cover:
-   actor message dispatch, codegen output, geometry diffing, persistence startup,
-   and browser rendering.
-4. Only vendor a component into this repo if cross-repo coordination slows down
-   the revival or if the component effectively becomes Citybound-specific.
+The ownership decision, exact source baselines, and modernization order now live
+in `docs/ENGINE_OWNERSHIP.md`.
 
-## Open Checks
+The short version:
 
-- Compare each locked crate version against the current aeplay repository state.
-- Confirm whether crates.io releases exactly match the public GitHub tags.
-- Record last source commit dates from Git, not only GitHub "updated" dates.
-- Identify whether any downstream forks already fixed modern Rust or WASM
-  compatibility.
-- Decide whether revival-owned forks should preserve original crate names or use
-  patch dependencies during modernization.
+1. Use same-name revival forks and preserve upstream Git history.
+2. Keep package names and pin Citybound to immutable fork commits.
+3. Import crates.io source when the locked release is not recoverable from public
+   Git history. This is required for `compact 0.2.16`.
+4. Modernize storage first, then actor runtime/codegen, then geometry/rendering.
+5. Only vendor a component into Citybound if it becomes application-specific or
+   cross-repository coordination becomes a demonstrated problem.
+
+## Remaining Checks
+
+- Create the revival-owned forks and push their recovered baseline branches.
+- Identify whether downstream forks already contain relevant modern Rust or WASM
+  work.
+- Add behavior and persistence fixtures before changing package APIs or layout.

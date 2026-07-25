@@ -20,6 +20,7 @@ Start with:
 - [Revival plan](REVIVAL_PLAN.md)
 - [Local development notes](docs/LOCAL_DEVELOPMENT.md)
 - [Architecture map](docs/ARCHITECTURE_MAP.md)
+- [Engine ownership and modernization order](docs/ENGINE_OWNERSHIP.md)
 - [Safety net](docs/SAFETY_NET.md)
 - [Toolchain strategy](docs/TOOLCHAIN_STRATEGY.md)
 

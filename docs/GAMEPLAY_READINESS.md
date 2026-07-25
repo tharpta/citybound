@@ -18,9 +18,13 @@ Ready:
   networking turns.
 - Initial architecture, safety-net, observability, and toolchain strategy docs
   exist.
+- Engine ownership tiers, exact locked source baselines, and modernization order
+  are documented.
 - Browser simulation port is now templated from `--bind-sim` into served HTML.
 - Retired live-build, patron, and milestone service calls no longer run during
   local startup.
+- The first storage spike proves `chunky` can compile on stable Rust and scopes
+  the remaining `compact` specialization work.
 
 Not ready:
 
