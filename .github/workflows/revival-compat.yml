@@ -6,17 +6,27 @@ on:
     branches:
       - master
       - main
-      - codex/**
   workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 jobs:
   planning-tests:
     name: Planning safety tests
+    if: ${{ !github.event.repository.private }}
     runs-on: ubuntu-latest
+    timeout-minutes: 15
 
     steps:
       - name: Check out source
         uses: actions/checkout@v4
+        with:
+          persist-credentials: false
 
       - name: Set up Node
         uses: actions/setup-node@v4
