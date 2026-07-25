@@ -115,7 +115,8 @@ The revival uses milestone-driven work with no more than three active roles:
 Agents should use separate worktrees for concurrent implementation. Each
 assignment must have a bounded scope, explicit non-goals, acceptance criteria,
 and repeatable verification. Completed work is integrated before more work is
-dispatched indefinitely. `docs/WORK_QUEUE.md` is the authoritative live queue.
+dispatched indefinitely. GitHub Issues are the authoritative live queue;
+`docs/WORK_QUEUE.md` contains the local workflow and issue index.
 
 Milestones end in a clean, tested, manually exercised build:
 
