@@ -44,6 +44,7 @@ fi
 echo "Building browser assets from no-spaces copy: $BUILD_ROOT"
 rm -rf "$BUILD_ROOT"
 mkdir -p "$BUILD_ROOT"
+BUILD_ROOT="$(cd "$BUILD_ROOT" && pwd)"
 
 rsync -a \
     --exclude '.git' \
@@ -54,12 +55,15 @@ rsync -a \
     "$REPO_ROOT/" \
     "$BUILD_ROOT/"
 
+printf 'citybound-legacy-build-root-v1\n%s\n' "$BUILD_ROOT" \
+    >"$BUILD_ROOT/.citybound-legacy-build-root"
+chmod 600 "$BUILD_ROOT/.citybound-legacy-build-root"
+
 (
     cd "$BUILD_ROOT"
     export PYTHON="$PYTHON_BIN"
     export RUSTUP_TOOLCHAIN="${CITYBOUND_RUST_NIGHTLY:-nightly-2020-03-10}-x86_64-apple-darwin"
     export CARGO_TARGET_X86_64_APPLE_DARWIN_LINKER="$BUILD_ROOT/repo_scripts/cc-strip-rmeta.sh"
-    export CITYBOUND_LEGACY_INSTALL_CONTAINED=1
     npm run build-browser
 )
 

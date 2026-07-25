@@ -3,6 +3,7 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+BOUNDARY_FILE="$REPO_ROOT/.citybound-legacy-build-root"
 
 if [[ "${CITYBOUND_ALLOW_LEGACY_LIFECYCLE:-0}" != "1" ]]; then
     cat >&2 <<'EOF'
@@ -20,8 +21,20 @@ EOF
     exit 1
 fi
 
-if [[ "${CITYBOUND_LEGACY_INSTALL_CONTAINED:-0}" != "1" ]]; then
-    echo "Legacy lifecycle authorization was provided outside the compatibility wrapper; refusing." >&2
+if [[ -e "$REPO_ROOT/.git" ]]; then
+    echo "Legacy lifecycle execution is forbidden in a Git checkout/worktree." >&2
+    exit 1
+fi
+
+if [[ ! -f "$BOUNDARY_FILE" ]]; then
+    echo "Missing compatibility build-root boundary; refusing legacy lifecycle execution." >&2
+    exit 1
+fi
+
+boundary_magic="$(sed -n '1p' "$BOUNDARY_FILE")"
+boundary_root="$(sed -n '2p' "$BOUNDARY_FILE")"
+if [[ "$boundary_magic" != "citybound-legacy-build-root-v1" || "$boundary_root" != "$REPO_ROOT" ]]; then
+    echo "Invalid compatibility build-root boundary; refusing legacy lifecycle execution." >&2
     exit 1
 fi
 

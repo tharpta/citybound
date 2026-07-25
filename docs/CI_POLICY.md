@@ -78,6 +78,12 @@ standard hosted runner is ephemeral and may need the repository-pinned
 default, and the workflow does not authorize npm lifecycle scripts or the
 disabled cargo-web binary bootstrap.
 
+The legacy AppVeyor configuration is explicitly inert. Its former Windows
+build directly executed historical npm lifecycle scripts, downloaded host
+tooling, and deployed to an external S3 bucket. Those paths are not part of the
+zero-cost revival gate and must not be re-enabled without separate product-owner
+authorization, safe-install containment, and current cost/provenance evidence.
+
 GitHub-maintained JavaScript actions use their Node 24 releases:
 `actions/checkout@v6` and `actions/setup-node@v6`. The project test environment
 remains Node 20 for compatibility, and setup-node package-manager caching is

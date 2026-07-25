@@ -33,10 +33,17 @@ case "${1:-}" in
             [[ -f "$CITYBOUND_TEST_STATE" ]] && echo "$CITYBOUND_TEST_TOOLCHAIN"
             exit 0
         elif [[ "${2:-}" == "install" ]]; then
+            if [[ "${CITYBOUND_TEST_RUSTUP_FAIL:-}" == "toolchain-install" ]]; then
+                exit 42
+            fi
             : >"$CITYBOUND_TEST_STATE"
         fi
         ;;
-    component) ;;
+    component)
+        if [[ "${CITYBOUND_TEST_RUSTUP_FAIL:-}" == "component-${3:-}" ]]; then
+            exit 43
+        fi
+        ;;
     *) exit 2 ;;
 esac
 EOF
@@ -86,6 +93,38 @@ if grep -Eq 'override|curl|wget|mv .*cargo' "$LOG"; then
     exit 1
 fi
 
+# Explicit toolchain install failures propagate and do not continue setup.
+rm -f "$STATE"
+: >"$LOG"
+if run_tooling env \
+    CITYBOUND_ALLOW_TOOLCHAIN_MUTATION=1 \
+    CITYBOUND_TEST_RUSTUP_FAIL=toolchain-install \
+    "$NODE_BIN" "$REPO_ROOT/repo_scripts/tooling.js" \
+    >"$TEST_ROOT/toolchain-install-failure.out" 2>&1; then
+    echo "Expected a Rust toolchain install failure to propagate." >&2
+    exit 1
+fi
+grep -q "toolchain install $TOOLCHAIN" "$LOG"
+if grep -Eq '^rustup component|^cargo-web ' "$LOG"; then
+    echo "Toolchain install failure continued into later setup." >&2
+    exit 1
+fi
+
+# Explicit component failures propagate after the pinned toolchain is present.
+: >"$STATE"
+: >"$LOG"
+if run_tooling env \
+    CITYBOUND_ALLOW_TOOLCHAIN_MUTATION=1 \
+    CITYBOUND_TEST_RUSTUP_FAIL=component-clippy-preview \
+    "$NODE_BIN" "$REPO_ROOT/repo_scripts/tooling.js" \
+    >"$TEST_ROOT/component-install-failure.out" 2>&1; then
+    echo "Expected a Rust component install failure to propagate." >&2
+    exit 1
+fi
+grep -q "component add rustfmt-preview --toolchain $TOOLCHAIN" "$LOG"
+grep -q "component add clippy-preview --toolchain $TOOLCHAIN" "$LOG"
+grep -q 'Failed to install clippy-preview' "$TEST_ROOT/component-install-failure.out"
+
 # Provenance failure: wrong cargo-web is rejected without attempting replacement.
 : >"$LOG"
 if run_tooling env CITYBOUND_TEST_CARGO_WEB_VERSION='cargo-web 0.6.23' \
@@ -128,11 +167,32 @@ if grep -q '^npm ' "$LOG"; then
     exit 1
 fi
 
-# Fully explicit contained opt-in reaches only the fake npm.
+# A public env marker cannot bypass the real checkout boundary.
 run_tooling env \
     CITYBOUND_ALLOW_LEGACY_LIFECYCLE=1 \
     CITYBOUND_LEGACY_INSTALL_CONTAINED=1 \
     "$REPO_ROOT/repo_scripts/install-browser-dependencies-compat.sh" \
+    >"$TEST_ROOT/lifecycle-forged-marker.out" 2>&1 && {
+        echo "A forged public marker bypassed real-checkout containment." >&2
+        exit 1
+    }
+grep -q 'forbidden in a Git checkout/worktree' "$TEST_ROOT/lifecycle-forged-marker.out"
+if grep -q '^npm ' "$LOG"; then
+    echo "Real-checkout lifecycle bypass invoked npm." >&2
+    exit 1
+fi
+
+# A wrapper-created structural boundary in a non-Git copy reaches fake npm.
+CONTAINED_ROOT="$TEST_ROOT/contained-root"
+mkdir -p "$CONTAINED_ROOT/repo_scripts" "$CONTAINED_ROOT/cb_browser_ui"
+CONTAINED_ROOT="$(cd "$CONTAINED_ROOT" && pwd)"
+cp "$REPO_ROOT/repo_scripts/install-browser-dependencies-compat.sh" \
+    "$CONTAINED_ROOT/repo_scripts/"
+printf 'citybound-legacy-build-root-v1\n%s\n' "$CONTAINED_ROOT" \
+    >"$CONTAINED_ROOT/.citybound-legacy-build-root"
+run_tooling env \
+    CITYBOUND_ALLOW_LEGACY_LIFECYCLE=1 \
+    "$CONTAINED_ROOT/repo_scripts/install-browser-dependencies-compat.sh" \
     >"$TEST_ROOT/lifecycle-opt-in.out"
 grep -qx 'npm install' "$LOG"
 [[ -z "$(find "$FAKE_HOME" -mindepth 1 -print -quit)" ]]

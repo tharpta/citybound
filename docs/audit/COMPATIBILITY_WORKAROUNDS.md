@@ -75,6 +75,10 @@ Contained behavior:
 Classification: historical `HOST MUTATION`, now fail-closed; modernization
 priority `HIGH`.
 
+The historical AppVeyor path is also inert: it no longer runs its direct
+`npm install --no-save`, downloads toolchains, pushes artifacts, or deploys to
+S3. Revival automation is limited to the zero-cost GitHub Actions policy.
+
 Risks:
 
 - Network download is executed as development tooling without integrity
