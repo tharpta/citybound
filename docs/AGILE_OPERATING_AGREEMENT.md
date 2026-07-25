@@ -89,6 +89,9 @@ Audit issues may complete with evidence and decisions rather than code.
 
 ## Branch And Pull Request Traceability
 
+The permanent branch, merge, release, hotfix, and migration rules are defined
+in [the branch and release policy](BRANCH_AND_RELEASE_POLICY.md).
+
 Every nontrivial change starts from a GitHub issue and uses:
 
 ```text
@@ -100,9 +103,10 @@ links to the branch and pull request; the pull request links back to the issue.
 Another role records verification before merge. The issue closes only after the
 accepted commit is present on the integration branch.
 
-`codex/revival-bootstrap` is the M0 integration branch until the revival adopts
-a release/default-branch policy. Agents do not commit unrelated issue work
-directly to it.
+`main` is the permanent default and integration branch. During M0,
+`codex/revival-bootstrap` remains the temporary integration target until the
+verified migration in the branch policy is complete. Agents do not commit
+unrelated issue work directly to either integration target.
 
 ## Cadence
 
