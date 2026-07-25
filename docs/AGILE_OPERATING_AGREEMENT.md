@@ -18,6 +18,24 @@ then one-week playable iterations from M1 onward.
 An agent may fill more than one role, but an implementer does not independently
 verify its own work.
 
+## Zero-Cost Guardrail
+
+Revival work must not create new monetary cost without the product owner's
+explicit approval immediately before the billable action.
+
+- Prefer local execution, existing hardware, open-source tooling, and free
+  GitHub features.
+- Do not provision any paid or billable runners, hosted environments, storage,
+  databases, domains, APIs, models, marketplace products, or SaaS plans.
+- A free-tier service is allowed only when it requires no payment method, cannot
+  automatically convert to billing, and stays within documented free quotas.
+  Otherwise, stop for approval.
+- Do not enable billable GitHub features or purchase licenses.
+- Agent parallelism must be purposeful because session or agent metering may not
+  be visible from the repository.
+- If pricing, quota, trial conversion, or billing impact is uncertain, treat the
+  action as paid and stop for approval.
+
 ## Flow And WIP
 
 - Maximum two active implementation/audit issues.
@@ -45,6 +63,23 @@ documentation is current, follow-ups have separate issues, and the accepted
 commit is on the integration branch without unrelated changes.
 
 Audit issues may complete with evidence and decisions rather than code.
+
+## Branch And Pull Request Traceability
+
+Every nontrivial change starts from a GitHub issue and uses:
+
+```text
+codex/issue-<number>-<short-name>
+```
+
+The branch is pushed at creation or at its first coherent checkpoint. The issue
+links to the branch and pull request; the pull request links back to the issue.
+Another role records verification before merge. The issue closes only after the
+accepted commit is present on the integration branch.
+
+`codex/revival-bootstrap` is the M0 integration branch until the revival adopts
+a release/default-branch policy. Agents do not commit unrelated issue work
+directly to it.
 
 ## Cadence
 
