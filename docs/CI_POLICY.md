@@ -58,6 +58,12 @@ Concurrency groups include the workflow name so unrelated workflows cannot
 cancel each other. A newer run for the same pull request or ref cancels the
 older in-progress run.
 
+The historical Cargo client uses the runner's maintained Git executable for
+registry and git dependency fetches (`CARGO_NET_GIT_FETCH_WITH_CLI=true`).
+Cargo 1.43's bundled libgit2 repeatedly produced zlib/index read failures on
+current runners; using system Git avoids repeated failed jobs without adding a
+cache, service, runner, or cost.
+
 ## Matrix Decision
 
 The legacy workflow previously launched Linux, Windows, and macOS jobs for each

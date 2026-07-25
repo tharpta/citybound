@@ -22,6 +22,8 @@ jobs:
     if: ${{ !github.event.repository.private && inputs.product_owner_approved }}
     runs-on: ubuntu-latest
     timeout-minutes: 45
+    env:
+      CARGO_NET_GIT_FETCH_WITH_CLI: "true"
 
     steps:
     - name: Check out source
