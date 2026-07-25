@@ -1,7 +1,10 @@
 # Citybound Revival Agile Operating Agreement
 
-GitHub Issues are the source of truth. Use continuous-flow Kanban during M0,
-then one-week playable iterations from M1 onward.
+GitHub Issues are the source of truth for scope, acceptance, discussion,
+evidence, and closure. The
+[Citybound Revival GitHub Project](https://github.com/users/tharpta/projects/1)
+is the sole live source for flow status and priority. Use continuous-flow
+Kanban during M0, then one-week playable iterations from M1 onward.
 
 ## Roles
 
@@ -48,6 +51,26 @@ explicit approval immediately before the billable action.
 `Never stop` means pull the next highest-priority ready issue when capacity
 opens. It does not mean coding through an unresolved architecture or safety
 gate.
+
+## Priority And Pull Order
+
+Project priority is assigned from current evidence and is not duplicated in
+labels or local documents:
+
+- `P0`: immediate existential blocker—data loss/corruption, security or
+  monetary exposure, broken integration, or inability to start the playable
+  build. P0 interrupts lower-priority work.
+- `P1`: current-milestone blocker or high player impact.
+- `P2`: important improvement that does not block the current milestone or
+  playable loop.
+- `P3`: optional research, polish, cleanup, or deferred opportunity.
+
+The integration/technical lead assigns and revises priority using dependencies,
+player impact, save/architecture risk, and cost risk. The product owner may
+override any priority. Pull the highest-priority `Ready` issue first. Within one
+priority, prefer the issue that unblocks the most other work, then the oldest
+ready issue. A blocked issue does not consume an implementation slot; record the
+blocker and pull the next highest-priority ready item.
 
 ## Definition Of Ready
 
