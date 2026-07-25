@@ -109,7 +109,10 @@ directly to it.
 During M0, continuously pull from ready, review integration state daily, provide
 a weekly user-facing audit/demo summary, and hold an exit review before risky
 modernization. From M1, use one-week iterations ending in a playable demo,
-verification, and retrospective.
+verification, and retrospective. Follow the
+[M1+ Weekly Iteration Playbook](ITERATION_PLAYBOOK.md) for goal selection, WIP,
+the midpoint integration checkpoint, clean close checks, carryover, and the
+user-facing build summary.
 
 ## M0 Order
 
