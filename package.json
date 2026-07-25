@@ -10,6 +10,7 @@
         "build-server-debug-compat": "repo_scripts/build-server-debug-compat.sh",
         "build-compat": "repo_scripts/build-compat.sh",
         "test-planning-compat": "repo_scripts/test-planning-compat.sh",
+        "test-linker-wrapper-compat": "repo_scripts/test-cc-strip-rmeta.sh",
         "check-codegen-compat": "repo_scripts/check-codegen-compat.sh",
         "check-browser-dist-compat": "repo_scripts/check-browser-dist-compat.sh",
         "smoke-server-compat": "repo_scripts/smoke-server-compat.sh",

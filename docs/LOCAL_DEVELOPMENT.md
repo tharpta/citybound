@@ -102,8 +102,10 @@ CITYBOUND_AUDIT_ONLINE=1 npm run audit-dependencies-readonly
 ## Continuous Integration
 
 Repository automation follows the [zero-cost CI policy](CI_POLICY.md). Pull
-requests run one focused Linux planning check; redundant branch-push runs and
-the historical three-platform release matrix are intentionally disabled.
+requests run two focused Linux checks: a linker-wrapper cleanup regression
+capped at 5 minutes and a planning safety suite capped at 15 minutes. Redundant
+branch-push runs and the historical three-platform release matrix are
+intentionally disabled.
 
 ## Known Local Traps
 

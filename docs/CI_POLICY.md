@@ -46,7 +46,7 @@ documentation before expanding CI or if repository visibility changes.
 
 | Workflow | Trigger | Runner/jobs per event | Expected use | Cost control |
 | --- | --- | --- | --- | --- |
-| `Revival Compatibility` | Pull request; push to `main` or `master`; manual dispatch | One standard `ubuntu-latest` job | One focused planning-test job per event, capped at 15 minutes | Public-only guard, least-privilege token, per-PR/ref cancellation |
+| `Revival Compatibility` | Pull request; push to `main` or `master`; manual dispatch | Two standard `ubuntu-latest` jobs | One linker-wrapper cleanup job capped at 5 minutes and one planning-test job capped at 15 minutes per event | Public-only guards, least-privilege token, per-PR/ref cancellation |
 | `Legacy Release Build Probe` | Manual dispatch only, with explicit product-owner approval acknowledgment | One standard `ubuntu-latest` job | At most one legacy compatibility probe per deliberate dispatch, capped at 45 minutes | Public-only guard, manual approval, cancellation, no matrix |
 
 The compatibility workflow no longer runs on every `codex/**` push. A branch
@@ -64,12 +64,13 @@ Cargo 1.43's bundled libgit2 repeatedly produced zlib/index read failures on
 current runners; using system Git avoids repeated failed jobs without adding a
 cache, service, runner, or cost.
 
-The planning workflow separates locked dependency retrieval from compilation
-and tests. Dependency fetch receives at most three attempts; after a failed
-attempt, CI removes only the ephemeral runner's crates.io registry index before
-retrying. Once retrieval succeeds, planning tests run with `--locked --offline`.
+The planning job separates locked dependency retrieval from compilation and
+tests. Dependency fetch receives at most three attempts; after a failed attempt,
+CI removes only the ephemeral runner's crates.io registry index before retrying.
+Once retrieval succeeds, planning tests run with `--locked --offline`.
 Compilation and tests are never retried or hidden, and GitHub annotations state
-which phase failed.
+which phase failed. The separate linker-wrapper job runs only the bounded,
+offline scratch-cleanup regression and has a 5-minute timeout.
 
 GitHub-maintained JavaScript actions use their Node 24 releases:
 `actions/checkout@v6` and `actions/setup-node@v6`. The project test environment
@@ -109,7 +110,8 @@ The workflow therefore:
 - persists no checkout credentials;
 - references no repository or environment secrets;
 - uploads no artifacts or caches; and
-- performs only the focused planning compatibility test.
+- performs only two focused checks: the linker-wrapper cleanup regression and
+  the planning compatibility test.
 
 GitHub may hold public-fork workflows for maintainer approval. Configure
 **Settings → Actions → General → Approval for running fork pull request
