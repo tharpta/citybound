@@ -87,6 +87,11 @@ commit is on the integration branch without unrelated changes.
 
 Audit issues may complete with evidence and decisions rather than code.
 
+Architecture changes at shared or hard-to-reverse boundaries require an
+accepted [Architecture Decision Record](adr/README.md) before implementation.
+The ADR preserves the decision and tradeoffs; its GitHub issue remains the
+source of truth for delivery and verification.
+
 ## Branch And Pull Request Traceability
 
 The permanent branch, merge, release, hotfix, and migration rules are defined

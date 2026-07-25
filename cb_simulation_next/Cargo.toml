@@ -4,8 +4,8 @@ version = "0.1.0"
 edition = "2024"
 publish = false
 
-# Keep the modern migration core independent from Citybound's historical
-# nightly workspace until it can replace the legacy runtime.
+# Quarantined historical research. Keep independent from Citybound's production
+# workspace and runtime unless a new accepted ADR authorizes reuse.
 [workspace]
 
 [dependencies]
