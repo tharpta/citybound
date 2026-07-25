@@ -57,10 +57,13 @@ impl<C: Config> ConfigManager<C> {
     }
 }
 
+#[cfg(feature = "server")]
 use std::{
+    cell::RefCell,
     collections::HashMap,
     fs::File,
     io::BufReader,
+    mem::ManuallyDrop,
     sync::mpsc::{Receiver, channel},
 };
 use cb_time::actors::{Temporal, TemporalID};
@@ -71,7 +74,14 @@ use notify::Watcher;
 #[cfg(feature = "server")]
 struct ConfigFileWatcherState {
     receiver: Receiver<notify::DebouncedEvent>,
-    watcher: notify::FsEventWatcher,
+    _watcher: notify::FsEventWatcher,
+}
+
+#[cfg(feature = "server")]
+thread_local! {
+    static CONFIG_FILE_WATCHER_STATES:
+        RefCell<ManuallyDrop<HashMap<String, ConfigFileWatcherState>>> =
+        RefCell::new(ManuallyDrop::new(HashMap::new()));
 }
 
 #[derive(Compact, Clone)]
@@ -80,7 +90,8 @@ pub struct ConfigFileWatcher<CD: Config + DeserializeOwned> {
     target: ConfigManagerID<CD>,
     file: CString,
     #[cfg(feature = "server")]
-    state: kay::External<Option<ConfigFileWatcherState>>,
+    // Keep the persisted actor layout stable, but never persist process-local watcher handles.
+    _runtime_state_reserved: usize,
 }
 
 impl<CD: Config + DeserializeOwned> ConfigFileWatcher<CD> {
@@ -95,7 +106,7 @@ impl<CD: Config + DeserializeOwned> ConfigFileWatcher<CD> {
             target,
             file: file.clone(),
             #[cfg(feature = "server")]
-            state: kay::External::new(None),
+            _runtime_state_reserved: 0,
         }
     }
 
@@ -118,29 +129,38 @@ impl<CD: Config + DeserializeOwned> Temporal for ConfigFileWatcher<CD> {
         #[cfg(feature = "server")]
         {
             let file_path = (*self.file).to_owned();
-            if self.state.is_none() {
-                self.reload(world);
-            };
-            let state = self.state.get_or_insert_with(|| {
-                let (tx, rx) = channel();
-                let mut watcher = notify::watcher(tx, std::time::Duration::from_secs(1)).unwrap();
-                watcher
-                    .watch(&file_path, notify::RecursiveMode::Recursive)
-                    .unwrap();
-                println!("Started watching config file . {:?}", &file_path);
+            let should_reload = CONFIG_FILE_WATCHER_STATES.with(|states| {
+                let mut states = states.borrow_mut();
+                let mut should_reload = false;
+                let state = states.entry(file_path.clone()).or_insert_with(|| {
+                    should_reload = true;
+                    let (tx, rx) = channel();
+                    let mut watcher =
+                        notify::watcher(tx, std::time::Duration::from_secs(1)).unwrap();
+                    watcher
+                        .watch(&file_path, notify::RecursiveMode::Recursive)
+                        .unwrap();
+                    println!("Started watching config file . {:?}", &file_path);
 
-                ConfigFileWatcherState {
-                    receiver: rx,
-                    watcher,
+                    ConfigFileWatcherState {
+                        receiver: rx,
+                        _watcher: watcher,
+                    }
+                });
+
+                match state.receiver.try_recv() {
+                    Ok(event) => {
+                        println!("Config file updated. {:?} {:?}", &file_path, event);
+                        should_reload = true;
+                    }
+                    Err(_e) => {}
                 }
+
+                should_reload
             });
 
-            match state.receiver.try_recv() {
-                Ok(event) => {
-                    println!("Config file updated. {:?} {:?}", &file_path, event);
-                    self.reload(world);
-                }
-                Err(_e) => {}
+            if should_reload {
+                self.reload(world);
             }
         }
     }

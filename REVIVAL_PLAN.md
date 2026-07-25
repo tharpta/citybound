@@ -81,6 +81,9 @@ replace only specific pieces after their behavior is documented.
 - Browser npm tooling is sensitive to host path and Python version. The current
   successful browser build uses Python 3.11 and a temporary no-spaces checkout
   copy because old `node-gyp`/Make breaks on `Citybound Revival`.
+- The mmap save path now has a two-boot smoke. It exposed and fixed persisted
+  process-local file-watcher state while preserving the actor's historical
+  on-disk layout.
 
 ## Revival Principles
 

@@ -15,6 +15,7 @@ This is the umbrella local safety command. It currently runs:
 - `npm run check-codegen-compat`
 - `npm run check-browser-dist-compat`
 - `npm run smoke-server-compat`
+- `npm run smoke-save-reload-compat`
 - `npm run smoke-browser-compat`
 
 ### `npm run check-browser-dist-compat`
@@ -40,6 +41,24 @@ Ctrl-C/SIGINT path.
 This verifies the HTTP/server path independently of browser startup. It also
 checks that the served HTML includes the configured simulation port so the
 browser does not silently fall back to `9999`.
+
+### `npm run smoke-save-reload-compat`
+
+Current status: passes.
+
+This starts the same temporary city twice and verifies:
+
+- the initial boot creates the mmap save directory and core actor files
+- both boots reach a running simulation and use the safe SIGINT shutdown path
+- the second boot loads instead of recreating the city
+- every file from the initial actor-state inventory survives reload
+- startup, shutdown, or persistence regressions fail within a bounded timeout
+
+The first run exposed a real reload crash. `ConfigFileWatcher` persisted a
+process-local `notify` watcher pointer through `kay::External`; the next process
+dereferenced the stale address on its first temporal tick. Its runtime handle now
+lives in non-persisted thread-local state while the actor retains its historical
+96-byte mmap layout.
 
 ### `npm run smoke-browser-compat`
 
@@ -106,6 +125,8 @@ test result: ok. 3 passed; 0 failed
 - These tests intentionally use a tiny test-only `PrototypeKind` instead of
   Citybound road/zone types. That keeps the first safety net focused on generic
   planning behavior.
-- The next check should cover save startup and reload.
+- Save smoke coverage is same-build reload coverage. We still need committed
+  historical fixtures and an explicit migration policy before actor layouts can
+  change.
 - `.github/workflows/revival-compat.yml` runs the planning safety tests on
   pull requests, pushes to revival branches, and manual dispatch.

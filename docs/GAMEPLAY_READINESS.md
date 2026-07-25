@@ -27,13 +27,18 @@ Ready:
   the remaining `compact` specialization work.
 - Locked `kay_codegen 0.3.10` regenerates all 44 committed actor-glue files
   byte-for-byte in an isolated checkout.
+- A two-boot save smoke verifies mmap actor-file creation, safe shutdown, reload,
+  and file-inventory preservation.
+- Process-local architecture file-watcher state is rebuilt after reload instead
+  of leaving a stale heap pointer in persisted actor state.
 
 Not ready:
 
 - Engine crates are not forked/mirrored under revival control.
 - Modern Rust fails in `compact` and then `chunky`.
-- Save compatibility risks are not tested.
-- Browser `stdweb`/JS boundary is not covered by tests.
+- Cross-version save fixtures and actor-layout migration are not covered.
+- The browser `stdweb`/JS boundary has end-to-end smoke coverage but no focused
+  contract tests.
 
 ## Gate Checklist
 
@@ -47,7 +52,7 @@ Before gameplay feature work:
    `compact`, `chunky`, `descartes`, `michelangelo`, and `monet`.
 5. `npm run check-codegen-compat` verifies `kay_auto.rs` generation without
    source churn.
-6. Save startup and reload are covered by a repeatable fixture or smoke.
+6. `npm run smoke-save-reload-compat` covers save startup and reload.
 7. Modernization target for Rust storage crates is chosen.
 8. Dead external service calls do not run during local startup.
 
