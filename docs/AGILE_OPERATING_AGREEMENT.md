@@ -18,6 +18,21 @@ then one-week playable iterations from M1 onward.
 An agent may fill more than one role, but an implementer does not independently
 verify its own work.
 
+## Zero-Cost Guardrail
+
+Revival work must not create new monetary cost without the product owner's
+explicit approval immediately before the billable action.
+
+- Prefer local execution, existing hardware, open-source tooling, and free
+  GitHub features.
+- Do not provision paid runners, hosted environments, storage, databases,
+  domains, APIs, models, marketplaces, or SaaS plans.
+- Do not enable billable GitHub features or purchase licenses.
+- Agent parallelism must be purposeful because session or agent metering may not
+  be visible from the repository.
+- If pricing, quota, trial conversion, or billing impact is uncertain, treat the
+  action as paid and stop for approval.
+
 ## Flow And WIP
 
 - Maximum two active implementation/audit issues.
