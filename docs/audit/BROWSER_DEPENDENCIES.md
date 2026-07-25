@@ -34,6 +34,26 @@ Status: evidence collected; requires independent verification.
 - `tooling.js` downloads `cargo-web` without integrity verification and installs
   it globally.
 
+## Disposition Matrix
+
+| Package or integration | Role and risk | Disposition |
+| --- | --- | --- |
+| `gl-matrix` | Camera and renderer geometry math; behavior-sensitive but not a build blocker | KEEP PINNED for compatibility; REVIEW/UPGRADE with renderer fixtures |
+| `immutability-helper` | React state updates; replaceable after UI behavior is covered | KEEP PINNED; REVIEW/REPLACE during frontend migration |
+| `mousetrap` | Keyboard input bindings; user-facing interaction contract | KEEP PINNED; REVIEW/UPGRADE with input tests |
+| `react-container-dimensions` | Layout measurement around the React UI | KEEP PINNED; REVIEW/REPLACE during React modernization |
+| `stacktrace-js` | Error presentation and diagnostics | KEEP PINNED; REVIEW/UPGRADE with error-path coverage |
+| `react-addons-update`, `msgpack-lite` | No authored-source use found; removal still needs a clean build/runtime proof | INVESTIGATE, then REMOVE if the proof passes |
+| `deasync` 0.1.19 | Parcel-era transitive native lifecycle code executed by historical `npm install` | CONTAIN now; REMOVE with Parcel replacement |
+| optional `fsevents` 1.2.12 / `node-pre-gyp` chain | Historical platform-native install path; optional on non-macOS hosts but still part of the lock graph | CONTAIN now; REMOVE with Parcel replacement |
+| Patreon links in `src/menu.tsx` | User-initiated navigation only; not a startup or runtime service dependency | REVIEW/RETARGET for revival identity |
+| original-upstream bug-report link in `index.html` | User-initiated navigation only; currently sends revival reports to the old project | REVIEW/RETARGET before public release |
+
+Because the browser build invokes `npm install`, historical native lifecycle
+scripts can run even when Citybound's authored code does not call those
+packages directly. Compatibility work must therefore keep installs contained;
+it must not treat the old lockfile as passive data.
+
 ## Provisional Sequence
 
 1. Contain the historical build and record a Node/npm matrix.
