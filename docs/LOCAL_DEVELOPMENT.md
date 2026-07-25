@@ -80,6 +80,7 @@ Playwright browser channel.
 ## Useful Individual Commands
 
 ```sh
+npm run audit-dependencies-readonly
 npm run build-browser-compat
 npm run build-server-debug-compat
 npm run test-planning-compat
@@ -88,6 +89,14 @@ npm run check-browser-dist-compat
 npm run smoke-server-compat
 npm run smoke-save-reload-compat
 npm run smoke-browser-compat
+```
+
+The dependency inventory is offline and read-only by default. To add a
+time-dependent npm advisory lookup without installing packages, running
+lifecycle scripts, or applying fixes:
+
+```sh
+CITYBOUND_AUDIT_ONLINE=1 npm run audit-dependencies-readonly
 ```
 
 ## Known Local Traps
