@@ -43,15 +43,26 @@ checks that the served HTML includes the configured simulation port so the
 browser does not silently fall back to `9999`.
 
 All runtime smokes use bounded child teardown. The shell smokes validate the
-exact child command before signalling it, escalate SIGINT to SIGTERM and
-SIGKILL, and never wait without a deadline. A surviving child is a surfaced
+direct parent PID, process start token, canonical executable identity
+(path plus inode/device evidence), and exact argv
+before every signal; they fail closed when the host cannot prove all four.
+Darwin uses `ps` plus `lsof`; Linux uses `/proc/PID/stat`,
+`/proc/PID/exe`, and `ps`. Other
+platforms are intentionally unsupported rather than falling back to a command
+substring. POSIX has no portable pidfd-equivalent, so validation occurs
+immediately before each exact-PID signal. The smokes then escalate SIGINT to
+SIGTERM and SIGKILL and never wait without a deadline. A surviving child is a surfaced
 failure: process state, command, cwd/executable, and listening-port diagnostics
 are preserved beside the smoke log, and the disposable city is retained for
 inspection rather than deleted underneath the process.
 
 Run `npm run test-runtime-teardown-compat` for deterministic fake-child coverage
 of signal escalation, timeout/identity reporting, sibling safety, and dynamic
-port reuse. These tests do not launch Citybound.
+port reuse. It also covers a deliberately surviving fake child, end-to-end
+server-smoke failure propagation with diagnostics/fixture preservation, and
+the shared browser SIGINT/SIGTERM cleanup coordinator through an actual
+SIGTERM integration path. These tests do not launch
+Citybound or Chrome.
 
 ### Runtime teardown classification
 

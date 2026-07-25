@@ -53,15 +53,19 @@ run_server_once() {
     local log_file="$2"
     local url="http://$BIND/"
 
-    target/debug/citybound \
-        --mode local \
-        --bind "$BIND" \
-        --bind-sim "$BIND_SIM" \
-        "$CITY_DIR" \
-        >"$log_file" 2>&1 &
+    local -a server_args=(
+        --mode local
+        --bind "$BIND"
+        --bind-sim "$BIND_SIM"
+        "$CITY_DIR"
+    )
+    target/debug/citybound "${server_args[@]}" >"$log_file" 2>&1 &
     SERVER_PID=$!
-    SERVER_COMMAND="target/debug/citybound"
     SERVER_PORTS="${BIND##*:} ${BIND_SIM##*:}"
+    if ! runtime_register_child "target/debug/citybound" "target/debug/citybound ${server_args[*]}"; then
+        echo "Could not prove exact identity for spawned server PID $SERVER_PID." >&2
+        exit 1
+    fi
 
     for _ in {1..80}; do
         if ! kill -0 "$SERVER_PID" >/dev/null 2>&1; then

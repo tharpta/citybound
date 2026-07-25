@@ -9,6 +9,7 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { chromium } from "playwright-core";
+import { installSignalCleanup } from "./signal-cleanup.mjs";
 
 const scriptDir = dirname(fileURLToPath(import.meta.url));
 const repoRoot = resolve(scriptDir, "..");
@@ -42,6 +43,7 @@ let browser;
 let server;
 let temporaryCityDir;
 let serverLog = "";
+let cleanupPromise;
 
 function rememberServerOutput(chunk) {
     serverLog = `${serverLog}${chunk}`;
@@ -96,7 +98,8 @@ async function launchBrowser() {
 }
 
 async function stopServer() {
-    if (!server || server.exitCode !== null) {
+    const exited = () => server.exitCode !== null || server.signalCode !== null;
+    if (!server || exited()) {
         return true;
     }
 
@@ -106,21 +109,21 @@ async function stopServer() {
         new Promise(resolveDelay => setTimeout(resolveDelay, 5_000)),
     ]);
 
-    if (server.exitCode === null) {
+    if (!exited()) {
         server.kill("SIGTERM");
         await Promise.race([
             once(server, "exit"),
             new Promise(resolveDelay => setTimeout(resolveDelay, 2_000)),
         ]);
     }
-    if (server.exitCode === null) {
+    if (!exited()) {
         server.kill("SIGKILL");
         await Promise.race([
             once(server, "exit"),
             new Promise(resolveDelay => setTimeout(resolveDelay, 2_000)),
         ]);
     }
-    if (server.exitCode === null) {
+    if (!exited()) {
         console.error(
             `Citybound PID ${server.pid} remains after bounded SIGINT/SIGTERM/SIGKILL teardown.`,
         );
@@ -130,7 +133,7 @@ async function stopServer() {
     return true;
 }
 
-async function cleanup() {
+async function cleanupOnce() {
     await browser?.close();
     const stopped = await stopServer();
 
@@ -140,7 +143,15 @@ async function cleanup() {
         console.error(`Disposable city preserved at ${temporaryCityDir}.`);
         process.exitCode = 1;
     }
+    return stopped;
 }
+
+function cleanup() {
+    cleanupPromise ??= cleanupOnce();
+    return cleanupPromise;
+}
+
+const removeSignalCleanup = installSignalCleanup(cleanup);
 
 try {
     await access(serverPath);
@@ -263,4 +274,5 @@ try {
     process.exitCode = 1;
 } finally {
     await cleanup();
+    removeSignalCleanup();
 }
