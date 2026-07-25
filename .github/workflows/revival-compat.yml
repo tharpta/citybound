@@ -39,6 +39,9 @@ jobs:
     env:
       # Cargo 1.43's bundled libgit2 fails against the current crates.io index.
       CARGO_NET_GIT_FETCH_WITH_CLI: "true"
+      # This standard runner is ephemeral; explicitly authorize installation
+      # of the repository-pinned historical Rust toolchain when absent.
+      CITYBOUND_ALLOW_TOOLCHAIN_MUTATION: "1"
 
     steps:
       - name: Check out source

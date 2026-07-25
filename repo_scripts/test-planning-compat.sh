@@ -8,5 +8,6 @@ cd "$REPO_ROOT"
 
 export CARGO_TARGET_X86_64_APPLE_DARWIN_LINKER="$REPO_ROOT/repo_scripts/cc-strip-rmeta.sh"
 
-export RUSTUP_TOOLCHAIN="$("$SCRIPT_DIR/ensure-rust-toolchain-compat.sh")"
+RUSTUP_TOOLCHAIN="$("$SCRIPT_DIR/ensure-rust-toolchain-compat.sh")"
+export RUSTUP_TOOLCHAIN
 cargo test -p cb_planning "$@"

@@ -8,7 +8,8 @@ cd "$REPO_ROOT"
 
 export CARGO_NET_GIT_FETCH_WITH_CLI=true
 
-export RUSTUP_TOOLCHAIN="$("$SCRIPT_DIR/ensure-rust-toolchain-compat.sh")"
+RUSTUP_TOOLCHAIN="$("$SCRIPT_DIR/ensure-rust-toolchain-compat.sh")"
+export RUSTUP_TOOLCHAIN
 
 max_fetch_attempts=3
 fetch_attempt=1

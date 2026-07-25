@@ -72,6 +72,12 @@ Compilation and tests are never retried or hidden, and GitHub annotations state
 which phase failed. The separate linker-wrapper job runs only the bounded,
 offline scratch-cleanup regression and has a 5-minute timeout.
 
+The planning job visibly sets `CITYBOUND_ALLOW_TOOLCHAIN_MUTATION=1` because a
+standard hosted runner is ephemeral and may need the repository-pinned
+`nightly-2020-03-10` toolchain. Local trusted commands remain non-mutating by
+default, and the workflow does not authorize npm lifecycle scripts or the
+disabled cargo-web binary bootstrap.
+
 GitHub-maintained JavaScript actions use their Node 24 releases:
 `actions/checkout@v6` and `actions/setup-node@v6`. The project test environment
 remains Node 20 for compatibility, and setup-node package-manager caching is
