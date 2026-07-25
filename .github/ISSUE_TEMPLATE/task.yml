@@ -1,0 +1,74 @@
+name: Bounded implementation or audit
+description: Propose a scoped, verifiable unit of revival work.
+title: "[TASK] "
+body:
+  - type: textarea
+    id: goal
+    attributes:
+      label: Observable goal
+      description: State the outcome, not merely the activity.
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidence and background
+      description: Link authoritative context and describe the current state.
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: Scope and non-goals
+      description: Define the files, systems, and behavior in scope and explicitly excluded.
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      value: |
+        - [ ]
+    validations:
+      required: true
+  - type: textarea
+    id: verification
+    attributes:
+      label: Verification
+      description: List exact automated checks and visible/manual evidence.
+    validations:
+      required: true
+  - type: dropdown
+    id: role
+    attributes:
+      label: Owning role
+      description: Select the role accountable when this issue becomes Ready.
+      options:
+        - Integration / technical lead
+        - Platform engineer
+        - Simulation / gameplay engineer
+        - QA / reliability
+        - Producer / Scrum master
+    validations:
+      required: true
+  - type: textarea
+    id: dependencies
+    attributes:
+      label: Dependencies and links
+      description: Link prerequisite issues and the issue branch/PR when created. Write "None" where applicable.
+    validations:
+      required: true
+  - type: textarea
+    id: risk
+    attributes:
+      label: Risk, save, and architecture impact
+      description: Cover persistence, compatibility, security, shared boundaries, and rollback. Write "None known" when applicable.
+    validations:
+      required: true
+  - type: textarea
+    id: cost
+    attributes:
+      label: Cost impact
+      description: Identify possible monetary, CI, hosted-service, or license impact. Write "None" when applicable.
+    validations:
+      required: true
