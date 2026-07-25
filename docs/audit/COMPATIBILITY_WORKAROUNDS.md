@@ -122,14 +122,20 @@ Current behavior:
 - Copies affected `.rlib` files to a unique temporary directory.
 - Deletes `lib.rmeta` and `*.bc.z` members from the copies.
 - Passes rewritten arguments to `/usr/bin/cc` or `REAL_CC`.
-- Deletes temporary copies on exit.
+- Invokes the real linker without replacing the wrapper process, records its
+  exact exit status, and then exits through a cleanup trap.
+- The trap removes only the captured scratch path after validating its canonical
+  parent and `citybound-rmeta-linker.??????` basename shape.
 
 Classification: `CONTAINED`, but `INVESTIGATE`.
 
 Positive controls:
 
 - Does not rewrite Cargo's original libraries.
-- Uses a unique temporary directory and an exit trap.
+- Uses a unique temporary directory per invocation.
+- Bounded regression coverage proves cleanup after successful and failed linker
+  calls, exact failure-status propagation, and isolation across four overlapping
+  invocations.
 
 Risks:
 
@@ -137,6 +143,9 @@ Risks:
 - The wrapper assumes removed members are never required for the final link.
 - It is an Apple-specific compatibility technique without a behavioral
   equivalence test beyond successful build/startup.
+- Abrupt termination that prevents shell traps from running can still leave a
+  scratch directory; the cleanup guarantee applies when the linker returns and
+  the wrapper can execute its `EXIT` trap.
 
 Exit condition:
 
@@ -263,6 +272,7 @@ their current behavior so M1 can separate bootstrap, build, and verification.
 | `npm run build-server-debug-compat` | Historical Rust and Apple linker workaround | Rewrites `.version`, Cargo target, tool configuration | Potentially | Debug server; assumes browser dist |
 | `npm run build-compat` | All browser/server assumptions | Combined mutations above | Yes/potentially | Full compatibility artifact set |
 | `npm run test-planning-compat` | Historical Rust and Apple linker | May mutate toolchain override/components and target | Potentially | Focused tests only; not full simulation |
+| `npm run test-linker-wrapper-compat` | Bash, `ar`, and ordinary temporary storage | Unique test/scratch directories removed on exit | No | Deterministic fake-linker coverage for success, failure, exit propagation, and four concurrent invocations |
 | `npm run check-browser-dist-compat` | Existing browser dist | Read-only | No | Artifact existence/content, not execution |
 | `npm run smoke-server-compat` | Existing debug server and dist, curl | Temporary city by default; explicit log path is deleted/replaced; explicit city is preserved | Loopback only | HTTP/startup assertion |
 | `npm run smoke-browser-compat` | Existing server/dist and Chrome | Temporary city removed; explicit city preserved | Loopback only | Headless startup/network assertion |
