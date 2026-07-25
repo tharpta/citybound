@@ -122,6 +122,12 @@ and repeatable verification. Completed work is integrated before more work is
 dispatched indefinitely. GitHub Issues are the authoritative live queue;
 `docs/WORK_QUEUE.md` contains the local workflow and issue index.
 
+The revival is independently released from `tharpta/citybound`. Its permanent
+default and integration branch is `main`; `master` preserves the original
+`817de55` baseline. The staged M0 migration, PR, tag, and hotfix conventions are
+defined in `docs/BRANCH_AND_RELEASE_POLICY.md`. Development and releases have no
+synchronization dependency on the original Citybound repository.
+
 Milestones end in a clean, tested, manually exercised build:
 
 - M0: Revival audit and provenance baseline

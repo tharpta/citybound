@@ -18,6 +18,7 @@ npm run test-compat
 Start with:
 
 - [Revival plan](REVIVAL_PLAN.md)
+- [Branch and release policy](docs/BRANCH_AND_RELEASE_POLICY.md)
 - [Local development notes](docs/LOCAL_DEVELOPMENT.md)
 - [Architecture map](docs/ARCHITECTURE_MAP.md)
 - [Engine ownership and modernization order](docs/ENGINE_OWNERSHIP.md)
