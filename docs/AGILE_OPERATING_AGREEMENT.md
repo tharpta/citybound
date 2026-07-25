@@ -106,11 +106,14 @@ blocker and pull the next highest-priority ready item.
 ## Product Idea Intake And “Do It Next”
 
 Every feature, mechanic, UX idea, modernization proposal, or other substantial
-change suggested by the product owner becomes a GitHub issue before
-implementation. When an idea arrives conversationally, the integration lead
-creates and links the issue; the product owner does not need to rewrite it in a
-template. A clarification that remains inside an active issue's existing scope
-updates that issue instead of creating a duplicate.
+change suggested by the product owner is captured in a GitHub issue before
+implementation. The integration lead first searches open and closed issues,
+then updates, reopens, or links an existing match; create a new issue only when
+the proposed change is distinct. When an idea arrives conversationally, the
+integration lead performs that search and links the resulting issue; the
+product owner does not need to rewrite it in a template. A clarification that
+remains inside an active issue's existing scope updates that issue instead of
+creating a duplicate.
 
 New ideas start in `Backlog`. The integration lead assigns Project Priority
 from player impact, milestone value, dependencies, save/architecture/security
@@ -122,9 +125,12 @@ override:
 
 1. record the override on the requested issue;
 2. safely checkpoint and push active work without misrepresenting it as done;
-3. move the requested issue to `Ready`, or to `Blocked` with the exact blocker
+3. move displaced work to `Backlog` with its checkpoint and remaining
+   acceptance evidence, unless it genuinely continues within the WIP limit;
+   never mark it `Blocked` without an actual blocker;
+4. move the requested issue to `Ready`, or to `Blocked` with the exact blocker
    and unblock condition;
-4. start it next when executable, ahead of the normal pull order.
+5. start it next when executable, ahead of the normal pull order.
 
 The override does not bypass a required ADR, dependency, safety constraint, or
 the zero-cost guardrail. If one prevents immediate execution, report it

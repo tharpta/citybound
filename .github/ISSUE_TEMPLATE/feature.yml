@@ -5,7 +5,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        A suggestion becomes a Backlog issue, not an automatic commitment. The integration lead assigns Project Priority from player impact, dependencies, risk, and cost. The product owner may explicitly say “do it next” to override sequencing.
+        A suggestion is captured in a Backlog issue, not treated as an automatic commitment. Search open and closed issues first; update, reopen, or link an existing match, and create a new issue only when the idea is distinct. The integration lead assigns Project Priority from player impact, dependencies, risk, and cost. The product owner may explicitly say “do it next” to override sequencing.
   - type: textarea
     id: outcome
     attributes:
