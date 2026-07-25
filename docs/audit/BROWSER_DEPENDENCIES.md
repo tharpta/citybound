@@ -2,7 +2,8 @@
 
 GitHub issue: <https://github.com/tharpta/citybound/issues/4>
 
-Status: evidence collected; requires independent verification.
+Status: independently verified against the manifests, lockfiles, authored
+browser sources, and read-only audit output on 2026-07-24.
 
 ## Findings
 
