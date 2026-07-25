@@ -25,6 +25,14 @@ esac
 TOOLCHAIN="$NIGHTLY-$TRIPLE"
 
 if ! rustup toolchain list | awk '{print $1}' | grep -qx "$TOOLCHAIN"; then
-    rustup toolchain install "$TOOLCHAIN" "${INSTALL_ARGS[@]}"
+    if [[ "${CITYBOUND_ALLOW_TOOLCHAIN_MUTATION:-0}" != "1" ]]; then
+        echo "Required compatibility toolchain is not installed: $TOOLCHAIN" >&2
+        echo "Inspection did not mutate rustup. Rerun with CITYBOUND_ALLOW_TOOLCHAIN_MUTATION=1 after review." >&2
+        exit 1
+    fi
+    rustup toolchain install "$TOOLCHAIN" "${INSTALL_ARGS[@]}" >&2
 fi
-rustup override set "$TOOLCHAIN"
+
+# Callers use RUSTUP_TOOLCHAIN for the child process. Do not persist a
+# directory override in the user's rustup configuration.
+printf '%s\n' "$TOOLCHAIN"

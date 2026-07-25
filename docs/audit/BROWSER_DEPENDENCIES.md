@@ -13,7 +13,10 @@ browser sources, and read-only audit output on 2026-07-24.
 - `cb_browser_ui` is a separate historical dependency world with a v1 lockfile
   containing 956 dependency entries/occurrences reported by its lockfile audit;
   they are not currently installed in this checkout.
-- Browser builds use `npm install`, not a frozen install path.
+- Browser builds retain the historical `npm install` compatibility path, but
+  it is now blocked unless the caller explicitly sets
+  `CITYBOUND_ALLOW_LEGACY_LIFECYCLE=1` and enters through the temporary-copy
+  compatibility wrapper.
 - Inference from the build scripts: Parcel 1.12.4, TypeScript 3.8.3, Less 3.8.1,
   `cargo-web`, and `stdweb` form one coupled boundary. The npm build runs
   cargo-web before Parcel consumes HTML/TS/Less and the stdweb WASM output, so
@@ -32,8 +35,10 @@ browser sources, and read-only audit output on 2026-07-24.
   vendor it before major browser changes.
 - Authored browser source currently contains no automatic fetch/XHR/analytics
   calls. Remaining outbound links should be reviewed for revival identity.
-- `tooling.js` downloads `cargo-web` without integrity verification and installs
-  it globally.
+- The former `tooling.js` cargo-web release-binary download had no published
+  checksum in repository evidence and installed globally. That bootstrap path
+  is now disabled. Tooling inspection requires exact `cargo-web 0.6.24`; the
+  documented opt-in uses Cargo's checksummed source registry and locked graph.
 
 ## Disposition Matrix
 
@@ -52,8 +57,11 @@ browser sources, and read-only audit output on 2026-07-24.
 
 Because the browser build invokes `npm install`, historical native lifecycle
 scripts can run even when Citybound's authored code does not call those
-packages directly. Compatibility work must therefore keep installs contained;
-it must not treat the old lockfile as passive data.
+packages directly. Compatibility work therefore keeps the install in a
+temporary copy and requires visible authorization. This contains repository
+mutation but does not sandbox the lifecycle processes from the network or host;
+use an isolated development host for stronger containment. The 117 advisory
+entries (12 critical, 46 high, 55 moderate, 4 low) remain unresolved.
 
 ## Provisional Sequence
 

@@ -6,6 +6,12 @@ REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 BUILD_ROOT="${CITYBOUND_COMPAT_BUILD_ROOT:-${TMPDIR:-/tmp}/citybound-revival-nospace}"
 PYTHON_BIN="${PYTHON:-}"
 
+if [[ "${CITYBOUND_ALLOW_LEGACY_LIFECYCLE:-0}" != "1" ]]; then
+    echo "Browser compatibility build requires explicit lifecycle authorization." >&2
+    echo "Rerun with CITYBOUND_ALLOW_LEGACY_LIFECYCLE=1 after reviewing docs/LOCAL_DEVELOPMENT.md." >&2
+    exit 1
+fi
+
 if [[ -z "$BUILD_ROOT" || "$BUILD_ROOT" == "/" || "$BUILD_ROOT" == "$REPO_ROOT" ]]; then
     echo "Refusing unsafe CITYBOUND_COMPAT_BUILD_ROOT: $BUILD_ROOT" >&2
     exit 1
@@ -50,9 +56,10 @@ rsync -a \
 
 (
     cd "$BUILD_ROOT"
-    rustup override set nightly-2020-03-10-x86_64-apple-darwin
     export PYTHON="$PYTHON_BIN"
+    export RUSTUP_TOOLCHAIN="${CITYBOUND_RUST_NIGHTLY:-nightly-2020-03-10}-x86_64-apple-darwin"
     export CARGO_TARGET_X86_64_APPLE_DARWIN_LINKER="$BUILD_ROOT/repo_scripts/cc-strip-rmeta.sh"
+    export CITYBOUND_LEGACY_INSTALL_CONTAINED=1
     npm run build-browser
 )
 

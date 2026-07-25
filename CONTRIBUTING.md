@@ -37,12 +37,18 @@ Recommended setup:
 * `git clone https://github.com/citybound/citybound.git`
 * `cd citybound`
 * `npm run ensure-tooling`
+  * This is a non-mutating inspection by default. Follow
+    `docs/LOCAL_DEVELOPMENT.md` for explicit pinned toolchain setup; the old
+    unauthenticated cargo-web binary download is disabled.
   * Follow instructions
   * install rustup if asked to
     * (Mac/Ubuntu: run `source $HOME/.cargo/env` like it suggests)
     * then rerun `npm run ensure-tooling`
 * Run the following two commands in parallel in two separate terminals (in the citybound directory)
-   * `npm run watch-browser` to continuously build the browser UI 
+   * The historical `npm run watch-browser` dependency lifecycle is blocked by
+     default. Use the explicitly authorized contained build documented in
+     `docs/LOCAL_DEVELOPMENT.md`; a contained watch workflow is not currently
+     provided.
      * Might take long the first time - installs and compile dependencies
      * Recompiles automatically after changes, just reload browser to get them
    * `npm start` to build and then run the server

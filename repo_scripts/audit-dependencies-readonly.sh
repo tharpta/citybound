@@ -49,6 +49,8 @@ process.stdin.on("end", () => {
 before_fingerprint="$(workspace_fingerprint)"
 
 echo "Citybound dependency inventory (read-only)"
+echo "Recorded 2026-07-24 browser advisory evidence: 117 total (12 critical, 46 high, 55 moderate, 4 low)."
+echo "Containment does not fix or reduce these time-dependent advisory counts."
 echo "Lockfile fingerprints:"
 shasum -a 256 Cargo.lock cb_browser_ui/Cargo.lock package-lock.json \
     cb_browser_ui/package-lock.json
