@@ -4,31 +4,57 @@ These are the currently verified revival commands for this fork.
 
 ## First-Time Setup
 
-1. Install Node.js 20 or newer and run `npm install` at the repository root.
+1. Install Node.js 20 or newer and run `npm ci --ignore-scripts` at the
+   repository root. This installs only the modern root smoke tooling without
+   permitting dependency lifecycle scripts.
 2. Install `rustup`.
 3. Make sure `~/.cargo/bin` comes before Homebrew Rust in your shell path.
 4. Accept the Xcode license on macOS.
 5. Use Python 3.11 for old `node-gyp` when building browser assets.
 
-The compatibility scripts install or select the historical Rust toolchain:
+Routine tooling inspection is non-mutating:
 
 ```sh
 repo_scripts/ensure-rust-toolchain-compat.sh
 npm run ensure-tooling -- -q
 ```
 
-## Build
+`ensure-tooling` verifies the pinned `nightly-2020-03-10` toolchain and exact
+`cargo-web 0.6.24`. It does not change rustup overrides or download/install
+`cargo-web`. The former unauthenticated prebuilt-binary bootstrap is disabled.
 
-Run the full local compatibility build:
+If the Rust toolchain is absent, review the pinned version and explicitly allow
+rustup mutation:
 
 ```sh
-npm run build-compat
+CITYBOUND_ALLOW_TOOLCHAIN_MUTATION=1 repo_scripts/ensure-rust-toolchain-compat.sh
+CITYBOUND_ALLOW_TOOLCHAIN_MUTATION=1 npm run ensure-tooling
+```
+
+For cargo-web, use Cargo's source package and locked dependency graph instead
+of the unverifiable historical release binary, then rerun inspection:
+
+```sh
+cargo install --locked --version 0.6.24 cargo-web
+```
+
+This is an explicit global host mutation. Cargo registry checksums authenticate
+downloaded crate contents, but the obsolete source and dependencies remain a
+compatibility risk; use an isolated development host when possible.
+
+## Build
+
+Run the full local compatibility build only after reviewing and explicitly
+authorizing the historical browser lifecycle scripts:
+
+```sh
+CITYBOUND_ALLOW_LEGACY_LIFECYCLE=1 npm run build-compat
 ```
 
 This does two things:
 
 1. Builds browser Rust/WASM and Parcel assets from a temporary no-spaces checkout
-   copy.
+   copy. The authorization is rejected outside this containment wrapper.
 2. Builds the native debug server with the macOS `.rlib` linker wrapper.
 
 Generated browser assets live in `cb_browser_ui/dist/` and are ignored by git.
@@ -81,6 +107,7 @@ Playwright browser channel.
 
 ```sh
 npm run audit-dependencies-readonly
+npm run test-legacy-install-containment
 npm run build-browser-compat
 npm run build-server-debug-compat
 npm run test-planning-compat
@@ -98,6 +125,10 @@ lifecycle scripts, or applying fixes:
 ```sh
 CITYBOUND_AUDIT_ONLINE=1 npm run audit-dependencies-readonly
 ```
+
+The online result is time-dependent. The 2026-07-24 evidence remains 117
+vulnerable entries (12 critical, 46 high, 55 moderate, 4 low); containment does
+not fix or reduce those advisories.
 
 ## Continuous Integration
 
