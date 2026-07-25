@@ -1,7 +1,22 @@
 # Citybound Revival Work Queue
 
-This is the authoritative execution queue. `REVIVAL_PLAN.md` defines direction;
-this file defines the bounded work currently ready for an agent.
+GitHub Issues are the authoritative execution queue:
+
+<https://github.com/tharpta/citybound/issues>
+
+`REVIVAL_PLAN.md` defines direction. This file defines the assignment format and
+keeps a lightweight milestone index for local/offline use; issue status must not
+be duplicated here.
+
+## M0 GitHub Issues
+
+- [M0-01: Establish provenance and classify revival commits](https://github.com/tharpta/citybound/issues/1)
+- [M0-02: Audit compatibility workarounds and trusted commands](https://github.com/tharpta/citybound/issues/3)
+- [M0-03: Audit Cargo and aeplay engine dependencies](https://github.com/tharpta/citybound/issues/2)
+- [M0-04: Audit npm, browser tooling, and external services](https://github.com/tharpta/citybound/issues/4)
+- [M0-05: Establish visible runtime and gameplay baseline](https://github.com/tharpta/citybound/issues/5)
+- [M0-06: Audit generated actor glue and persistence compatibility](https://github.com/tharpta/citybound/issues/6)
+- [Quarantined: Review Bevy ECS replacement experiment](https://github.com/tharpta/citybound/issues/7)
 
 ## Status Flow
 
