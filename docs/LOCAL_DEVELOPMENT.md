@@ -99,6 +99,12 @@ lifecycle scripts, or applying fixes:
 CITYBOUND_AUDIT_ONLINE=1 npm run audit-dependencies-readonly
 ```
 
+## Continuous Integration
+
+Repository automation follows the [zero-cost CI policy](CI_POLICY.md). Pull
+requests run one focused Linux planning check; redundant branch-push runs and
+the historical three-platform release matrix are intentionally disabled.
+
 ## Known Local Traps
 
 - The real checkout path contains a space. Old `node-gyp`/Make cannot build
