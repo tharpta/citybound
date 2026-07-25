@@ -268,7 +268,10 @@ their current behavior so M1 can separate bootstrap, build, and verification.
 | `npm run smoke-browser-compat` | Existing server/dist and Chrome | Temporary city removed; explicit city preserved | Loopback only | Headless startup/network assertion |
 | `npm run smoke-save-reload-compat` | Existing debug server | Unique temporary city removed | Loopback only | File/path persistence, not semantic state |
 | `npm run check-codegen-compat` | Historical Rust, rsync | Sets real checkout override; `--delete` in configured check root | Potentially | Byte-identical actor glue |
-| dependency audit | Node/npm and Cargo lockfiles | No single trusted repository command yet | Depends on chosen audit tool | BLOCKED: define reproducible read-only audit command |
+| `npm run audit-dependencies-readonly` | Node, Git, `shasum`, and `rg` | Read-only and self-checking | No by default | Lock fingerprints, npm inventory, Cargo dependency declarations |
+| `CITYBOUND_AUDIT_ONLINE=1 npm run audit-dependencies-readonly` | Above plus npm advisory access | Read-only and self-checking; no lifecycle scripts or fixes | Yes, npm advisory service | Time-dependent advisory JSON; exit 1 is normalized as advisories found |
 
 Expected duration has not yet been benchmarked consistently. Build commands are
-multi-minute operations; artifact/smoke checks are expected to be shorter.
+multi-minute operations; offline inventory and artifact checks should finish in
+seconds; runtime smokes can take tens of seconds; the online advisory duration
+depends on network/service response.
