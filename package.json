@@ -1,4 +1,9 @@
 {
+    "name": "citybound",
+    "private": true,
+    "engines": {
+        "node": ">=20"
+    },
     "scripts": {
         "ensure-tooling": "node repo_scripts/tooling.js",
         "build-browser-compat": "repo_scripts/build-browser-compat.sh",
@@ -7,7 +12,8 @@
         "test-planning-compat": "repo_scripts/test-planning-compat.sh",
         "check-browser-dist-compat": "repo_scripts/check-browser-dist-compat.sh",
         "smoke-server-compat": "repo_scripts/smoke-server-compat.sh",
-        "test-compat": "npm run test-planning-compat && npm run check-browser-dist-compat && npm run smoke-server-compat",
+        "smoke-browser-compat": "node repo_scripts/smoke-browser-compat.mjs",
+        "test-compat": "npm run test-planning-compat && npm run check-browser-dist-compat && npm run smoke-server-compat && npm run smoke-browser-compat",
         "build-browser": "cd cb_browser_ui && npm install && npm run build",
         "watch-browser": "cd cb_browser_ui && npm install && npm start",
         "build-server": "git describe > .version && npm run ensure-tooling -- -q && cargo build --release",
@@ -24,5 +30,7 @@
         "lint-check": "npm run lint-clippy && npm run lint-fmt-check",
         "clean-codegen": "find . -name 'kay_auto.rs' -delete"
     },
-    "dependencies": {}
+    "devDependencies": {
+        "playwright-core": "^1.62.0"
+    }
 }

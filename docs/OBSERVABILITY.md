@@ -40,24 +40,22 @@ original upstream reporting link.
 - Log levels are serialized, but the UI currently renders the raw enum class.
 - There is no structured runtime snapshot/export for a city state.
 - Pathfinding and economy failures mostly need targeted instrumentation.
-- External menu fetches for live builds and patrons are stale/network-dependent:
-  - `citybound.livebuilds.s3-eu-west-1.amazonaws.com`
-  - `cb-patrons-app.now.sh`
 - Error/report links still point to the original `citybound/citybound` repo.
 
 ## First Cleanup Targets
 
-1. Replace live-build and patron fetch failures with offline-friendly UI states.
-2. Point crash/report guidance at revival docs once the GitHub fork exists.
-3. Add focused logs around:
+1. Point crash/report guidance at revival docs once the GitHub fork exists.
+2. Add focused logs around:
    - planning project implementation
    - `Construction` action group start/finish/failure
    - pathfinding no-route outcomes
    - immigration/development decisions
-4. Add a lightweight simulation snapshot command after save layout is better
+3. Add a lightweight simulation snapshot command after save layout is better
    understood.
-5. Add a browser smoke that opens the app, waits for the WASM start path, and
-   confirms networking turns advance.
+
+The automatic live-build, patron, and GitHub milestone fetches have been removed
+from the revival UI. The browser smoke now fails on any new console or page
+error and confirms that networking turns advance.
 
 ## Near-Term Rule
 

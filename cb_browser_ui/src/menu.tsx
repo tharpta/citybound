@@ -2,11 +2,10 @@ import * as React from 'react';
 import { useState } from 'react';
 import { Toolbar } from './toolbar';
 import { Settings } from './settings';
-import { Collapse, Checkbox, Tabs, Progress } from 'antd';
+import { Tabs } from 'antd';
 import aePlayLogo from '../assets/ae_play.png';
 import { ToToolPortal, ToWindowPortal } from './citybound';
 
-const Panel = Collapse.Panel;
 const TabPane = Tabs.TabPane;
 
 function CBLogo() {
@@ -61,19 +60,15 @@ export default function MainMenu(props: { state, setState, settingSpecs }) {
                         <CBLogo />
                         <a className="become-patron" href="https://patreon.com/citybound" target="_blank"> </a>
                         <h2>{window.cbversion}</h2>
-                        <p>THIS IS A LIVE BUILD OF CITYBOUND AND THUS NOT A STABLE RELEASE.</p>
-                        <p style={{ width: "30em" }}>Expect nothing to work and a lot to be missing. See the issues below (from Github) to get an overview of the most glaring known problems and remaining tasks for the currently upcoming release.</p>
-                        <p><UpdateChecker /></p>
-                        <h3>Upcoming Release:</h3>
-                        <GithubMilestone />
+                        <p>THIS IS AN EARLY CITYBOUND REVIVAL BUILD AND NOT A STABLE RELEASE.</p>
+                        <p style={{ width: "30em" }}>The original simulation is running while its engine, build system, and development safety net are brought back under active maintenance.</p>
                     </TabPane>
                     <TabPane tab="Credits" key="credits">
                         <CBLogo />
                         <a className="become-patron" href="https://patreon.com/citybound" target="_blank"> </a>
                         <p>is being developed by:</p>
                         <p><img src={aePlayLogo} width={60} /> aka. Anselm Eickhoff</p>
-                        <h4>With the generous support of these Patrons:</h4>
-                        <p><PatronCredits /></p>
+                        <h4>With the generous support of the original Citybound patrons.</h4>
                         <h4>Icons by icons8.com</h4>
                         <h4>Cities I developed Citybound in:</h4>
                         <ul>
@@ -116,95 +111,4 @@ export default function MainMenu(props: { state, setState, settingSpecs }) {
             </div>
         </ToWindowPortal>}
     </>;
-}
-
-class UpdateChecker extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = { versions: [] };
-    }
-
-    componentDidMount() {
-        fetch("http://citybound.livebuilds.s3-eu-west-1.amazonaws.com/?delimiter=/").then(response =>
-            response.text().then(text =>
-                this.setState({ versions: text.match(/citybound-v\d.\d.\d-\d+-\w+-osx/g).map(str => str.replace("citybound-", "").replace("-osx", "")) })
-            )).catch(() => this.setState({ failed: true }));;
-    }
-
-    render() {
-        if (this.state.failed) {
-            return "Couldn't check for newest live builds."
-        } else {
-            let allVersions = this.state.versions.concat([window.cbversion]);
-            allVersions.sort();
-            if (allVersions[allVersions.length - 1] == window.cbversion) {
-                return "You have the newest live build."
-            } else {
-                return <h3>Newer live build available: <a href="http://aeplay.co/citybound-livebuilds">{allVersions[allVersions.length - 1]}</a></h3>;
-            }
-        }
-    }
-}
-
-class PatronCredits extends React.Component {
-    constructor(props) {
-        super(props);
-
-        this.state = { patrons: [] };
-    }
-
-    componentDidMount() {
-        fetch("https://cb-patrons-app.now.sh/v1/members").then(response =>
-            response.json().then(patrons => {
-                patrons.sort((a, b) => b.attributes.lifetime_support_cents - a.attributes.lifetime_support_cents);
-                this.setState({ patrons: patrons })
-            })).catch(() => this.setState({ failed: true }));
-    }
-
-    render() {
-        return this.state.patrons.map(patron => {
-            const { currently_entitled_amount_cents, full_name,
-                lifetime_support_cents, patron_status, pledge_relationship_start } = patron.attributes;
-            return !!lifetime_support_cents && <span className="patron"
-                style={{ fontSize: 2 * Math.log2(lifetime_support_cents), }}>
-                {full_name}
-            </span>
-        }) || (this.state.failed ? "Couldn't load patrons." : "Loading patrons...")
-    }
-}
-
-class GithubMilestone extends React.Component {
-    constructor(props) {
-        super(props);
-
-        this.state = {};
-    }
-
-    componentDidMount() {
-        fetch("https://cb-github-app.now.sh/v1/current_milestone").then(response =>
-            response.json().then(json => json.data && this.setState(json.data.repository.milestone))
-        ).catch(() => this.setState({ failed: true }));
-    }
-
-    render() {
-        const renderIssueEdge = open => edge => {
-            let checkable = (edge.node.bodyHTML.match(/task-list-item-checkbox/g) || []).length;
-            let checked = (edge.node.bodyHTML.match(/checked/g) || []).length;
-            return <Panel key={edge.node.id}
-                header={<div style={{ pointerEvents: "none" }}>
-                    <Checkbox checked={!open} >{edge.node.title + (checkable ? " (" + checked + "/" + checkable + ")" : "")}</Checkbox>
-                </div>}>
-                <div dangerouslySetInnerHTML={{ __html: edge.node.bodyHTML }}></div>
-            </Panel>;
-        };
-
-        return [
-            <h2>{this.state.title || (this.state.failed ? "Couldn't load milestone." : "loading milestone...")}</h2>,
-            <Progress percent={this.state.open ? Math.floor(this.state.closed.edges.length / (this.state.closed.edges.length + this.state.open.edges.length) * 100) : 0} />,
-            <h3>TODO:</h3>,
-            this.state.open && <Collapse>{this.state.open.edges.map(renderIssueEdge(true))}</Collapse>,
-            <h3>DONE:</h3>,
-            this.state.closed && <Collapse>{this.state.closed.edges.map(renderIssueEdge(false))}</Collapse>
-        ]
-    }
 }

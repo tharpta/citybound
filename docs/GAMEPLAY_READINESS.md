@@ -14,19 +14,21 @@ Ready:
 - Pure planning tests cover deterministic IDs, history updates, and action
   grouping.
 - Local smoke command verifies browser dist artifacts and server HTTP startup.
+- Real Chromium automation verifies WASM/React/WebGL startup and advancing
+  networking turns.
 - Initial architecture, safety-net, observability, and toolchain strategy docs
   exist.
 - Browser simulation port is now templated from `--bind-sim` into served HTML.
+- Retired live-build, patron, and milestone service calls no longer run during
+  local startup.
 
 Not ready:
 
-- No real browser automation smoke yet.
 - Engine crates are not forked/mirrored under revival control.
 - Modern Rust fails in `compact` and then `chunky`.
 - Save compatibility risks are not tested.
 - `kay_codegen` reproducibility is not verified.
 - Browser `stdweb`/JS boundary is not covered by tests.
-- Dead external UI fetches are still present.
 
 ## Gate Checklist
 
@@ -34,13 +36,14 @@ Before gameplay feature work:
 
 1. `npm run build-compat` passes.
 2. `npm run test-compat` passes.
-3. Browser automation can load the app and observe networking turns advancing.
+3. `npm run smoke-browser-compat` loads the app and observes networking turns
+   advancing.
 4. Engine stack ownership is settled for at least `kay`, `kay_codegen`,
    `compact`, `chunky`, `descartes`, `michelangelo`, and `monet`.
 5. `kay_auto.rs` generation can be verified without accidental source churn.
 6. Save startup and reload are covered by a repeatable fixture or smoke.
 7. Modernization target for Rust storage crates is chosen.
-8. Dead external service calls are either removed, mocked, or made optional.
+8. Dead external service calls do not run during local startup.
 
 ## Next Non-Feature Milestone
 

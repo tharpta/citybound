@@ -4,10 +4,11 @@ These are the currently verified revival commands for this fork.
 
 ## First-Time Setup
 
-1. Install `rustup`.
-2. Make sure `~/.cargo/bin` comes before Homebrew Rust in your shell path.
-3. Accept the Xcode license on macOS.
-4. Use Python 3.11 for old `node-gyp` when building browser assets.
+1. Install Node.js 20 or newer and run `npm install` at the repository root.
+2. Install `rustup`.
+3. Make sure `~/.cargo/bin` comes before Homebrew Rust in your shell path.
+4. Accept the Xcode license on macOS.
+5. Use Python 3.11 for old `node-gyp` when building browser assets.
 
 The compatibility scripts install or select the historical Rust toolchain:
 
@@ -45,9 +46,24 @@ This runs:
 - `npm run test-planning-compat`
 - `npm run check-browser-dist-compat`
 - `npm run smoke-server-compat`
+- `npm run smoke-browser-compat`
 
 The server smoke starts `target/debug/citybound`, waits for `/` to return HTTP
 `200`, then stops the process through SIGINT.
+
+The browser smoke starts another isolated server and temporary city, launches a
+headless Chromium browser, and verifies:
+
+- the Rust/WASM client starts
+- the WebGL canvas has a nonzero rendered size
+- the configured simulation port reaches the browser
+- browser and server networking turns advance
+- no page or console errors are reported
+
+The smoke uses Playwright's cached Chromium when available and otherwise uses an
+installed Google Chrome. Set `CITYBOUND_BROWSER_EXECUTABLE` to use another
+Chromium executable or `CITYBOUND_BROWSER_CHANNEL` to select another installed
+Playwright browser channel.
 
 ## Useful Individual Commands
 
@@ -57,6 +73,7 @@ npm run build-server-debug-compat
 npm run test-planning-compat
 npm run check-browser-dist-compat
 npm run smoke-server-compat
+npm run smoke-browser-compat
 ```
 
 ## Known Local Traps
@@ -67,6 +84,8 @@ npm run smoke-server-compat
 - Xcode 26.3 rejects old Rust `.rlib` archives containing `lib.rmeta` and
   `*.bc.z`; the compatibility linker wrapper strips those members from temporary
   copies.
+- The modern root smoke tooling requires Node.js 20 or newer. The legacy
+  Parcel/React dependencies remain isolated under `cb_browser_ui`.
 - `cargo fmt -- ./cb_planning/src/lib.rs` currently scans broader workspace
   modules and fails on pre-existing long lines.
 - The browser uses the page hostname plus the simulation port templated into
