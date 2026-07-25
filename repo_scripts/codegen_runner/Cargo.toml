@@ -1,0 +1,8 @@
+[package]
+name = "citybound-codegen-check"
+version = "0.1.0"
+authors = ["Citybound Revival Contributors"]
+publish = false
+
+[dependencies]
+kay_codegen = { version = "=0.3.10", features = ["serde-serialization"] }

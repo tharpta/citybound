@@ -44,12 +44,18 @@ npm run test-compat
 This runs:
 
 - `npm run test-planning-compat`
+- `npm run check-codegen-compat`
 - `npm run check-browser-dist-compat`
 - `npm run smoke-server-compat`
 - `npm run smoke-browser-compat`
 
 The server smoke starts `target/debug/citybound`, waits for `/` to return HTTP
 `200`, then stops the process through SIGINT.
+
+The codegen check copies source into a temporary no-spaces checkout, runs the
+locked `kay_codegen 0.3.10` over all five Citybound crates, and compares all 44
+committed `kay_auto.rs` files byte-for-byte. It never regenerates files in the
+working checkout.
 
 The browser smoke starts another isolated server and temporary city, launches a
 headless Chromium browser, and verifies:
@@ -71,6 +77,7 @@ Playwright browser channel.
 npm run build-browser-compat
 npm run build-server-debug-compat
 npm run test-planning-compat
+npm run check-codegen-compat
 npm run check-browser-dist-compat
 npm run smoke-server-compat
 npm run smoke-browser-compat

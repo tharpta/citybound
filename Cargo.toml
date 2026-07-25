@@ -10,6 +10,7 @@ members = [
     "./cb_planning",
     "./cb_util",
     "./cb_time",
+    "./repo_scripts/codegen_runner",
 ]
 exclude = [
     "./cb_browser_ui"

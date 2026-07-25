@@ -25,13 +25,14 @@ Ready:
   local startup.
 - The first storage spike proves `chunky` can compile on stable Rust and scopes
   the remaining `compact` specialization work.
+- Locked `kay_codegen 0.3.10` regenerates all 44 committed actor-glue files
+  byte-for-byte in an isolated checkout.
 
 Not ready:
 
 - Engine crates are not forked/mirrored under revival control.
 - Modern Rust fails in `compact` and then `chunky`.
 - Save compatibility risks are not tested.
-- `kay_codegen` reproducibility is not verified.
 - Browser `stdweb`/JS boundary is not covered by tests.
 
 ## Gate Checklist
@@ -44,7 +45,8 @@ Before gameplay feature work:
    advancing.
 4. Engine stack ownership is settled for at least `kay`, `kay_codegen`,
    `compact`, `chunky`, `descartes`, `michelangelo`, and `monet`.
-5. `kay_auto.rs` generation can be verified without accidental source churn.
+5. `npm run check-codegen-compat` verifies `kay_auto.rs` generation without
+   source churn.
 6. Save startup and reload are covered by a repeatable fixture or smoke.
 7. Modernization target for Rust storage crates is chosen.
 8. Dead external service calls do not run during local startup.

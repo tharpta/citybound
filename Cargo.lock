@@ -309,6 +309,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "citybound-codegen-check"
+version = "0.1.0"
+dependencies = [
+ "kay_codegen",
+]
+
+[[package]]
 name = "clap"
 version = "2.33.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"

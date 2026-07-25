@@ -12,6 +12,7 @@ Current status: passes.
 This is the umbrella local safety command. It currently runs:
 
 - `npm run test-planning-compat`
+- `npm run check-codegen-compat`
 - `npm run check-browser-dist-compat`
 - `npm run smoke-server-compat`
 - `npm run smoke-browser-compat`
@@ -58,6 +59,21 @@ The first run exposed the retired live-build, patron, and GitHub milestone
 services. Those automatic requests have been removed from the revival UI so the
 local game starts cleanly without unrelated internet access.
 
+### `npm run check-codegen-compat`
+
+Current status: passes.
+
+This runs the locked `kay_codegen 0.3.10` in an isolated source copy and compares
+the generated path set and contents with the real checkout. All 44 committed
+`kay_auto.rs` files currently regenerate byte-for-byte:
+
+- 36 native simulation/planning/time/utility files
+- 8 browser actor files
+
+The checker uses a tiny workspace tool instead of compiling the full game. This
+keeps the check focused on generated actor identity and prevents the generator
+from rewriting a contributor's working tree.
+
 ### `npm run test-planning-compat`
 
 Current status: passes.
@@ -90,7 +106,6 @@ test result: ok. 3 passed; 0 failed
 - These tests intentionally use a tiny test-only `PrototypeKind` instead of
   Citybound road/zone types. That keeps the first safety net focused on generic
   planning behavior.
-- The next checks should cover save startup/reload and deterministic
-  `kay_auto.rs` regeneration.
+- The next check should cover save startup and reload.
 - `.github/workflows/revival-compat.yml` runs the planning safety tests on
   pull requests, pushes to revival branches, and manual dispatch.
