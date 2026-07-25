@@ -52,6 +52,37 @@ explicit approval immediately before the billable action.
 opens. It does not mean coding through an unresolved architecture or safety
 gate.
 
+## Status Contract
+
+Each issue has exactly one live Status in the GitHub Project:
+
+- `Backlog`: accepted work that is not currently pullable. Scope, evidence,
+  priority, dependencies, or a required decision may still be incomplete.
+- `Ready`: fully satisfies the Definition of Ready and may be pulled next.
+  Nobody is implementing or auditing it yet; `Ready` does **not** mean in
+  progress.
+- `Active`: implementation or audit work is actively underway. The issue owns a
+  WIP slot and must have a named issue branch or linked evidence checkpoint.
+- `Review`: the implementer believes the acceptance criteria are met and a
+  different role is reviewing the change and evidence. Review findings return
+  the issue to `Active`.
+- `Verified`: an independent role has confirmed the acceptance criteria and
+  evidence. Required changes are accepted, but merge/integration or closure
+  bookkeeping may still remain.
+- `Blocked`: progress cannot continue because of a named dependency, missing
+  decision, unavailable capability, or external state. The issue records the
+  blocker and the condition that will unblock it, and it does not consume an
+  implementation WIP slot.
+- `Done`: the Definition of Done is satisfied, the accepted change is present
+  on the integration branch, and the GitHub issue is closed.
+
+The integration lead changes Status from current evidence, never from expected
+future work. An open issue cannot be `Done`; an issue closed as completed must
+be `Done`. An issue closed as duplicate, not planned, or invalid is removed from
+the active Project after its non-delivery resolution is recorded; it does not
+claim `Done`. Reopening an issue returns it to `Backlog` until readiness is
+reassessed.
+
 ## Priority And Pull Order
 
 Project priority is assigned from current evidence and is not duplicated in
@@ -118,7 +149,10 @@ unrelated issue work directly to either integration target.
 During M0, continuously pull from ready, review integration state daily, provide
 a weekly user-facing audit/demo summary, and hold an exit review before risky
 modernization. From M1, use one-week iterations ending in a playable demo,
-verification, and retrospective.
+verification, and retrospective. Follow the
+[M1+ Weekly Iteration Playbook](ITERATION_PLAYBOOK.md) for goal selection, WIP,
+the midpoint integration checkpoint, clean close checks, carryover, and the
+user-facing build summary.
 
 ## M0 Order
 
