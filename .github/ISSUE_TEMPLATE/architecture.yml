@@ -1,0 +1,81 @@
+name: Architecture decision proposal
+description: Propose a reviewable decision for an irreversible or shared boundary.
+title: "[ADR] "
+body:
+  - type: textarea
+    id: goal
+    attributes:
+      label: Observable goal
+      description: What capability or constraint requires an architecture decision?
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidence and background
+      description: Link experiments, failures, measurements, and existing decisions.
+    validations:
+      required: true
+  - type: checkboxes
+    id: boundary
+    attributes:
+      label: Irreversible or shared boundary
+      description: Select every boundary this proposal can invalidate or reshape.
+      options:
+        - label: Actor/runtime model
+        - label: Persistence or save format
+        - label: Network protocol
+        - label: Renderer
+        - label: Rust/WASM browser boundary
+        - label: Toolchain or bundler
+        - label: Paid or externally hosted service
+        - label: Other shared architecture boundary
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: Scope and non-goals
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives and tradeoffs
+      description: Include retaining the current architecture where credible.
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      value: |
+        - [ ]
+    validations:
+      required: true
+  - type: textarea
+    id: verification
+    attributes:
+      label: Verification and rollback
+      description: Define evidence, compatibility/migration checks, and a rollback path.
+    validations:
+      required: true
+  - type: textarea
+    id: dependencies
+    attributes:
+      label: Dependencies and links
+      description: Link related issues, ADRs, experiments, branch, and PR.
+  - type: textarea
+    id: risk
+    attributes:
+      label: Save and architecture impact
+      description: Describe compatibility, migration, security, and irreversible consequences.
+    validations:
+      required: true
+  - type: textarea
+    id: cost
+    attributes:
+      label: Cost impact
+      description: Identify monetary, hosted-service, CI, licensing, and ongoing maintenance cost.
+    validations:
+      required: true

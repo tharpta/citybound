@@ -1,0 +1,60 @@
+name: Bug report
+description: Report a reproducible Citybound Revival defect.
+title: "[BUG] "
+body:
+  - type: textarea
+    id: goal
+    attributes:
+      label: Observable goal
+      description: What player-visible or developer-visible behavior should work?
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidence and reproduction
+      description: Include exact steps, expected/actual behavior, build identity, logs, screenshots, and save details where relevant.
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: Scope and non-goals
+      description: Bound the fix and state what it must not change.
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      description: Use a checklist of observable completion conditions.
+      value: |
+        - [ ]
+    validations:
+      required: true
+  - type: textarea
+    id: verification
+    attributes:
+      label: Verification
+      description: List the automated checks and visible/manual reproduction required.
+    validations:
+      required: true
+  - type: textarea
+    id: dependencies
+    attributes:
+      label: Dependencies and links
+      description: Link dependencies, related issues, branch, PR, and any retained evidence.
+  - type: textarea
+    id: risk
+    attributes:
+      label: Risk, save, and architecture impact
+      description: Describe persistence, compatibility, security, shared-boundary, and rollback risk. Write "None known" when applicable.
+    validations:
+      required: true
+  - type: textarea
+    id: cost
+    attributes:
+      label: Cost impact
+      description: Identify any possible monetary, hosted-service, CI, or licensing cost. Write "None" when applicable.
+    validations:
+      required: true
