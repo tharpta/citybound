@@ -39,8 +39,14 @@ No running task needed to be interrupted.
 
 ## Initial Commit Ledger
 
+This ledger covers revival commits after `817de55` through `2ee0db7`, the parent
+state when M0 began. Later M0 commits are audit outputs and are tracked through
+Git history and GitHub Issues rather than recursively inserted into this initial
+inventory.
+
 | Commit | Change | Initial classification | M0 note |
 | --- | --- | --- | --- |
+| `457466e` | Add Citybound revival plan | INVESTIGATE | Review the initial assumptions against the verified source and runtime. |
 | `8ca0a04` | Document compatibility baseline | INVESTIGATE | Verify recorded commands and host claims. |
 | `7d3a5e0` | Map core architecture | INVESTIGATE | Compare map against original source. |
 | `2bfd7d0` | Add planning safety tests | INVESTIGATE | Review behavioral assumptions and test isolation. |

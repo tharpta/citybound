@@ -6,21 +6,27 @@ Status: evidence collected; requires independent verification.
 
 ## Findings
 
-- The root Node project is modern orchestration only: Node 20+ and
-  `playwright-core` 1.62.0.
+- The root npm dependency graph is minimal and modern: Node 20+ and
+  `playwright-core` 1.62.0. Root scripts also orchestrate and mutate the
+  historical compatibility environment.
 - `cb_browser_ui` is a separate historical dependency world with a v1 lockfile
-  and roughly 956 installed dependencies.
+  containing 956 dependency entries/occurrences reported by its lockfile audit;
+  they are not currently installed in this checkout.
 - Browser builds use `npm install`, not a frozen install path.
-- Parcel 1.12.4, TypeScript 3.8.3, Less 3.8.1, `cargo-web`, and `stdweb` form one
-  coupled boundary. Parcel must not be swapped in isolation.
-- Historical native lifecycle code runs through Parcel-era Node-gyp
-  dependencies.
-- A read-only package-lock audit reported 117 vulnerable packages: 12 critical,
-  46 high, 55 moderate, and 4 low. This calls for containment and staged
-  replacement, not `npm audit fix`.
+- Inference from the build scripts: Parcel 1.12.4, TypeScript 3.8.3, Less 3.8.1,
+  `cargo-web`, and `stdweb` form one coupled boundary. The npm build runs
+  cargo-web before Parcel consumes HTML/TS/Less and the stdweb WASM output, so
+  Parcel must not be swapped in isolation.
+- The compatibility wrapper preserves a Python/distutils workaround for a
+  previously observed Parcel-era Node-gyp/Make build failure.
+- On 2026-07-24, `npm audit --package-lock-only --json` from `cb_browser_ui`
+  reported 117 vulnerable dependency entries against the current npm advisory
+  service: 12 critical, 46 high, 55 moderate, and 4 low. Most are transitive or
+  build-time; this calls for containment and staged replacement, not
+  `npm audit fix`.
 - React/ReactDOM 16.8.6 and Ant Design 3.19.2 need visual coverage before upgrade.
-- `react-addons-update` and `msgpack-lite` appear unused and require clean-build
-  proof before removal.
+- Static authored-source search found no use of `react-addons-update` or
+  `msgpack-lite`; clean-build/runtime proof is still required before removal.
 - Monet is core renderer code pinned to git commit `5b79f29`; mirror/fork or
   vendor it before major browser changes.
 - Authored browser source currently contains no automatic fetch/XHR/analytics

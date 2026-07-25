@@ -3,6 +3,10 @@
 This fork starts from `citybound/citybound` at commit `817de55`
 (`2020-11-20`, "Newest version of procedural architecture").
 
+The original repository is retained as historical provenance, not as an ongoing
+merge or synchronization source. Revival development is independently owned and
+released from `tharpta/citybound`.
+
 The revival starts with archaeology, reproducibility, and modernization. Feature
 work waits until we can build the project, understand the actor model, and make
 changes with confidence.

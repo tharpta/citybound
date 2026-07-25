@@ -229,3 +229,46 @@ Exit condition:
 
 - Use a unique temporary directory and a read-only toolchain preflight.
 - Keep byte-for-byte generation verification while Kay codegen remains.
+
+## Composed Build And Planning Commands
+
+Files:
+
+- `repo_scripts/build-server-debug-compat.sh`
+- `repo_scripts/build-compat.sh`
+- `repo_scripts/test-planning-compat.sh`
+- `repo_scripts/check-browser-dist-compat.sh`
+
+Findings:
+
+- The server build replaces `.version` with `git describe`, invokes the mutating
+  tooling helper, sets the Apple linker wrapper, and writes Cargo artifacts.
+- The full compatibility build composes the destructive browser-distribution
+  replacement with the server build and inherits all host/network mutations.
+- The planning test invokes the mutating toolchain helper and Apple linker
+  environment before running focused Rust tests.
+- The browser-distribution check is read-only but assumes an already-built
+  `cb_browser_ui/dist/index.html`, JS bundle, and WASM bundle.
+
+These commands are not trusted as read-only checks. The matrix below records
+their current behavior so M1 can separate bootstrap, build, and verification.
+
+## Trusted Command Matrix
+
+| Command | Host assumptions | Checkout/host mutation | Network | Artifacts and limits |
+| --- | --- | --- | --- | --- |
+| `ensure-rust-toolchain-compat.sh` | rustup; historical x86 target | Sets checkout override; may install toolchain | Yes when missing | No game artifact; unsupported toolchain |
+| `npm run ensure-tooling` | Node plus rustup | May set overrides, install components, and install global cargo-web | Yes when missing | Host-wide tool mutation |
+| `npm run build-browser-compat` | macOS/x86 assumptions, Python with distutils, npm | Replaces temp build root and local ignored `dist` | Yes through `npm install` | Browser JS/WASM/assets; arbitrary configured build root is destructive |
+| `npm run build-server-debug-compat` | Historical Rust and Apple linker workaround | Rewrites `.version`, Cargo target, tool configuration | Potentially | Debug server; assumes browser dist |
+| `npm run build-compat` | All browser/server assumptions | Combined mutations above | Yes/potentially | Full compatibility artifact set |
+| `npm run test-planning-compat` | Historical Rust and Apple linker | May mutate toolchain override/components and target | Potentially | Focused tests only; not full simulation |
+| `npm run check-browser-dist-compat` | Existing browser dist | Read-only | No | Artifact existence/content, not execution |
+| `npm run smoke-server-compat` | Existing debug server and dist, curl | Temporary city by default; explicit log path is deleted/replaced; explicit city is preserved | Loopback only | HTTP/startup assertion |
+| `npm run smoke-browser-compat` | Existing server/dist and Chrome | Temporary city removed; explicit city preserved | Loopback only | Headless startup/network assertion |
+| `npm run smoke-save-reload-compat` | Existing debug server | Unique temporary city removed | Loopback only | File/path persistence, not semantic state |
+| `npm run check-codegen-compat` | Historical Rust, rsync | Sets real checkout override; `--delete` in configured check root | Potentially | Byte-identical actor glue |
+| dependency audit | Node/npm and Cargo lockfiles | No single trusted repository command yet | Depends on chosen audit tool | BLOCKED: define reproducible read-only audit command |
+
+Expected duration has not yet been benchmarked consistently. Build commands are
+multi-minute operations; artifact/smoke checks are expected to be shorter.
