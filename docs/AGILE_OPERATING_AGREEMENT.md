@@ -77,8 +77,11 @@ Each issue has exactly one live Status in the GitHub Project:
   on the integration branch, and the GitHub issue is closed.
 
 The integration lead changes Status from current evidence, never from expected
-future work. An open issue cannot be `Done`; a closed issue must be `Done`.
-Reopening an issue returns it to `Backlog` until readiness is reassessed.
+future work. An open issue cannot be `Done`; an issue closed as completed must
+be `Done`. An issue closed as duplicate, not planned, or invalid is removed from
+the active Project after its non-delivery resolution is recorded; it does not
+claim `Done`. Reopening an issue returns it to `Backlog` until readiness is
+reassessed.
 
 ## Priority And Pull Order
 

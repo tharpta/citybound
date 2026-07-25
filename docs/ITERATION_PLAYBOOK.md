@@ -68,7 +68,9 @@ prove the outcome.
 
 An issue is complete only when it meets the Definition of Done. At close:
 
-- move verified, merged issues to `Done`;
+- independently verify accepted work, merge it to the integration branch, close
+  its issue as completed, and confirm the Project automation moved it to
+  `Done`;
 - move every unfinished issue out of the ended iteration and explicitly back to
   `Backlog`, or to `Blocked` when an unresolved dependency remains;
 - preserve its evidence, remaining acceptance criteria, and blocker;
