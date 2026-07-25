@@ -46,6 +46,23 @@ commit is on the integration branch without unrelated changes.
 
 Audit issues may complete with evidence and decisions rather than code.
 
+## Branch And Pull Request Traceability
+
+Every nontrivial change starts from a GitHub issue and uses:
+
+```text
+codex/issue-<number>-<short-name>
+```
+
+The branch is pushed at creation or at its first coherent checkpoint. The issue
+links to the branch and pull request; the pull request links back to the issue.
+Another role records verification before merge. The issue closes only after the
+accepted commit is present on the integration branch.
+
+`codex/revival-bootstrap` is the M0 integration branch until the revival adopts
+a release/default-branch policy. Agents do not commit unrelated issue work
+directly to it.
+
 ## Cadence
 
 During M0, continuously pull from ready, review integration state daily, provide
