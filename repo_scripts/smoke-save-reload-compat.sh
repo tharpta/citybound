@@ -3,13 +3,19 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
-BIND="${CITYBOUND_SAVE_SMOKE_BIND:-127.0.0.1:43230}"
-BIND_SIM="${CITYBOUND_SAVE_SMOKE_BIND_SIM:-127.0.0.1:43231}"
+source "$SCRIPT_DIR/runtime-teardown.sh"
+
+BIND="${CITYBOUND_SAVE_SMOKE_BIND:-127.0.0.1:$(runtime_allocate_loopback_port)}"
+BIND_SIM="${CITYBOUND_SAVE_SMOKE_BIND_SIM:-127.0.0.1:$(runtime_allocate_loopback_port)}"
+while [[ "$BIND_SIM" == "$BIND" ]]; do
+    BIND_SIM="127.0.0.1:$(runtime_allocate_loopback_port)"
+done
 WORK_DIR="$(mktemp -d "${TMPDIR:-/tmp}/citybound-save-reload.XXXXXX")"
 CITY_DIR="$WORK_DIR/city"
 FIRST_LOG="$WORK_DIR/first-start.log"
 SECOND_LOG="$WORK_DIR/reload.log"
 MINIMUM_SAVE_FILES=20
+TEARDOWN_FAILED=0
 
 cd "$REPO_ROOT"
 
@@ -19,20 +25,15 @@ if [[ ! -x target/debug/citybound ]]; then
 fi
 
 cleanup() {
-    if [[ -n "${SERVER_PID:-}" ]] && kill -0 "$SERVER_PID" >/dev/null 2>&1; then
-        kill -INT "$SERVER_PID" >/dev/null 2>&1 || true
-        for _ in {1..40}; do
-            if ! kill -0 "$SERVER_PID" >/dev/null 2>&1; then
-                break
-            fi
-            sleep 0.25
-        done
-        if kill -0 "$SERVER_PID" >/dev/null 2>&1; then
-            kill -KILL "$SERVER_PID" >/dev/null 2>&1 || true
-        fi
-        wait "$SERVER_PID" >/dev/null 2>&1 || true
+    if ! runtime_stop_child "save smoke cleanup" "$WORK_DIR/cleanup.teardown"; then
+        TEARDOWN_FAILED=1
     fi
-    find "$WORK_DIR" -depth -delete
+    if [[ "$TEARDOWN_FAILED" -eq 0 ]]; then
+        find "$WORK_DIR" -depth -delete
+    else
+        echo "Disposable save and diagnostics preserved at $WORK_DIR." >&2
+    fi
+    return "$TEARDOWN_FAILED"
 }
 
 trap cleanup EXIT
@@ -41,26 +42,10 @@ stop_server() {
     local label="$1"
     local log_file="$2"
 
-    kill -INT "$SERVER_PID"
-    for _ in {1..40}; do
-        if ! kill -0 "$SERVER_PID" >/dev/null 2>&1; then
-            if ! wait "$SERVER_PID"; then
-                echo "Citybound did not stop cleanly during $label." >&2
-                tail -100 "$log_file" >&2 || true
-                exit 1
-            fi
-            SERVER_PID=""
-            return
-        fi
-        sleep 0.25
-    done
-
-    kill -KILL "$SERVER_PID" >/dev/null 2>&1 || true
-    wait "$SERVER_PID" >/dev/null 2>&1 || true
-    SERVER_PID=""
-    echo "Citybound did not stop within 10 seconds during $label." >&2
-    tail -100 "$log_file" >&2 || true
-    exit 1
+    if ! runtime_stop_child "$label" "$log_file.teardown"; then
+        tail -100 "$log_file" >&2 || true
+        exit 1
+    fi
 }
 
 run_server_once() {
@@ -68,13 +53,19 @@ run_server_once() {
     local log_file="$2"
     local url="http://$BIND/"
 
-    target/debug/citybound \
-        --mode local \
-        --bind "$BIND" \
-        --bind-sim "$BIND_SIM" \
-        "$CITY_DIR" \
-        >"$log_file" 2>&1 &
+    local -a server_args=(
+        --mode local
+        --bind "$BIND"
+        --bind-sim "$BIND_SIM"
+        "$CITY_DIR"
+    )
+    target/debug/citybound "${server_args[@]}" >"$log_file" 2>&1 &
     SERVER_PID=$!
+    SERVER_PORTS="${BIND##*:} ${BIND_SIM##*:}"
+    if ! runtime_register_child "target/debug/citybound" "target/debug/citybound ${server_args[*]}"; then
+        echo "Could not prove exact identity for spawned server PID $SERVER_PID." >&2
+        exit 1
+    fi
 
     for _ in {1..80}; do
         if ! kill -0 "$SERVER_PID" >/dev/null 2>&1; then

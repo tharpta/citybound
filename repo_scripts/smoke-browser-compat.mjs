@@ -3,17 +3,36 @@
 import { spawn } from "node:child_process";
 import { once } from "node:events";
 import { access, mkdtemp, rm } from "node:fs/promises";
+import { createServer } from "node:net";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { chromium } from "playwright-core";
+import { installSignalCleanup } from "./signal-cleanup.mjs";
 
 const scriptDir = dirname(fileURLToPath(import.meta.url));
 const repoRoot = resolve(scriptDir, "..");
-const bind = process.env.CITYBOUND_BROWSER_SMOKE_BIND ?? "127.0.0.1:43220";
-const bindSimulation =
-    process.env.CITYBOUND_BROWSER_SMOKE_BIND_SIM ?? "127.0.0.1:43221";
+async function allocateLoopbackPort() {
+    const listener = createServer();
+    await new Promise((resolveListen, rejectListen) => {
+        listener.once("error", rejectListen);
+        listener.listen(0, "127.0.0.1", resolveListen);
+    });
+    const { port } = listener.address();
+    await new Promise(resolveClose => listener.close(resolveClose));
+    return port;
+}
+
+const bind =
+    process.env.CITYBOUND_BROWSER_SMOKE_BIND
+    ?? `127.0.0.1:${await allocateLoopbackPort()}`;
+let bindSimulation =
+    process.env.CITYBOUND_BROWSER_SMOKE_BIND_SIM
+    ?? `127.0.0.1:${await allocateLoopbackPort()}`;
+while (bindSimulation === bind) {
+    bindSimulation = `127.0.0.1:${await allocateLoopbackPort()}`;
+}
 const url = `http://${bind}/`;
 const expectedSimulationPort = Number(bindSimulation.slice(bindSimulation.lastIndexOf(":") + 1));
 const serverPath = join(repoRoot, "target", "debug", "citybound");
@@ -24,6 +43,7 @@ let browser;
 let server;
 let temporaryCityDir;
 let serverLog = "";
+let cleanupPromise;
 
 function rememberServerOutput(chunk) {
     serverLog = `${serverLog}${chunk}`;
@@ -78,8 +98,9 @@ async function launchBrowser() {
 }
 
 async function stopServer() {
-    if (!server || server.exitCode !== null) {
-        return;
+    const exited = () => server.exitCode !== null || server.signalCode !== null;
+    if (!server || exited()) {
+        return true;
     }
 
     server.kill("SIGINT");
@@ -88,20 +109,49 @@ async function stopServer() {
         new Promise(resolveDelay => setTimeout(resolveDelay, 5_000)),
     ]);
 
-    if (server.exitCode === null) {
+    if (!exited()) {
+        server.kill("SIGTERM");
+        await Promise.race([
+            once(server, "exit"),
+            new Promise(resolveDelay => setTimeout(resolveDelay, 2_000)),
+        ]);
+    }
+    if (!exited()) {
         server.kill("SIGKILL");
-        await once(server, "exit");
+        await Promise.race([
+            once(server, "exit"),
+            new Promise(resolveDelay => setTimeout(resolveDelay, 2_000)),
+        ]);
     }
+    if (!exited()) {
+        console.error(
+            `Citybound PID ${server.pid} remains after bounded SIGINT/SIGTERM/SIGKILL teardown.`,
+        );
+        console.error("Do not start another runtime probe; recover the host OS state first.");
+        return false;
+    }
+    return true;
 }
 
-async function cleanup() {
+async function cleanupOnce() {
     await browser?.close();
-    await stopServer();
+    const stopped = await stopServer();
 
-    if (temporaryCityDir) {
+    if (temporaryCityDir && stopped) {
         await rm(temporaryCityDir, { recursive: true, force: true });
+    } else if (temporaryCityDir) {
+        console.error(`Disposable city preserved at ${temporaryCityDir}.`);
+        process.exitCode = 1;
     }
+    return stopped;
 }
+
+function cleanup() {
+    cleanupPromise ??= cleanupOnce();
+    return cleanupPromise;
+}
+
+const removeSignalCleanup = installSignalCleanup(cleanup);
 
 try {
     await access(serverPath);
@@ -224,4 +274,5 @@ try {
     process.exitCode = 1;
 } finally {
     await cleanup();
+    removeSignalCleanup();
 }
