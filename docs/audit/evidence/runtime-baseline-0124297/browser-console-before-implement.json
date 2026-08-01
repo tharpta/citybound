@@ -1,0 +1,236 @@
+[
+  {
+    "level": "log",
+    "message": "Finished loading Rust wasm module 'cb_browser_ui'",
+    "timestamp": "2026-08-01T18:43:45.047Z",
+    "url": "http://127.0.0.1:43330/citybound.96711c43.js"
+  },
+  {
+    "level": "log",
+    "message": "Before setup",
+    "timestamp": "2026-08-01T18:43:45.067Z",
+    "url": "http://127.0.0.1:43330/citybound.96711c43.js"
+  },
+  {
+    "level": "log",
+    "message": "After setup",
+    "timestamp": "2026-08-01T18:43:45.097Z",
+    "url": "http://127.0.0.1:43330/citybound.96711c43.js"
+  },
+  {
+    "level": "log",
+    "message": "Rebuilt vegetation",
+    "timestamp": "2026-08-01T18:43:45.101Z",
+    "url": "http://127.0.0.1:43330/citybound.96711c43.js"
+  },
+  {
+    "level": "log",
+    "message": "Got master plan update",
+    "timestamp": "2026-08-01T18:43:45.177Z",
+    "url": "http://127.0.0.1:43330/citybound.96711c43.js"
+  },
+  {
+    "level": "log",
+    "message": "Got master plan update",
+    "timestamp": "2026-08-01T18:43:45.177Z",
+    "url": "http://127.0.0.1:43330/citybound.96711c43.js"
+  },
+  {
+    "level": "log",
+    "message": "Got master plan update",
+    "timestamp": "2026-08-01T18:43:45.178Z",
+    "url": "http://127.0.0.1:43330/citybound.96711c43.js"
+  },
+  {
+    "level": "log",
+    "message": "Got master plan update",
+    "timestamp": "2026-08-01T18:43:45.178Z",
+    "url": "http://127.0.0.1:43330/citybound.96711c43.js"
+  },
+  {
+    "level": "log",
+    "message": "Rebuilt vegetation",
+    "timestamp": "2026-08-01T18:43:45.185Z",
+    "url": "http://127.0.0.1:43330/citybound.96711c43.js"
+  },
+  {
+    "level": "log",
+    "message": "Got master plan update",
+    "timestamp": "2026-08-01T18:43:45.251Z",
+    "url": "http://127.0.0.1:43330/citybound.96711c43.js"
+  },
+  {
+    "level": "log",
+    "message": "Got master plan update",
+    "timestamp": "2026-08-01T18:43:45.251Z",
+    "url": "http://127.0.0.1:43330/citybound.96711c43.js"
+  },
+  {
+    "level": "log",
+    "message": "Got master plan update",
+    "timestamp": "2026-08-01T18:43:45.252Z",
+    "url": "http://127.0.0.1:43330/citybound.96711c43.js"
+  },
+  {
+    "level": "log",
+    "message": "Got master plan update",
+    "timestamp": "2026-08-01T18:43:45.252Z",
+    "url": "http://127.0.0.1:43330/citybound.96711c43.js"
+  },
+  {
+    "level": "log",
+    "message": "Got master plan update",
+    "timestamp": "2026-08-01T18:43:45.341Z",
+    "url": "http://127.0.0.1:43330/citybound.96711c43.js"
+  },
+  {
+    "level": "log",
+    "message": "Replaced ongoing project",
+    "timestamp": "2026-08-01T18:44:29.965Z",
+    "url": "http://127.0.0.1:43330/citybound.96711c43.js"
+  },
+  {
+    "level": "log",
+    "message": "Replaced ongoing project",
+    "timestamp": "2026-08-01T18:44:29.974Z",
+    "url": "http://127.0.0.1:43330/citybound.96711c43.js"
+  },
+  {
+    "level": "log",
+    "message": "Replaced ongoing project",
+    "timestamp": "2026-08-01T18:44:29.975Z",
+    "url": "http://127.0.0.1:43330/citybound.96711c43.js"
+  },
+  {
+    "level": "log",
+    "message": "Replaced ongoing project",
+    "timestamp": "2026-08-01T18:44:29.975Z",
+    "url": "http://127.0.0.1:43330/citybound.96711c43.js"
+  },
+  {
+    "level": "log",
+    "message": "Replaced ongoing project",
+    "timestamp": "2026-08-01T18:44:53.665Z",
+    "url": "http://127.0.0.1:43330/citybound.96711c43.js"
+  },
+  {
+    "level": "log",
+    "message": "Replaced ongoing project",
+    "timestamp": "2026-08-01T18:44:53.667Z",
+    "url": "http://127.0.0.1:43330/citybound.96711c43.js"
+  },
+  {
+    "level": "log",
+    "message": "Replaced ongoing project",
+    "timestamp": "2026-08-01T18:44:53.668Z",
+    "url": "http://127.0.0.1:43330/citybound.96711c43.js"
+  },
+  {
+    "level": "log",
+    "message": "Replaced ongoing project",
+    "timestamp": "2026-08-01T18:44:53.965Z",
+    "url": "http://127.0.0.1:43330/citybound.96711c43.js"
+  },
+  {
+    "level": "log",
+    "message": "Replaced ongoing project",
+    "timestamp": "2026-08-01T18:44:53.968Z",
+    "url": "http://127.0.0.1:43330/citybound.96711c43.js"
+  },
+  {
+    "level": "log",
+    "message": "Replaced ongoing project",
+    "timestamp": "2026-08-01T18:44:54.015Z",
+    "url": "http://127.0.0.1:43330/citybound.96711c43.js"
+  },
+  {
+    "level": "log",
+    "message": "Replaced ongoing project",
+    "timestamp": "2026-08-01T18:44:54.348Z",
+    "url": "http://127.0.0.1:43330/citybound.96711c43.js"
+  },
+  {
+    "level": "log",
+    "message": "Replaced ongoing project",
+    "timestamp": "2026-08-01T18:44:54.348Z",
+    "url": "http://127.0.0.1:43330/citybound.96711c43.js"
+  },
+  {
+    "level": "log",
+    "message": "Replaced ongoing project",
+    "timestamp": "2026-08-01T18:44:54.348Z",
+    "url": "http://127.0.0.1:43330/citybound.96711c43.js"
+  },
+  {
+    "level": "log",
+    "message": "Replaced ongoing project",
+    "timestamp": "2026-08-01T18:44:54.348Z",
+    "url": "http://127.0.0.1:43330/citybound.96711c43.js"
+  },
+  {
+    "level": "log",
+    "message": "Changed ongoing project",
+    "timestamp": "2026-08-01T18:45:11.165Z",
+    "url": "http://127.0.0.1:43330/citybound.96711c43.js"
+  },
+  {
+    "level": "log",
+    "message": "Changed ongoing project",
+    "timestamp": "2026-08-01T18:45:11.170Z",
+    "url": "http://127.0.0.1:43330/citybound.96711c43.js"
+  },
+  {
+    "level": "log",
+    "message": "Changed ongoing project",
+    "timestamp": "2026-08-01T18:45:11.171Z",
+    "url": "http://127.0.0.1:43330/citybound.96711c43.js"
+  },
+  {
+    "level": "log",
+    "message": "Replaced ongoing project",
+    "timestamp": "2026-08-01T18:45:11.173Z",
+    "url": "http://127.0.0.1:43330/citybound.96711c43.js"
+  },
+  {
+    "level": "log",
+    "message": "Replaced ongoing project",
+    "timestamp": "2026-08-01T18:45:11.175Z",
+    "url": "http://127.0.0.1:43330/citybound.96711c43.js"
+  },
+  {
+    "level": "log",
+    "message": "Replaced ongoing project",
+    "timestamp": "2026-08-01T18:45:11.177Z",
+    "url": "http://127.0.0.1:43330/citybound.96711c43.js"
+  },
+  {
+    "level": "log",
+    "message": "Replaced ongoing project",
+    "timestamp": "2026-08-01T18:45:11.179Z",
+    "url": "http://127.0.0.1:43330/citybound.96711c43.js"
+  },
+  {
+    "level": "log",
+    "message": "Replaced ongoing project",
+    "timestamp": "2026-08-01T18:45:11.590Z",
+    "url": "http://127.0.0.1:43330/citybound.96711c43.js"
+  },
+  {
+    "level": "log",
+    "message": "Replaced ongoing project",
+    "timestamp": "2026-08-01T18:45:11.595Z",
+    "url": "http://127.0.0.1:43330/citybound.96711c43.js"
+  },
+  {
+    "level": "log",
+    "message": "Replaced ongoing project",
+    "timestamp": "2026-08-01T18:45:11.596Z",
+    "url": "http://127.0.0.1:43330/citybound.96711c43.js"
+  },
+  {
+    "level": "log",
+    "message": "Replaced ongoing project",
+    "timestamp": "2026-08-01T18:45:11.598Z",
+    "url": "http://127.0.0.1:43330/citybound.96711c43.js"
+  }
+]

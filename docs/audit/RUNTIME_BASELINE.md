@@ -2,94 +2,128 @@
 
 GitHub issue: <https://github.com/tharpta/citybound/issues/5>
 
-Status: BLOCKED
+Status: READY FOR REVIEW
 
 ## Clean-Current Run Context
 
-- Date: 2026-07-24 (America/Los_Angeles)
+- Date: 2026-08-01 (America/Los_Angeles)
 - Branch: `codex/issue-5-current-runtime-baseline`
-- Accepted source commit:
-  `48fd9dd285d95b293fa72baa66d5fdcc6e36d95f`
-- Audited build command: `npm run build-compat`
-- Built identity: `Citybound v0.1.2-864-g48fd9dd`
+- Tested source commit: `012429715b6ce4703e04d7fa6ef1f3e3a845ed16`
+- Accepted integration included:
+  `456095abe88c0fa2e0855b2f3f915b4a8370f86c`
+- Audited build command:
+  `CITYBOUND_ALLOW_LEGACY_LIFECYCLE=1 npm run build-compat`
+- Built identity: `Citybound v0.1.2-883-g0124297`
 - Server command:
-  `target/debug/citybound --mode local --bind 127.0.0.1:43320 --bind-sim 127.0.0.1:43321 /tmp/citybound-issue-5-current.PwqWnX/city`
-- City: newly created temporary city
-- Browser requirement: visible Google Chrome in the selected `Default` profile
-- Source working tree: clean before and after the build and server run
+  `target/debug/citybound --mode local --bind 127.0.0.1:43330 --bind-sim 127.0.0.1:43331 /private/tmp/citybound-issue-5-0124297/city`
+- City: newly created temporary city, then reloaded from the same path
+- Browser: visible Google Chrome through the connected extension
+- Evidence root: `/private/tmp/citybound-issue-5-0124297/`
 
 The audited compatibility build completed the historical Rust/WASM release
 build, Parcel bundle, browser artifact copy-back, and native debug server build.
-The build used only local tooling and did not dispatch CI or provision a paid
-service.
+Root `npm ci --ignore-scripts` was required once for the documented
+`playwright-core` smoke-test prerequisite. No paid service or hosted build was
+used.
 
-## Clean-Current Evidence
+## Build And Automated Checks
 
 | Check | Result | Evidence |
 | --- | --- | --- |
-| Compatibility build | WORKS | `npm run build-compat` completed successfully from commit `48fd9dd`. |
-| Browser distribution | WORKS | The build produced `cb_browser_ui/dist/index.html` and `cb_browser_ui.wasm`; browser execution is not implied. |
-| Native debug server | WORKS | The built executable reported `Citybound v0.1.2-864-g48fd9dd`. |
-| New persisted city initializes | WORKS | Server reported that the save folder was absent, created it, and reached `Simulation running.` |
-| HTTP browser page loads visibly | NOT TESTED | Required Chrome control did not connect. |
-| Rust/WASM module loads in Chrome | NOT TESTED | No visible page or browser console was available. |
-| Browser/server networking | NOT TESTED | No browser network evidence was available. |
-| Browser console errors | NOT TESTED | No browser console was available. |
-| Clean shutdown | WORKS | SIGINT reported `Stopping Citybound safely...`. |
-| Server reload of the same city | WORKS | Restart reported `Loading from savegame ...` and reached `Simulation running.` |
-| Second clean shutdown | WORKS | The reloaded server again reported `Stopping Citybound safely...`. |
-| Semantic gameplay persistence | NOT TESTED | No gameplay state could be created through the required visible browser. |
+| Compatibility build | WORKS | `CITYBOUND_ALLOW_LEGACY_LIFECYCLE=1 npm run build-compat` passed. |
+| Built identity | WORKS | Browser About panel, server output, `.version`, and the save's `__cb_version.txt` report `v0.1.2-883-g0124297`. |
+| Legacy install containment | WORKS | `npm run test-legacy-install-containment` passed. |
+| Linker-wrapper regression | WORKS | `npm run test-linker-wrapper-compat` passed. |
+| Full compatibility suite | WORKS | `npm run test-compat` passed, including teardown, planning, codegen, browser-distribution, server, save/reload, and headless-browser checks. |
 
-The temporary city contained 262 persisted files after the startup/reload
-sequence. This is file-level server evidence only; it does not prove that a
-road, zone, building, household, or vehicle survives reload.
+The earlier discovery that the contained install has no wall-clock timeout was
+duplicate-linked to issue #37 in
+<https://github.com/tharpta/citybound/issues/37#issuecomment-5152820981>.
+
+## Visible Startup And Networking
+
+| Check | Result | Evidence |
+| --- | --- | --- |
+| Native debug server | WORKS | Server reported `Citybound v0.1.2-883-g0124297` and reached `Simulation running.` |
+| New persisted city initializes | WORKS | Server created `/private/tmp/citybound-issue-5-0124297/city`; the final save contains 280 files. |
+| HTTP browser page loads visibly | WORKS | Chrome visibly rendered Citybound at `http://127.0.0.1:43330/`. |
+| Rust/WASM module loads | WORKS | Console recorded `Finished loading Rust wasm module 'cb_browser_ui'`, `Before setup`, and `After setup`. |
+| Browser/server networking | WORKS | Server logged the page load, WebSocket handshake, and `machine ID 1 connected!`; Chrome logged continuing master-plan updates. |
+| Initial simulation content | WORKS | Chrome logged `Rebuilt vegetation`, and the visible map rendered vegetation. |
+| Browser warnings or errors | NONE OBSERVED | The captured Chrome console JSON contains no warning- or error-level entries. |
 
 ## First-Town Workflow
 
 | Step | Result | Notes |
 | --- | --- | --- |
-| Start a new city | PARTIAL | The server created a fresh city, but the city was not displayed in Chrome. |
-| Create a planning project | NOT TESTED | Blocked before visible interaction. |
-| Place connected roads | NOT TESTED | Blocked before visible interaction. |
-| Zone nearby land | NOT TESTED | Blocked before visible interaction. |
-| Implement the project | NOT TESTED | Blocked before visible interaction. |
-| Observe lot subdivision | NOT TESTED | Blocked before visible interaction. |
-| Observe building development | NOT TESTED | Blocked before visible interaction. |
-| Observe households and vehicles | NOT TESTED | Blocked before visible interaction. |
-| Clean shutdown | WORKS | Both server runs used the safe SIGINT path. |
-| Reload the same city | PARTIAL | Server reload works; visible and semantic gameplay reload remain untested. |
+| Start a new city | WORKS | Fresh city loaded visibly in Chrome with the expected build identity. |
+| Create a planning project | WORKS | Project `B56` opened and received project updates. |
+| Place connected roads | WORKS | A road-tool gesture produced a visible connected-road preview. |
+| Zone nearby land | BROKEN | Residential zoning was attempted twice adjacent to the road, once in project `B56` and once in separate project `254`. Project changes were logged, but no visible zone appeared. |
+| Implement the project | WORKS | Implement completed; at 32× speed the preview became a constructed visible road network. |
+| Observe lot subdivision | NOT TESTED | No visible residential zone appeared, so subdivision could not be exercised. |
+| Observe building development | NOT TESTED | Blocked downstream of the zoning failure. |
+| Observe households | NOT TESTED | Blocked downstream of the zoning failure. |
+| Observe vehicles and traffic | NOT TESTED | No developed households or vehicles were available to observe. |
+| First shutdown | PARTIAL | SIGINT stopped the process and cleared both listeners, but the `tee` pipeline did not preserve the expected safe-stopping line. |
+| Reload the same city | WORKS | Server reported `Loading from savegame`, reached `Simulation running.`, and Chrome reconnected. |
+| Road persistence after reload | WORKS | The implemented road network remained visibly present after reload. |
+| Final shutdown | WORKS | Direct SIGINT printed `Stopping Citybound safely...`; ports `43330`/`43331` and PID `61044` were absent afterward. |
 
-## External Blocker
+The zoning failure is a factual outcome of this audit, not a fix in issue #5.
+It is tracked separately in
+<https://github.com/tharpta/citybound/issues/59> after an open-and-closed
+duplicate search.
 
-Google Chrome 150.0.7871.186 was installed and running. The ChatGPT Chrome
-Extension was installed and enabled in the selected `Default` profile, and its
-native messaging host manifest existed, matched `com.openai.codexextension`,
-and allowed the expected extension origin.
+## Save And Reload Finding
 
-The initial Chrome connection, a delayed retry, and the single supported retry
-after opening a fresh Chrome window all returned:
+The clean-current disappearing-road symptom tracked in
+<https://github.com/tharpta/citybound/issues/8> was **not reproduced in this one
+run**: after reload, Chrome reconnected and the implemented road network was
+still visibly present. This single successful observation does not fully
+resolve #8 or establish a semantic persistence regression guarantee.
 
-```text
-Browser is not available: extension
-```
+The save contained 280 files after the run. File presence plus one visible road
+reload is stronger evidence than the automated file-inventory smoke alone, but
+does not cover zones, lots, buildings, households, or vehicles because zoning
+did not produce visible state.
 
-The approved Chrome-control procedure prohibits substituting the in-app
-browser, AppleScript, or shell-driven browser control. Issue #5 therefore cannot
-meet its visible-browser, browser-console, networking, or first-town acceptance
-criteria until the user-visible Chrome extension connection responds.
+## Evidence Inventory
 
-Producer blocker decision:
-<https://github.com/tharpta/citybound/issues/5#issuecomment-5076938598>
+The reviewable evidence subset is committed under
+`docs/audit/evidence/runtime-baseline-0124297/`:
 
-Unblock condition: restore the user-visible Chrome extension connection, then
-resume the first-town workflow from a fresh city on the accepted source.
+- [`server-first-run.log`](evidence/runtime-baseline-0124297/server-first-run.log):
+  build identity, save creation, simulation startup, page load, WebSocket
+  handshake, and machine-ID connection.
+- [`browser-console-before-implement.json`](evidence/runtime-baseline-0124297/browser-console-before-implement.json):
+  WASM loading, browser setup, vegetation, master-plan, and project-change
+  logs without warning/error entries.
+- [`01-visible-load.jpg`](evidence/runtime-baseline-0124297/01-visible-load.jpg):
+  visible Chrome startup and build identity.
+- [`02-road-zone-attempt.jpg`](evidence/runtime-baseline-0124297/02-road-zone-attempt.jpg):
+  project `B56`, road preview, and residential-zone tool state.
+- [`03-after-implement.jpg`](evidence/runtime-baseline-0124297/03-after-implement.jpg):
+  constructed visible road network.
+- [`04-zone-project-after-implement.jpg`](evidence/runtime-baseline-0124297/04-zone-project-after-implement.jpg):
+  later zoning attempt with no visible zone.
+- [`05-before-shutdown.jpg`](evidence/runtime-baseline-0124297/05-before-shutdown.jpg):
+  visible state before the first shutdown.
+- [`06-after-reload-road-visible.jpg`](evidence/runtime-baseline-0124297/06-after-reload-road-visible.jpg):
+  implemented roads still visible after reload.
+
+The full local evidence remains under
+`/private/tmp/citybound-issue-5-0124297/`. It additionally contains the
+280-file city used for both runs and the repetitive first-run/post-reload
+master-plan console captures. Those larger mutable runtime artifacts are not
+treated as repository fixtures or a semantic persistence regression.
 
 ## Earlier Stale-Artifact Evidence
 
 The earlier visible run used branch `codex/revival-bootstrap` and an existing
 debug binary reporting `v0.1.2-837-gdf3d40e`. That binary was stale relative to
 the source, so the observations below remain historical evidence and are not
-accepted as the clean-current baseline.
+the accepted clean-current baseline.
 
 | Step | Result | Historical observation |
 | --- | --- | --- |
@@ -104,6 +138,6 @@ accepted as the clean-current baseline.
 | Clean shutdown | WORKS | SIGINT reported `Stopping Citybound safely...`. |
 | Reload the same city | BROKEN | The implemented road was no longer visible after reload. |
 
-The stale-artifact road persistence symptom is tracked in
-<https://github.com/tharpta/citybound/issues/8>. The clean-current run did not
-reproduce or disprove it because visible gameplay interaction was blocked.
+That stale-artifact symptom motivated #8. The accepted clean-current run above
+did not reproduce it, but the one-run result is intentionally not treated as a
+full resolution.
