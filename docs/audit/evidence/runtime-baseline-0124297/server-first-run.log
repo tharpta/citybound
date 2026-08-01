@@ -1,0 +1,15 @@
+        Citybound v0.1.2-883-g0124297
+
+       This is the simulation server.
+  To connect and start playing, please open
+   this address in Chrome/Firefox/Safari:
+╭───────────────────────────────────────────╮
+│          http://localhost:43330           │
+╰───────────────────────────────────────────╯
+Savegame folder /private/tmp/citybound-issue-5-0124297/city not found, creating...
+Simulation running.
+(You can stop this process at any point and the savegame should be fine)
+Started watching config file . "modding/architecture_rules.yaml"
+V4(127.0.0.1:51504) loaded page
+Got connection from 127.0.0.1:51508, shaking hands...
+...machine ID 1 connected!
