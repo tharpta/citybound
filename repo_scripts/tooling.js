@@ -1,130 +1,86 @@
-const util = require('util');
-const { execSync, spawnSync } = require('child_process');
+const { spawnSync } = require("child_process");
 
 const NIGHTLY_VERSION = "nightly-2020-03-10";
-const NIGHTLY_VERSION_BROWSER = "nightly-2020-03-10";
 const CARGO_WEB_VERSION = "0.6.24";
-let quiet = process.argv[2] == "-q";
+const ALLOW_MUTATION = process.env.CITYBOUND_ALLOW_TOOLCHAIN_MUTATION === "1";
+const quiet = process.argv.includes("-q");
 
-let rustupV;
-try {
-    rustupV = execSync('rustup --version', { encoding: 'utf8' });
-} catch (e) {
-    rustupV = undefined
+function run(command, args, options = {}) {
+    return spawnSync(command, args, {
+        encoding: "utf8",
+        stdio: options.inherit ? "inherit" : "pipe",
+    });
 }
 
-if (rustupV && rustupV.startsWith("rustup")) {
-    !quiet && console.log("Rustup installed ✅ (OK)");
-} else {
-    console.log("Rustup missing! 🛑 (FAIL)");
-    console.log("Please install from https://rustup.rs");
+function fail(message) {
+    console.error(message);
     process.exit(1);
 }
 
-function fullNightlyVersion(nightly) {
-    const nightlySuffix = process.platform === "win32"
-        ? "-x86_64-pc-windows-msvc"
-        : (process.platform === "darwin"
-            ? "-x86_64-apple-darwin"
-            : "-x86_64-unknown-linux-gnu");
-    return nightly + nightlySuffix;
+const rustupVersion = run("rustup", ["--version"]);
+if (rustupVersion.status !== 0 || !rustupVersion.stdout.startsWith("rustup")) {
+    fail("Rustup missing. Install it from https://rustup.rs and rerun this inspection.");
+}
+!quiet && console.log("Rustup installed ✅ (OK)");
+
+function hostTriple() {
+    if (process.platform === "win32") return "x86_64-pc-windows-msvc";
+    if (process.platform === "darwin") return "x86_64-apple-darwin";
+    if (process.platform === "linux") return "x86_64-unknown-linux-gnu";
+    fail(`Unsupported host for Citybound compatibility tooling: ${process.platform}`);
 }
 
-function activeToolchain() {
-    return execSync('rustup show active-toolchain', { encoding: 'utf8' }).trim().split(/\s+/)[0];
-}
+const toolchain = `${NIGHTLY_VERSION}-${hostTriple()}`;
+const installed = run("rustup", ["toolchain", "list"]);
+if (installed.status !== 0) fail("Could not inspect installed rustup toolchains.");
 
-function ensureRustNightly(nightly) {
-    let rustupShow = execSync('rustup show', { encoding: 'utf8' });
-    const fullVersion = fullNightlyVersion(nightly);
-    const activeToolchainName = activeToolchain();
+const hasToolchain = installed.stdout
+    .split(/\r?\n/)
+    .map(line => line.trim().split(/\s+/)[0])
+    .includes(toolchain);
 
-    if (activeToolchainName && activeToolchainName.includes(nightly)) {
-        !quiet && console.log("Correct rust nightly set up ✅ (OK)");
-        return fullVersion;
-    } else {
-        console.log("Wrong version of rust set up ❗️(!)");
-        console.log(rustupShow.split(/\n/g).map(s => " | " + s).join("\n"));
-        console.log("🔧 Overriding with correct nightly (only for this directory)...");
-        console.log("> rustup override set " + fullVersion);
-        spawnSync("rustup", ["override", "set", fullVersion], { stdio: 'inherit' });
-        quiet = false;
-
-        let rustupShow2 = execSync('rustup show', { encoding: 'utf8' });
-        const activeToolchainName2 = activeToolchain();
-
-        if (activeToolchainName2 && activeToolchainName2.includes(nightly)) {
-            !quiet && console.log("Correct rust nightly set up ✅ (OK)");
-            return fullVersion;
-        } else {
-            console.log("Failed to install correct toolchain 🛑 (FAIL)");
-            console.log("rustup show output:");
-            console.log(rustupShow2);
-            process.exit(1);
-        }
-    }
-}
-
-!quiet && console.log("Checking rust nightly for simulation");
-const simulationToolchain = ensureRustNightly(NIGHTLY_VERSION);
-
-process.chdir('./cb_browser_ui');
-
-!quiet && console.log("Checking rust nightly for browser");
-ensureRustNightly(NIGHTLY_VERSION_BROWSER);
-
-!quiet && console.log("Checking cargo-web version");
-
-function checkCargoWeb(requiredVersion) {
-    try {
-        let cargoWebVersion = execSync('cargo-web --version', { encoding: 'utf8' });
-        if (cargoWebVersion.includes(requiredVersion)) {
-            return true;
-        }
-        return false;
-    } catch (e) {
-        console.log("Couldn't run cargo-web", e.message);
-        return false;
-    }
-}
-
-if (checkCargoWeb(CARGO_WEB_VERSION)) {
-    !quiet && console.log("Correct cargo-web set up ✅ (OK)");
-} else {
-    !quiet && console.log("Correct cargo-web not installed yet ❗️(!)");
-    console.log("🔧 Installing cargo-web");
-
-    let platform = require("os").platform();
-
-    if (platform == "linux" || platform == "darwin") {
-        let url = "https://github.com/koute/cargo-web/releases/download/" + CARGO_WEB_VERSION + "/cargo-web-x86_64-" + (platform == "linux" ? "unknown-linux-gnu.gz" : "apple-darwin.gz");
-        console.log("Downloading cargo-web executable from " + url);
-        console.log(execSync('curl -L ' + url + ' | gzip -d > cargo-web', { encoding: 'utf8' }));
-        console.log("Installing cargo-web executable");
-        console.log(execSync('chmod +x cargo-web', { encoding: 'utf8' }));
-        console.log(execSync('mkdir -p ~/.cargo/bin', { encoding: 'utf8' }));
-        console.log(execSync('mv cargo-web ~/.cargo/bin', { encoding: 'utf8' }));
-    } else {
-        spawnSync("cargo", ["install", "cargo-web", "--force", "--vers", CARGO_WEB_VERSION],
-            { stdio: quiet ? 'ignore' : 'inherit' }
+if (!hasToolchain) {
+    if (!ALLOW_MUTATION) {
+        fail(
+            `Required Rust toolchain ${toolchain} is not installed.\n`
+            + "Inspection did not mutate the host. After reviewing the pinned toolchain, "
+            + "rerun with CITYBOUND_ALLOW_TOOLCHAIN_MUTATION=1 to authorize rustup installation."
         );
     }
-
-    if (checkCargoWeb(CARGO_WEB_VERSION)) {
-        !quiet && console.log("Correct cargo-web set up ✅ (OK)");
-    } else {
-        console.log("Failed to install cargo-web 🛑 (FAIL)");
-        process.exit(1);
-    }
+    console.log(`Installing explicitly authorized Rust toolchain ${toolchain}...`);
+    const installArgs = ["toolchain", "install", toolchain];
+    if (process.platform === "darwin") installArgs.push("--force-non-host");
+    const install = run("rustup", installArgs, { inherit: true });
+    if (install.status !== 0) fail(`Failed to install ${toolchain}.`);
 }
+!quiet && console.log(`Required Rust toolchain available: ${toolchain} ✅ (OK)`);
 
-process.chdir('..');
+const cargoWeb = run("cargo-web", ["--version"]);
+if (
+    cargoWeb.status !== 0
+    || !new RegExp(`^cargo-web ${CARGO_WEB_VERSION}(?:\\s|$)`).test(cargoWeb.stdout.trim())
+) {
+    fail(
+        `cargo-web ${CARGO_WEB_VERSION} is required but was not found exactly.\n`
+        + "The legacy unauthenticated prebuilt-binary download is disabled. This command will "
+        + "not download or globally install cargo-web. Follow docs/LOCAL_DEVELOPMENT.md for "
+        + "the explicit source-install route, then rerun."
+    );
+}
+!quiet && console.log(`cargo-web ${CARGO_WEB_VERSION} available ✅ (OK)`);
 
-!quiet && console.log("🔧 Ensuring linting tools are installed...");
-spawnSync("rustup", ["component", "add", "rustfmt-preview", "--toolchain", simulationToolchain],
-    { stdio: quiet ? 'ignore' : 'inherit' }
-);
-spawnSync("rustup", ["component", "add", "clippy-preview", "--toolchain", simulationToolchain],
-    { stdio: quiet ? 'ignore' : 'inherit' }
-);
-!quiet && console.log("Linting tools set up ✅ (OK)");
+if (ALLOW_MUTATION) {
+    console.log("Installing explicitly authorized formatting components...");
+    for (const component of ["rustfmt-preview", "clippy-preview"]) {
+        const add = run(
+            "rustup",
+            ["component", "add", component, "--toolchain", toolchain],
+            { inherit: true }
+        );
+        if (add.status !== 0) fail(`Failed to install ${component} for ${toolchain}.`);
+    }
+} else {
+    !quiet && console.log(
+        "Toolchain inspection completed without installing components or changing rustup overrides."
+    );
+}

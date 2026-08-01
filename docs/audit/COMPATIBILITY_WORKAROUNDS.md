@@ -20,13 +20,22 @@ Files:
 Trigger: original Citybound requires `nightly-2020-03-10`, and modern stable
 Rust cannot compile the storage stack.
 
-Current behavior:
+Historical behavior:
 
 - Installs the historical target toolchain with `rustup` when missing.
 - Sets a directory-specific Rust override in the checkout.
 - `tooling.js` also adds historical rustfmt/clippy components.
 
-Classification: `LOCAL MUTATION` and `HOST MUTATION`.
+Contained behavior:
+
+- Default inspection only checks for the exact installed toolchain.
+- Missing-toolchain installation requires
+  `CITYBOUND_ALLOW_TOOLCHAIN_MUTATION=1`.
+- Compatibility commands select the toolchain through child-process
+  `RUSTUP_TOOLCHAIN`; they do not persist a checkout override.
+
+Classification: historical `LOCAL MUTATION` and `HOST MUTATION`, now
+read-only by default.
 
 Risks:
 
@@ -48,14 +57,27 @@ File: `repo_scripts/tooling.js`
 
 Trigger: the browser uses `cargo-web 0.6.24` and `stdweb`.
 
-Current behavior:
+Historical behavior:
 
 - Downloads a prebuilt executable with `curl` on macOS/Linux.
 - Writes it into `~/.cargo/bin`.
 - Does not verify a checksum or signature.
 - Uses a shell pipeline and global destination outside the repository.
 
-Classification: `HOST MUTATION`; modernization priority `HIGH`.
+Contained behavior:
+
+- Default tooling inspection performs no download, installation, component
+  change, or rustup override.
+- Exact `cargo-web 0.6.24` is required and mismatches fail closed.
+- The documented opt-in source install uses Cargo registry checksums and a
+  locked graph; the obsolete source remains a residual risk.
+
+Classification: historical `HOST MUTATION`, now fail-closed; modernization
+priority `HIGH`.
+
+The historical AppVeyor path is also inert: it no longer runs its direct
+`npm install --no-save`, downloads toolchains, pushes artifacts, or deploys to
+S3. Revival automation is limited to the zero-cost GitHub Actions policy.
 
 Risks:
 
@@ -266,18 +288,19 @@ their current behavior so M1 can separate bootstrap, build, and verification.
 
 | Command | Host assumptions | Checkout/host mutation | Network | Artifacts and limits |
 | --- | --- | --- | --- | --- |
-| `ensure-rust-toolchain-compat.sh` | rustup; historical x86 target | Sets checkout override; may install toolchain | Yes when missing | No game artifact; unsupported toolchain |
-| `npm run ensure-tooling` | Node plus rustup | May set overrides, install components, and install global cargo-web | Yes when missing | Host-wide tool mutation |
-| `npm run build-browser-compat` | macOS/x86 assumptions, Python with distutils, npm | Replaces temp build root and local ignored `dist` | Yes through `npm install` | Browser JS/WASM/assets; arbitrary configured build root is destructive |
+| `ensure-rust-toolchain-compat.sh` | rustup; historical x86 target | Read-only by default; explicit env opt-in may install pinned toolchain; no persistent override | Only with explicit opt-in when missing | Prints the toolchain for child-process `RUSTUP_TOOLCHAIN` |
+| `npm run ensure-tooling` | Node plus rustup | Read-only by default; explicit env opt-in may install pinned toolchain/components; never installs cargo-web | Only with explicit toolchain opt-in | Exact versions; unverifiable binary bootstrap disabled |
+| `npm run build-browser-compat` | macOS/x86 assumptions, Python with distutils, npm | Fails before replacing temp/dist paths by default; explicit lifecycle opt-in replaces them | Yes only with explicit lifecycle opt-in | Browser JS/WASM/assets; arbitrary configured build root is destructive |
 | `npm run build-server-debug-compat` | Historical Rust and Apple linker workaround | Rewrites `.version`, Cargo target, tool configuration | Potentially | Debug server; assumes browser dist |
 | `npm run build-compat` | All browser/server assumptions | Combined mutations above | Yes/potentially | Full compatibility artifact set |
-| `npm run test-planning-compat` | Historical Rust and Apple linker | May mutate toolchain override/components and target | Potentially | Focused tests only; not full simulation |
+| `npm run test-planning-compat` | Historical Rust and Apple linker | No rustup override; writes target | Potentially | Focused tests only; not full simulation |
 | `npm run test-linker-wrapper-compat` | Bash, `ar`, and ordinary temporary storage | Unique test/scratch directories removed on exit | No | Deterministic fake-linker coverage for success, failure, exit propagation, and four concurrent invocations |
 | `npm run check-browser-dist-compat` | Existing browser dist | Read-only | No | Artifact existence/content, not execution |
 | `npm run smoke-server-compat` | Existing debug server and dist, curl | Temporary city by default; explicit log path is deleted/replaced; explicit city is preserved | Loopback only | HTTP/startup assertion |
 | `npm run smoke-browser-compat` | Existing server/dist and Chrome | Temporary city removed; explicit city preserved | Loopback only | Headless startup/network assertion |
 | `npm run smoke-save-reload-compat` | Existing debug server | Unique temporary city removed | Loopback only | File/path persistence, not semantic state |
-| `npm run check-codegen-compat` | Historical Rust, rsync | Sets real checkout override; `--delete` in configured check root | Potentially | Byte-identical actor glue |
+| `npm run check-codegen-compat` | Historical Rust, rsync | No rustup override; `--delete` in configured check root | Potentially | Byte-identical actor glue |
+| `npm run test-legacy-install-containment` | Bash, Node, fake rustup/npm/cargo-web | Unique temporary home/build roots removed on exit | No | Safe default, explicit opt-in, provenance failure, and no host mutation |
 | `npm run audit-dependencies-readonly` | Bash, Node, Git, Cargo, and `shasum`; historical and stable toolchains already installed | Fingerprints tracked and nonignored untracked content before/after | No by default; Cargo forced offline | Lock fingerprints, npm inventory, complete direct Cargo metadata |
 | `CITYBOUND_AUDIT_ONLINE=1 npm run audit-dependencies-readonly` | Above plus npm advisory access | Same repository fingerprint; no lifecycle scripts or fixes | Yes, npm advisory service | Time-dependent advisory JSON validated before advisory exit status is normalized |
 

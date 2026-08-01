@@ -16,8 +16,7 @@ if [[ "$CHECK_ROOT" == *" "* ]]; then
     exit 1
 fi
 
-"$SCRIPT_DIR/ensure-rust-toolchain-compat.sh"
-TOOLCHAIN="$(rustup show active-toolchain | awk '{print $1}')"
+TOOLCHAIN="$("$SCRIPT_DIR/ensure-rust-toolchain-compat.sh")"
 
 mkdir -p "$CHECK_ROOT"
 rsync -a --delete \
@@ -31,13 +30,11 @@ rsync -a --delete \
 
 (
     cd "$CHECK_ROOT"
-    rustup override set "$TOOLCHAIN"
-
     if [[ "$(uname -s)" == "Darwin" ]]; then
         export CARGO_TARGET_X86_64_APPLE_DARWIN_LINKER="$CHECK_ROOT/repo_scripts/cc-strip-rmeta.sh"
     fi
 
-    cargo run --locked --quiet -p citybound-codegen-check -- \
+    RUSTUP_TOOLCHAIN="$TOOLCHAIN" cargo run --locked --quiet -p citybound-codegen-check -- \
         "$CHECK_ROOT/cb_util" \
         "$CHECK_ROOT/cb_time" \
         "$CHECK_ROOT/cb_planning" \
