@@ -22,6 +22,7 @@ export function ZonePlanningLayers({ state }: {
 }) {
     const { zoneGroups, zoneOutlineGroups, buildingOutlinesGroup } = state.planning.rendering.currentPreview;
     return <>
+        <span data-citybound-zone-layers="persistent" hidden={true} />
         {[...zoneGroups.entries()].map(([landUse, groups]) => <RenderLayer renderOrder={renderOrder.addedGesturesZones} decal={true} batches={[...groups.values()].map(groupMesh => ({
             mesh: groupMesh,
             instances: landUseInstances.get(landUse)

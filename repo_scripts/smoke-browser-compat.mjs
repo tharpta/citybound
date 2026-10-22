@@ -236,6 +236,19 @@ try {
         { timeout: browserTimeoutMs },
     );
 
+    await page.evaluate(() => document.getElementById("planning")?.click());
+    await page.waitForFunction(
+        () => (
+            window.cbReactApp?.state?.uiMode === "planning"
+            && window.cbReactApp?.state?.planning?.currentProject == null
+            && document.querySelector(
+                '[data-citybound-zone-layers="persistent"]',
+            ) != null
+        ),
+        undefined,
+        { timeout: browserTimeoutMs },
+    );
+
     const state = await page.evaluate(() => {
         const canvas = document.querySelector("canvas");
         return {
@@ -248,6 +261,10 @@ try {
             errorOverlayClass: document.getElementById("errors")?.className ?? "",
             networkingTurns: { ...window.cbReactApp.state.system.networkingTurns },
             title: document.title,
+            persistentZoneLayersMounted:
+                document.querySelector(
+                    '[data-citybound-zone-layers="persistent"]',
+                ) != null,
         };
     });
 
@@ -256,6 +273,11 @@ try {
     }
     if (masterPlanUpdates === 0) {
         throw new Error("The browser did not receive a master-plan update.");
+    }
+    if (!state.persistentZoneLayersMounted) {
+        throw new Error(
+            "Zone planning layers unmounted when no planning project was active.",
+        );
     }
     if (browserErrors.length > 0) {
         throw new Error(`Browser errors were reported:\n${browserErrors.join("\n")}`);
