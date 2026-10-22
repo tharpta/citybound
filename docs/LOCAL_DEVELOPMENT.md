@@ -74,7 +74,7 @@ This runs:
 - `npm run check-browser-dist-compat`
 - `npm run smoke-server-compat`
 - `npm run smoke-save-reload-compat`
-- `npm run smoke-browser-compat`
+- `npm run smoke-zone-reload-compat` (includes the browser smoke checks)
 
 The server smoke starts `target/debug/citybound`, waits for `/` to return HTTP
 `200`, then stops the process through SIGINT.
@@ -97,6 +97,11 @@ headless Chromium browser, and verifies:
 - the configured simulation port reaches the browser
 - browser and server networking turns advance
 - no page or console errors are reported
+
+`npm run smoke-zone-reload-compat` additionally implements a residential zone
+in a disposable city, reloads the page, safely restarts its own server against
+the saved city, and checks that fill and outline meshes return in planning mode
+without an active or dummy project. It refuses an explicit city directory.
 
 The smoke uses Playwright's cached Chromium when available and otherwise uses an
 installed Google Chrome. Set `CITYBOUND_BROWSER_EXECUTABLE` to use another

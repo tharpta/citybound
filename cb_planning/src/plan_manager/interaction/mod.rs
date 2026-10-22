@@ -79,19 +79,31 @@ impl<Logic: PlanningLogic> PlanManager<Logic> {
     pub fn get_project_preview_update(
         &mut self,
         ui: PlanningUIID<Logic>,
-        project_id: ProjectID,
+        project_id: Option<ProjectID>,
         known_result: &KnownPlanResultState<Logic::PrototypeKind>,
         world: &mut World,
     ) {
-        let (plan_history, maybe_result, maybe_actions) =
-            self.try_ensure_preview(project_id, world);
+        // No project means the authoritative implemented plan. This also seeds a
+        // fresh browser's geometry without creating a throwaway planning project.
+        if let Some(id) = project_id {
+            let (plan_history, maybe_result, maybe_actions) =
+                self.try_ensure_preview(id, world);
 
-        if let (Some(result), Some(actions)) = (maybe_result, maybe_actions) {
+            if let (Some(result), Some(actions)) = (maybe_result, maybe_actions) {
+                ui.on_project_preview_update(
+                    project_id,
+                    plan_history.clone(),
+                    result.update_for(known_result),
+                    actions.clone(),
+                    world,
+                );
+            }
+        } else {
             ui.on_project_preview_update(
                 project_id,
-                plan_history.clone(),
-                result.update_for(known_result),
-                actions.clone(),
+                self.master_plan.clone(),
+                self.master_result.update_for(known_result),
+                ActionGroups::new(),
                 world,
             );
         }

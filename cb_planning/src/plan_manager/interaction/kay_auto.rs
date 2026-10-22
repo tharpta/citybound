@@ -14,7 +14,7 @@ impl<Logic: PlanningLogic> PlanManagerID<Logic> {
         world.send(self.as_raw(), MSG_PlanManager_get_all_plans::<Logic>(ui, known_master, known_projects));
     }
     
-    pub fn get_project_preview_update(self, ui: PlanningUIID < Logic >, project_id: ProjectID, known_result: KnownPlanResultState < Logic :: PrototypeKind >, world: &mut World) {
+    pub fn get_project_preview_update(self, ui: PlanningUIID < Logic >, project_id: Option < ProjectID >, known_result: KnownPlanResultState < Logic :: PrototypeKind >, world: &mut World) {
         world.send(self.as_raw(), MSG_PlanManager_get_project_preview_update::<Logic>(ui, project_id, known_result));
     }
     
@@ -38,7 +38,7 @@ impl<Logic: PlanningLogic> PlanManagerID<Logic> {
 #[derive(Compact, Clone)] #[allow(non_camel_case_types)]
 struct MSG_PlanManager_get_all_plans<Logic: PlanningLogic>(pub PlanningUIID < Logic >, pub KnownHistoryState, pub CHashMap < ProjectID , KnownProjectState >);
 #[derive(Compact, Clone)] #[allow(non_camel_case_types)]
-struct MSG_PlanManager_get_project_preview_update<Logic: PlanningLogic>(pub PlanningUIID < Logic >, pub ProjectID, pub KnownPlanResultState < Logic :: PrototypeKind >);
+struct MSG_PlanManager_get_project_preview_update<Logic: PlanningLogic>(pub PlanningUIID < Logic >, pub Option < ProjectID >, pub KnownPlanResultState < Logic :: PrototypeKind >);
 #[derive(Compact, Clone)] #[allow(non_camel_case_types)]
 struct MSG_PlanManager_start_new_gesture<Logic: PlanningLogic>(pub ProjectID, pub GestureID, pub Logic :: GestureIntent);
 #[derive(Compact, Clone)] #[allow(non_camel_case_types)]

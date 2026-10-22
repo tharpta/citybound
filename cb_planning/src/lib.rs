@@ -871,6 +871,32 @@ mod tests {
     }
 
     #[test]
+    fn master_result_seeds_fresh_ui_and_replaces_project_preview() {
+        let implemented = test_prototype("implemented-zone", test_kind(1, 1), 0.0);
+        let draft = test_prototype("draft-zone", test_kind(2, 2), 20.0);
+        let master = test_result(vec![implemented.clone()]);
+        let mut browser = PlanResult::new();
+
+        let initial = master.update_for(&browser.as_known_state());
+        assert_eq!(initial.new_prototypes.len(), 1);
+        browser.apply_update(&initial);
+        assert!(browser.prototypes.contains_key(implemented.id));
+
+        let preview = test_result(vec![implemented.clone(), draft.clone()]);
+        browser.apply_update(&preview.update_for(&browser.as_known_state()));
+        let back_to_master = master.update_for(&browser.as_known_state());
+        assert_eq!(back_to_master.prototypes_to_drop.len(), 1);
+        assert_eq!(back_to_master.prototypes_to_drop[0], draft.id);
+        browser.apply_update(&back_to_master);
+        assert_eq!(browser.prototypes.len(), 1);
+        assert!(browser.prototypes.contains_key(implemented.id));
+
+        let repeated = master.update_for(&browser.as_known_state());
+        assert_eq!(repeated.new_prototypes.len(), 0);
+        assert_eq!(repeated.prototypes_to_drop.len(), 0);
+    }
+
+    #[test]
     fn plan_result_actions_group_destruct_morph_and_construct() {
         let kept = test_prototype("kept", test_kind(1, 1), 0.0);
         let morph_old = test_prototype("morph-old", test_kind(1, 2), 10.0);
