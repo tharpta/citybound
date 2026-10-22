@@ -104,6 +104,8 @@ export function PlanningUI(props: { state: SharedState, setState: SetSharedState
 
     const { state, setState } = props;
     return <>
+        <ZonePlanningLayers state={state} />
+
         {currentProject && <>
             <ControlPoints {...{ state, setState, currentProject, planningMode, editedGesture, setEditedGesture, setAddToEnd }} />
 
@@ -120,7 +122,6 @@ export function PlanningUI(props: { state: SharedState, setState: SetSharedState
             />
 
             <RoadPlanningLayers state={state} />
-            <ZonePlanningLayers state={state} />
         </>}
 
         <PlanningMenu
