@@ -548,3 +548,55 @@ pub fn spawn(world: &mut World) {
         world,
     );
 }
+
+#[cfg(test)]
+mod tests {
+    extern crate serde_yaml;
+
+    use super::*;
+
+    #[test]
+    fn shipped_family_house_rules_generate_geometry() {
+        let entries: HashMap<Name, ArchitectureRule> = serde_yaml::from_str(include_str!(
+            "../../../../../modding/architecture_rules.yaml"
+        ))
+        .unwrap();
+        let rules: CHashMap<Name, ArchitectureRule> = entries.into_iter().collect();
+        let boundary = LinePath::new(
+            vec![
+                P2::new(0.0, 0.0),
+                P2::new(30.0, 0.0),
+                P2::new(30.0, 40.0),
+                P2::new(0.0, 40.0),
+                P2::new(0.0, 0.0),
+            ]
+            .into(),
+        )
+        .unwrap();
+        let area =
+            Area::new(vec![PrimitiveArea::new(ClosedLinePath::new(boundary).unwrap())].into());
+        let lot = Lot {
+            area: area.clone(),
+            original_area: area,
+            original_lot_id: 62,
+            zone_configs: vec![].into(),
+            road_boundaries: vec![LinePath::new(
+                vec![P2::new(0.0, 0.0), P2::new(30.0, 0.0)].into(),
+            )
+            .unwrap()]
+            .into(),
+        };
+        let mut collector = BuildingGeometryCollector::new();
+        RuleRef::<BuildingRule>::of("FamilyHouse")
+            .resolve(&rules)
+            .unwrap()
+            .collect_geometry(&mut collector, &lot, &rules)
+            .unwrap();
+        let geometry = collector.into_geometry();
+        assert!(!geometry.meshes.is_empty());
+        assert!(geometry
+            .meshes
+            .values()
+            .all(|mesh| !mesh.vertices.is_empty() && !mesh.indices.is_empty()));
+    }
+}

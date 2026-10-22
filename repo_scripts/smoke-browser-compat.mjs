@@ -38,7 +38,8 @@ const expectedSimulationPort = Number(bindSimulation.slice(bindSimulation.lastIn
 const serverPath = join(repoRoot, "target", "debug", "citybound");
 const browserTimeoutMs = Number(process.env.CITYBOUND_BROWSER_SMOKE_TIMEOUT_MS ?? 30_000);
 const explicitCityDir = process.env.CITYBOUND_BROWSER_SMOKE_CITY_DIR;
-const testZoneReload = process.argv.includes("--zone-reload");
+const testFamilyHouseReload = process.argv.includes("--family-house-reload");
+const testZoneReload = process.argv.includes("--zone-reload") || testFamilyHouseReload;
 
 let browser;
 let server;
@@ -292,6 +293,49 @@ try {
     }
 
     if (testZoneReload) {
+        let houseIds = [];
+        const hasHouseMeshes = ids => ids.every(id =>
+            ["WhiteWall", "TiledRoof", "WoodenFence"].every(material => {
+                const mesh = window.cbReactApp.state.landUse.rendering.buildingMeshes[material][id];
+                return mesh?.vertices.length > 0 && mesh?.indices.length > 0;
+            }));
+        const renderedHouseIds = () => Object.entries(
+            window.cbReactApp.state.landUse.rendering.buildingMeshes.WoodenFence,
+        ).filter(([, mesh]) => mesh.vertices.length > 0 && mesh.indices.length > 0)
+            .map(([id]) => id).sort();
+        if (testFamilyHouseReload) {
+            // A straight road beside the fixed residential polygon permits normal
+            // immigration/development; no actor state or save files are injected.
+            await page.evaluate(() => {
+                const id = "00000000-0000-4000-8000-000000000062";
+                window.cbRustBrowser.start_new_project(id);
+                let intent = { Road: window.cbRustBrowser.new_road_intent(1, 1) };
+                for (const point of [[-320, -300], [-220, -300]]) {
+                    intent = window.cbRustBrowser.with_control_point_added(intent, point, true);
+                }
+                window.cbRustBrowser.start_new_gesture(id,
+                    "00000000-0000-4000-8000-000000006200", intent);
+                window.cbReactApp.boundSetState(old => ({
+                    ...old, planning: { ...old.planning, currentProject: id },
+                }));
+            });
+            await page.waitForFunction(() => [...window.cbReactApp.state.planning
+                .rendering.currentPreview.lanesToConstructGroups.values()]
+                .some(mesh => mesh.vertices.length > 0 && mesh.indices.length > 0),
+                undefined, { timeout: browserTimeoutMs });
+            console.log("FamilyHouse regression: road preview received.");
+            await page.evaluate(() => {
+                window.cbRustBrowser.implement_project("00000000-0000-4000-8000-000000000062");
+                window.cbReactApp.boundSetState(old => ({
+                    ...old, planning: { ...old.planning, currentProject: null },
+                }));
+            });
+            await page.waitForFunction(() =>
+                window.cbReactApp.state.planning.projects[
+                    "00000000-0000-4000-8000-000000000062"] == null,
+                undefined, { timeout: browserTimeoutMs });
+        }
+        console.log("Reload regression: creating residential zone.");
         // Use the same exported Rust commands as the planning UI, with fixed
         // geometry away from starter roads so this remains a zoning-only probe.
         const projectId = "00000000-0000-4000-8000-000000000064";
@@ -331,6 +375,17 @@ try {
         ), projectId, { timeout: browserTimeoutMs });
         await page.waitForFunction(hasZoneMeshes, undefined, { timeout: browserTimeoutMs });
 
+        if (testFamilyHouseReload) {
+            await page.evaluate(() => window.cbRustBrowser.set_sim_speed(10));
+            await page.waitForFunction(() => Object.values(
+                window.cbReactApp.state.landUse.rendering.buildingMeshes.WoodenFence,
+            ).some(mesh => mesh.vertices.length > 0 && mesh.indices.length > 0),
+            undefined, { timeout: Math.max(browserTimeoutMs, 90_000) });
+            await page.evaluate(() => window.cbRustBrowser.set_sim_speed(0));
+            houseIds = await page.evaluate(renderedHouseIds);
+            console.log(`FamilyHouse regression: developed houses ${JSON.stringify(houseIds)}.`);
+        }
+
         // A page reload starts with empty browser geometry and no current project.
         await page.reload({ waitUntil: "domcontentloaded", timeout: browserTimeoutMs });
         await page.waitForFunction(() => typeof window.cbRustBrowser?.start_new_project === "function",
@@ -341,6 +396,10 @@ try {
             throw new Error("Page reload unexpectedly selected a planning project.");
         }
 
+        if (testFamilyHouseReload) {
+            await page.waitForFunction(hasHouseMeshes, houseIds, { timeout: browserTimeoutMs });
+            console.log("FamilyHouse regression: page reload restored developed house meshes.");
+        }
         console.log("Zone regression: page reload restored geometry without a project.");
 
         // Restart only this probe's server, then reconnect a fresh browser page
@@ -369,7 +428,12 @@ try {
             || restoredPlan.projects.length !== 0 || !restoredPlan.layers) {
             throw new Error(`Unexpected restored zone state: ${JSON.stringify(restoredPlan)}`);
         }
+        if (testFamilyHouseReload) {
+            await restored.waitForFunction(hasHouseMeshes, houseIds, { timeout: browserTimeoutMs });
+            console.log(`FamilyHouse regression: ${houseIds.length} developed houses restored after page reload and save/server restart.`);
+        }
         if (browserErrors.length > 0) throw new Error(browserErrors.join("\n"));
+        if (testFamilyHouseReload) console.log("FamilyHouse reload passed without browser errors.");
         console.log("Zone reload regression passed: filled and outlined residential meshes after page reload and save/server restart, with no active or dummy project.");
     }
 
@@ -379,7 +443,7 @@ try {
         `network turns advanced to ${JSON.stringify(state.networkingTurns)}.`,
     );
 } catch (error) {
-    console.error(error.message);
+    console.error(error.stack ?? error.message);
     if (serverLog) {
         console.error("\nCitybound server log:\n", serverLog);
     }

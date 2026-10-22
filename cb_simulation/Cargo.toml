@@ -33,3 +33,6 @@ kay_codegen = {version = "0.3.10", features = ["serde-serialization"]}
 default = ["server"]
 server = ["kay/server", "cb_util/server"]
 browser = ["kay/browser"]
+
+[dev-dependencies]
+serde_yaml = "0.8"

@@ -31,10 +31,8 @@ pub struct BrowserLandUseUI {
 
 impl BrowserLandUseUI {
     pub fn spawn(id: BrowserLandUseUIID, world: &mut World) -> BrowserLandUseUI {
-        {
-            BuildingID::global_broadcast(world).get_render_info(id.into(), world);
-        }
-
+        // Config responses trigger the initial render requests. Requesting buildings
+        // here races the empty rule cache when reconnecting to a developed city.
         let ui = BrowserLandUseUI {
             id,
             architecture_rules: CHashMap::new(),
@@ -55,10 +53,10 @@ impl ConfigUser<ArchitectureRule> for BrowserLandUseUI {
         maybe_value: &COption<ArchitectureRule>,
         world: &mut World,
     ) {
+        self.apply_config_change(name, maybe_value, world);
+
         // TODO: make this more specific
         BuildingID::global_broadcast(world).get_render_info(self.id.into(), world);
-
-        self.apply_config_change(name, maybe_value, world);
     }
 }
 

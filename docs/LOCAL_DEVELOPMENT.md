@@ -103,6 +103,21 @@ in a disposable city, reloads the page, safely restarts its own server against
 the saved city, and checks that fill and outline meshes return in planning mode
 without an active or dummy project. It refuses an explicit city directory.
 
+`npm run smoke-family-house-reload-compat` extends that probe with an
+implemented straight road and normal residential development. It checks the
+same house IDs have wall, roof, and fence meshes after both page reload and
+save/server restart, and rejects browser errors (including missing architecture
+rules). It also uses its own disposable city and headless browser.
+
+The narrow shipped-rule regression can be run with the pinned toolchain and
+macOS linker environment described above:
+
+```sh
+RUSTUP_TOOLCHAIN="$(repo_scripts/ensure-rust-toolchain-compat.sh)" \
+CARGO_TARGET_X86_64_APPLE_DARWIN_LINKER="$PWD/repo_scripts/cc-strip-rmeta.sh" \
+cargo test --locked -p cb_simulation shipped_family_house_rules_generate_geometry
+```
+
 The smoke uses Playwright's cached Chromium when available and otherwise uses an
 installed Google Chrome. Set `CITYBOUND_BROWSER_EXECUTABLE` to use another
 Chromium executable or `CITYBOUND_BROWSER_CHANNEL` to select another installed
