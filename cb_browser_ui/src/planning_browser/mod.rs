@@ -256,9 +256,9 @@ impl FrameListener for BrowserPlanningUI {
             world,
         );
 
-        let maybe_current_project_id: Result<Serde<ProjectID>, _> = js! {
-            return (window.cbReactApp.state.uiMode == "planning" &&
-                window.cbReactApp.state.planning.currentProject);
+        let maybe_current_project_id: Result<Serde<Option<ProjectID>>, _> = js! {
+            if (window.cbReactApp.state.uiMode != "planning") return false;
+            return window.cbReactApp.state.planning.currentProject || null;
         }
         .try_into();
         if let Ok(Serde(current_project_id)) = maybe_current_project_id {
@@ -346,7 +346,7 @@ impl PlanningUI<CBPlanningLogic> for BrowserPlanningUI {
 
     fn on_project_preview_update(
         &mut self,
-        _project_id: ProjectID,
+        _project_id: Option<ProjectID>,
         effective_history: &PlanHistory<CBGestureIntent>,
         result_update: &PlanResultUpdate<CBPrototypeKind>,
         new_actions: &ActionGroups,

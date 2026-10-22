@@ -54,7 +54,7 @@ impl<Logic: PlanningLogic> PlanningUIID<Logic> {
         world.send(self.as_raw(), MSG_PlanningUI_on_plans_update::<Logic>(master_update, project_updates));
     }
     
-    pub fn on_project_preview_update(self, project_id: ProjectID, effective_history: PlanHistory < Logic :: GestureIntent >, result_update: PlanResultUpdate < Logic :: PrototypeKind >, new_actions: ActionGroups, world: &mut World) {
+    pub fn on_project_preview_update(self, project_id: Option < ProjectID >, effective_history: PlanHistory < Logic :: GestureIntent >, result_update: PlanResultUpdate < Logic :: PrototypeKind >, new_actions: ActionGroups, world: &mut World) {
         world.send(self.as_raw(), MSG_PlanningUI_on_project_preview_update::<Logic>(project_id, effective_history, result_update, new_actions));
     }
 
@@ -83,7 +83,7 @@ impl<Logic: PlanningLogic> PlanningUIID<Logic> {
 #[derive(Compact, Clone)] #[allow(non_camel_case_types)]
 struct MSG_PlanningUI_on_plans_update<Logic: PlanningLogic>(pub PlanHistoryUpdate < Logic :: GestureIntent >, pub CHashMap < ProjectID , ProjectUpdate < Logic :: GestureIntent > >);
 #[derive(Compact, Clone)] #[allow(non_camel_case_types)]
-struct MSG_PlanningUI_on_project_preview_update<Logic: PlanningLogic>(pub ProjectID, pub PlanHistory < Logic :: GestureIntent >, pub PlanResultUpdate < Logic :: PrototypeKind >, pub ActionGroups);
+struct MSG_PlanningUI_on_project_preview_update<Logic: PlanningLogic>(pub Option < ProjectID >, pub PlanHistory < Logic :: GestureIntent >, pub PlanResultUpdate < Logic :: PrototypeKind >, pub ActionGroups);
 
 
 

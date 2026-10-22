@@ -38,6 +38,7 @@ const expectedSimulationPort = Number(bindSimulation.slice(bindSimulation.lastIn
 const serverPath = join(repoRoot, "target", "debug", "citybound");
 const browserTimeoutMs = Number(process.env.CITYBOUND_BROWSER_SMOKE_TIMEOUT_MS ?? 30_000);
 const explicitCityDir = process.env.CITYBOUND_BROWSER_SMOKE_CITY_DIR;
+const testZoneReload = process.argv.includes("--zone-reload");
 
 let browser;
 let server;
@@ -77,6 +78,29 @@ async function waitForServer() {
     }
 
     throw new Error(`Timed out waiting for ${url}.\n${serverLog}`);
+}
+
+async function startServer(cityDir) {
+    server = spawn(
+        serverPath,
+        [
+            "--mode",
+            "local",
+            "--bind",
+            bind,
+            "--bind-sim",
+            bindSimulation,
+            cityDir,
+        ],
+        {
+            cwd: repoRoot,
+            stdio: ["ignore", "pipe", "pipe"],
+        },
+    );
+    server.stdout.on("data", rememberServerOutput);
+    server.stderr.on("data", rememberServerOutput);
+
+    await waitForServer();
 }
 
 async function launchBrowser() {
@@ -154,6 +178,9 @@ function cleanup() {
 const removeSignalCleanup = installSignalCleanup(cleanup);
 
 try {
+    if (testZoneReload && explicitCityDir) {
+        throw new Error("Zone reload regression requires its own disposable city.");
+    }
     await access(serverPath);
     await access(join(repoRoot, "cb_browser_ui", "dist", "index.html"));
 
@@ -161,26 +188,7 @@ try {
         explicitCityDir
         ?? (temporaryCityDir = await mkdtemp(join(tmpdir(), "citybound-browser-smoke-")));
 
-    server = spawn(
-        serverPath,
-        [
-            "--mode",
-            "local",
-            "--bind",
-            bind,
-            "--bind-sim",
-            bindSimulation,
-            cityDir,
-        ],
-        {
-            cwd: repoRoot,
-            stdio: ["ignore", "pipe", "pipe"],
-        },
-    );
-    server.stdout.on("data", rememberServerOutput);
-    server.stderr.on("data", rememberServerOutput);
-
-    await waitForServer();
+    await startServer(cityDir);
 
     browser = await launchBrowser();
     const page = await browser.newPage({ viewport: { width: 1280, height: 720 } });
@@ -281,6 +289,88 @@ try {
     }
     if (browserErrors.length > 0) {
         throw new Error(`Browser errors were reported:\n${browserErrors.join("\n")}`);
+    }
+
+    if (testZoneReload) {
+        // Use the same exported Rust commands as the planning UI, with fixed
+        // geometry away from starter roads so this remains a zoning-only probe.
+        const projectId = "00000000-0000-4000-8000-000000000064";
+        await page.evaluate(id => {
+            const gestureId = "00000000-0000-4000-8000-000000006400";
+            window.cbRustBrowser.start_new_project(id);
+            let intent = { Zone: window.cbRustBrowser.new_zone_intent("Residential") };
+            for (const point of [[-300, -300], [-240, -300], [-240, -240], [-300, -240]]) {
+                intent = window.cbRustBrowser.with_control_point_added(intent, point, true);
+            }
+            window.cbRustBrowser.start_new_gesture(id, gestureId, intent);
+            window.cbReactApp.boundSetState(old => ({
+                ...old, planning: { ...old.planning, currentProject: id },
+            }));
+        }, projectId);
+        const hasZoneMeshes = () => {
+            const preview = window.cbReactApp?.state?.planning?.rendering?.currentPreview;
+            return [preview?.zoneGroups, preview?.zoneOutlineGroups].every(
+                batches => [...(batches?.get("Residential")?.values() ?? [])]
+                    .some(mesh => mesh.vertices.length > 0 && mesh.indices.length > 0),
+            );
+        };
+        await page.waitForFunction(hasZoneMeshes, undefined, { timeout: browserTimeoutMs });
+        console.log("Zone regression: preview geometry received.");
+        await page.evaluate(id => {
+            window.cbRustBrowser.implement_project(id);
+            window.cbReactApp.boundSetState(old => ({
+                ...old, planning: { ...old.planning, currentProject: null },
+            }));
+        }, projectId);
+        await page.waitForFunction(id => (
+            window.cbReactApp.state.planning.projects[id] == null
+            && window.cbReactApp.state.planning.currentProject == null
+            && window.cbReactApp.state.planning.master.gestures[
+                "00000000-0000-4000-8000-000000006400"
+            ] != null
+        ), projectId, { timeout: browserTimeoutMs });
+        await page.waitForFunction(hasZoneMeshes, undefined, { timeout: browserTimeoutMs });
+
+        // A page reload starts with empty browser geometry and no current project.
+        await page.reload({ waitUntil: "domcontentloaded", timeout: browserTimeoutMs });
+        await page.waitForFunction(() => typeof window.cbRustBrowser?.start_new_project === "function",
+            undefined, { timeout: browserTimeoutMs });
+        await page.evaluate(() => document.getElementById("planning")?.click());
+        await page.waitForFunction(hasZoneMeshes, undefined, { timeout: browserTimeoutMs });
+        if (await page.evaluate(() => window.cbReactApp.state.planning.currentProject != null)) {
+            throw new Error("Page reload unexpectedly selected a planning project.");
+        }
+
+        console.log("Zone regression: page reload restored geometry without a project.");
+
+        // Restart only this probe's server, then reconnect a fresh browser page
+        // to the same disposable mmap save. No preview project is requested.
+        await page.close();
+        if (!await stopServer()) throw new Error("Could not stop zone regression server.");
+        serverLog = "";
+        await startServer(cityDir);
+        const restored = await browser.newPage({ viewport: { width: 1280, height: 720 } });
+        restored.on("pageerror", error => browserErrors.push(`reload page: ${error.message}`));
+        restored.on("console", message => {
+            if (message.type() === "error") browserErrors.push(`reload console: ${message.text()}`);
+        });
+        await restored.goto(url, { waitUntil: "domcontentloaded", timeout: browserTimeoutMs });
+        await restored.waitForFunction(() => typeof window.cbRustBrowser?.start_new_project === "function",
+            undefined, { timeout: browserTimeoutMs });
+        await restored.evaluate(() => document.getElementById("planning")?.click());
+        await restored.waitForFunction(hasZoneMeshes, undefined, { timeout: browserTimeoutMs });
+        const restoredPlan = await restored.evaluate(() => ({
+            mode: window.cbReactApp.state.uiMode,
+            currentProject: window.cbReactApp.state.planning.currentProject,
+            projects: Object.keys(window.cbReactApp.state.planning.projects),
+            layers: !!document.querySelector('[data-citybound-zone-layers="persistent"]'),
+        }));
+        if (restoredPlan.mode !== "planning" || restoredPlan.currentProject != null
+            || restoredPlan.projects.length !== 0 || !restoredPlan.layers) {
+            throw new Error(`Unexpected restored zone state: ${JSON.stringify(restoredPlan)}`);
+        }
+        if (browserErrors.length > 0) throw new Error(browserErrors.join("\n"));
+        console.log("Zone reload regression passed: filled and outlined residential meshes after page reload and save/server restart, with no active or dummy project.");
     }
 
     console.log(

@@ -14,7 +14,7 @@ pub trait PlanningUI<Logic: PlanningLogic> {
 
     fn on_project_preview_update(
         &mut self,
-        _project_id: ProjectID,
+        _project_id: Option<ProjectID>,
         effective_history: &PlanHistory<Logic::GestureIntent>,
         result_update: &PlanResultUpdate<Logic::PrototypeKind>,
         new_actions: &ActionGroups,
