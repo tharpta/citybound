@@ -1,5 +1,7 @@
 use kay::{World, ActorSystem, Actor, RawID, External, TypedID};
 use compact::CVec;
+use stdweb::serde::Serde;
+use transport::pathfinding::trip::TripID;
 use std::collections::HashMap;
 use descartes::LinePath;
 use michelangelo::{MeshGrouper, Instance};
@@ -28,6 +30,8 @@ impl ::std::ops::DerefMut for BrowserTransportUI {
 pub struct BrowserTransportUINonPersistedState {
     car_instance_buffers: HashMap<RawID, Vec<::michelangelo::Instance>>,
     car_colors: Vec<[f32; 3]>,
+    // Browser-only projection of the same car samples used for rendering.
+    car_trip_buffers: HashMap<RawID, Vec<(TripID, [f32; 2])>>,
 
     // transport geometry
     asphalt_grouper: MeshGrouper<RawID>,
@@ -48,6 +52,7 @@ impl BrowserTransportUI {
             state: External::new(BrowserTransportUINonPersistedState {
                 car_instance_buffers: HashMap::new(),
                 car_colors: vec![[0.0, 0.0, 0.0]],
+                car_trip_buffers: HashMap::new(),
                 asphalt_grouper: MeshGrouper::new(2000),
                 lane_marker_grouper: MeshGrouper::new(2000),
                 lane_marker_gaps_grouper: MeshGrouper::new(2000),
@@ -70,9 +75,12 @@ impl FrameListener for BrowserTransportUI {
         let car_instances_js: ::stdweb::web::TypedArray<f32> =
             flatten_instances(&car_instances).into();
 
+        let road_trips = self.car_trip_buffers.values()
+            .flat_map(|trips| trips.iter().cloned()).collect::<Vec<_>>();
+
         js! {
             window.cbReactApp.boundSetState(oldState => update(oldState, {
-                transport: {rendering: {
+                transport: {roadTrips: {"$set": @{Serde(road_trips)}}, rendering: {
                     carInstances: {"$set": @{car_instances_js}}
                 }}
             }))
@@ -172,6 +180,8 @@ impl TransportUI for BrowserTransportUI {
         on_intersection: bool,
         _world: &mut World,
     ) {
+        self.car_instance_buffers.remove(&id);
+        self.car_trip_buffers.remove(&id);
         if is_switch {
             let updated_lane_marker_gaps_groups =
                 self.lane_marker_gaps_grouper.update(Some(id), None);
@@ -225,6 +235,8 @@ impl TransportUI for BrowserTransportUI {
     }
 
     fn on_car_info(&mut self, from_lane: RawID, infos: &CVec<CarRenderInfo>, _: &mut World) {
+        self.car_trip_buffers.insert(from_lane, infos.iter()
+            .map(|info| (info.trip, info.position)).collect());
         let colored = infos
             .iter()
             .map(|render_info| Instance {
