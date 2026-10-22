@@ -186,6 +186,7 @@ import('../target/wasm32-unknown-unknown/release/cb_browser_ui').then(mod => mod
                                 <Utils.SettingsContext.Provider value={this.state.settings} >
                                     <ToWindowPortal>
                                         <Time.Windows state={this.state} setState={this.boundSetState} />
+                                        <Households.TownActivity state={this.state} setState={this.boundSetState} />
                                         <Debug.Windows state={this.state} setState={this.boundSetState} />
                                     </ToWindowPortal>
 

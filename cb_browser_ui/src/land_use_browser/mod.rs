@@ -118,6 +118,10 @@ impl LandUseUI for BrowserLandUseUI {
                             buildingProps: @{prop_updates}
                         }},
                         households: {
+                            buildings: {[@{Serde(id)}]: {"$set": {
+                                style: @{Serde(style)},
+                                households: @{Serde(households)},
+                            }}},
                             buildingPositions: {[@{Serde(id)}]: {
                                 "$set": @{Serde(lot.center_point())}
                             }},
@@ -155,20 +159,25 @@ impl LandUseUI for BrowserLandUseUI {
                     buildingMeshes: @{material_unsets},
                     buildingProps: @{prop_unsets}
                 }},
-                households: {buildingPositions: {"$unset": [@{Serde(id)}]}}
+                households: {
+                    buildings: {"$unset": [@{Serde(id)}]},
+                    buildingPositions: {"$unset": [@{Serde(id)}]},
+                    buildingShapes: {"$unset": [@{Serde(id)}]},
+                }
             }));
         }
     }
 
     fn on_building_ui_info(
         &mut self,
-        _id: BuildingID,
+        id: BuildingID,
         style: BuildingStyle,
         households: &CVec<HouseholdID>,
         _world: &mut World,
     ) {
         js! {
-            window.cbReactApp.boundSetState(oldState => update(oldState, {
+            window.cbReactApp.boundSetState(oldState =>
+                oldState.households.inspectedBuilding !== @{Serde(id)} ? oldState : update(oldState, {
                 households: {
                     inspectedBuildingState: {"$set": {
                         households: @{Serde(households)},

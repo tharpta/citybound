@@ -2,8 +2,10 @@ import React from 'react';
 import update from 'immutability-helper';
 import { fmtId } from '../browser_utils/Utils';
 import { Interactive3DShape } from '../browser_utils/Utils';
+import { summarizeTown } from './townSummary.mjs';
 
 export const initialState = {
+    buildings: {},
     buildingPositions: {},
     buildingShapes: {},
     inspectedBuilding: null,
@@ -14,6 +16,36 @@ export const initialState = {
 
 export function render(state, setState) {
     return {};
+}
+
+// Building updates already include occupants when construction, move-ins, or
+// reconnects refresh the renderer. These counts never infer population from meshes.
+export function TownActivity({ state, setState }) {
+    const { buildings, occupied, households } = summarizeTown(state.households.buildings);
+    const inspect = id => setState(old => update(old, {
+        uiMode: { $set: "inspection" },
+        camera: { target: { $set: [...old.households.buildingPositions[id], 0] } },
+        households: {
+            inspectedBuilding: { $set: id },
+            inspectedBuildingState: { $set: null },
+            inspectedBuildingPinned: { $set: true },
+        }
+    }));
+
+    return <details className="window town-activity" open data-citybound-town-activity>
+        <summary>Town activity</summary>
+        <p role="status" data-town-counts>
+            Buildings: {buildings.length} · Occupied: {occupied} · Households: {households}
+        </p>
+        {buildings.length === 0
+            ? <p>Implement road-connected residential zoning, then advance time to see development and move-ins here.</p>
+            : <div className="town-building-list">{buildings.map(([id, building]) =>
+                <button key={id} data-town-building={id} onClick={() => inspect(id)}>
+                    {fmtId(id)} · {building.style} · {building.households.length === 0
+                        ? "Vacant" : `${building.households.length} household(s)`}
+                </button>
+            )}</div>}
+    </details>;
 }
 
 export function Shapes(props) {
