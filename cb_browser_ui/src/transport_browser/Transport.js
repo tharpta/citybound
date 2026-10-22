@@ -5,6 +5,7 @@ import { RenderLayer } from '../browser_utils/Utils';
 import React from 'react';
 
 export const initialState = {
+    roadTrips: [],
     rendering: {
         staticMeshes: {
             car: carMesh

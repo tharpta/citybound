@@ -3,6 +3,7 @@ import update from 'immutability-helper';
 import { fmtId } from '../browser_utils/Utils';
 import { Interactive3DShape } from '../browser_utils/Utils';
 import { summarizeTown } from './townSummary.mjs';
+import { townTrips } from './townTrips.mjs';
 
 export const initialState = {
     buildings: {},
@@ -37,6 +38,7 @@ export function TownActivity({ state, setState }) {
         <p role="status" data-town-counts>
             Buildings: {buildings.length} · Occupied: {occupied} · Households: {households}
         </p>
+        <TownTrips state={state} setState={setState} />
         {buildings.length === 0
             ? <p>Implement road-connected residential zoning, then advance time to see development and move-ins here.</p>
             : <div className="town-building-list">{buildings.map(([id, building]) =>
@@ -46,6 +48,44 @@ export function TownActivity({ state, setState }) {
                 </button>
             )}</div>}
     </details>;
+}
+
+// Refresh through the existing household inspector protocol. No simulation
+// actor, trip, or save state is created by observing activity.
+class TownTrips extends React.Component {
+    componentDidMount() {
+        this.refresh = () => {
+            const { buildings } = summarizeTown(this.props.state.households.buildings);
+            const ids = new Set(buildings.flatMap(([, b]) => b.households));
+            ids.forEach(id => cbRustBrowser.get_household_info(id));
+        };
+        this.refresh();
+        this.interval = setInterval(this.refresh, 500);
+    }
+
+    componentWillUnmount() { clearInterval(this.interval); }
+
+    render() {
+        const { state, setState } = this.props;
+        const trips = townTrips(state.households.buildings,
+            state.households.householdInfo, state.transport.roadTrips);
+        const follow = position => setState(old => update(old, {
+            uiMode: { $set: "inspection" },
+            camera: { target: { $set: [...position, 0] } },
+            households: { inspectedBuilding: { $set: null },
+                inspectedBuildingPinned: { $set: false } },
+        }));
+        return <div className="town-trip-list">
+            <p role="status" data-town-trips>Household trips on roads: {trips.length}</p>
+            {trips.length === 0
+                ? <p>Connect residential and commercial zoning with roads, then advance time. Trips appear when households travel for work or supplies.</p>
+                : trips.map(t => <button key={t.trip} data-town-trip={t.trip}
+                    onClick={() => follow(t.position)}>
+                    {fmtId(t.household)} · Member {t.member} · <StateAndGoal
+                        state={{ InTrip: t.trip }} goal={t.goal} /> · Center on car
+                </button>)}
+        </div>;
+    }
 }
 
 export function Shapes(props) {

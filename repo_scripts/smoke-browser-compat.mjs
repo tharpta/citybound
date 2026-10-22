@@ -42,7 +42,8 @@ const browserTimeoutMs = Number(process.env.CITYBOUND_BROWSER_SMOKE_TIMEOUT_MS ?
 const explicitCityDir = process.env.CITYBOUND_BROWSER_SMOKE_CITY_DIR;
 const testRoadReload = process.argv.includes("--road-reload");
 const roadEvidenceDir = process.env.CITYBOUND_ROAD_EVIDENCE_DIR;
-const testFirstTown = process.argv.includes("--first-town");
+const testConnectedTown = process.argv.includes("--connected-town");
+const testFirstTown = process.argv.includes("--first-town") || testConnectedTown;
 const testFamilyHouseReload = process.argv.includes("--family-house-reload") || testFirstTown;
 const testZoneReload = process.argv.includes("--zone-reload") || testFamilyHouseReload;
 
@@ -492,7 +493,7 @@ try {
         if (testFamilyHouseReload) {
             // A straight road beside the fixed residential polygon permits normal
             // immigration/development; no actor state or save files are injected.
-            await page.evaluate(() => {
+            await page.evaluate(connected => {
                 const id = "00000000-0000-4000-8000-000000000062";
                 window.cbRustBrowser.start_new_project(id);
                 let intent = { Road: window.cbRustBrowser.new_road_intent(1, 1) };
@@ -501,10 +502,18 @@ try {
                 }
                 window.cbRustBrowser.start_new_gesture(id,
                     "00000000-0000-4000-8000-000000006200", intent);
+                if (connected) {
+                    let junction = { Road: window.cbRustBrowser.new_road_intent(1, 1) };
+                    for (const point of [[-220, -400], [-220, -200]]) {
+                        junction = window.cbRustBrowser.with_control_point_added(junction, point, true);
+                    }
+                    window.cbRustBrowser.start_new_gesture(id,
+                        "00000000-0000-4000-8000-000000006201", junction);
+                }
                 window.cbReactApp.boundSetState(old => ({
                     ...old, planning: { ...old.planning, currentProject: id },
                 }));
-            });
+            }, testConnectedTown);
             await page.waitForFunction(() => [...window.cbReactApp.state.planning
                 .rendering.currentPreview.lanesToConstructGroups.values()]
                 .some(mesh => mesh.vertices.length > 0 && mesh.indices.length > 0),
@@ -573,6 +582,116 @@ try {
             console.log(`FamilyHouse regression: developed houses ${JSON.stringify(houseIds)}.`);
         }
 
+        let connectedTraveler;
+        const sampledTownTraveler = () => {
+            const s = window.cbReactApp.state;
+            // A commercial supply trip is as real as a family commute. Exclude
+            // road boundary households and manually created/debug traffic.
+            const buildings = Object.values(s.households.buildings)
+                .filter(b => b.style !== "NeighboringTownConnection")
+                .sort((a, b) => Number(a.style === "FamilyHouse") - Number(b.style === "FamilyHouse"));
+            for (const b of buildings) {
+                for (const h of b.households) {
+                    const tasks = s.households.householdInfo[h]?.core.member_tasks ?? [];
+                    const member = tasks.findIndex(t => t.state.InTrip
+                        && document.querySelector(`[data-town-trip="${t.state.InTrip}"]`));
+                    if (member >= 0) return { household: h, member,
+                        trip: tasks[member].state.InTrip, originStyle: b.style,
+                        destination: tasks[member].goal[1].household };
+                }
+            }
+        };
+        const checkConnectedTrip = async (target, phase) => {
+            if (phase === "developed") await target.evaluate(() => window.cbRustBrowser.set_sim_speed(4));
+            await target.waitForFunction(sampledTownTraveler,
+                undefined, { timeout: browserTimeoutMs });
+            // Pause so clicking the row centers on the exact sampled car.
+            await target.evaluate(() => window.cbRustBrowser.set_sim_speed(0));
+            await target.waitForTimeout(800);
+            const traveler = await target.evaluate(sampledTownTraveler);
+            if (!traveler) throw new Error("Town household trip ended before pause.");
+            const { trip } = traveler;
+            if (connectedTraveler && connectedTraveler.trip !== trip) {
+                throw new Error("Reload did not restore the same in-flight household trip.");
+            }
+            connectedTraveler = traveler;
+            const first = await target.evaluate(trip => ({
+                position: window.cbReactApp.state.transport.roadTrips.find(([id]) => id === trip)[1],
+                text: document.querySelector(`[data-town-trip="${trip}"]`).textContent,
+                households: window.cbReactApp.state.households.householdInfo,
+                buildings: window.cbReactApp.state.households.buildings,
+            }), trip);
+            await target.locator(`[data-town-trip="${trip}"]`).click();
+            const focused = await target.evaluate(() => window.cbReactApp.state.camera.target);
+            if (focused[0] !== first.position[0] || focused[1] !== first.position[1]) {
+                throw new Error("Trip row failed to center on its sampled car.");
+            }
+            if (townEvidenceDir) {
+                await target.screenshot({ path: join(townEvidenceDir, `${phase}-trip.png`) });
+            }
+            if (phase !== "server-restart") {
+                townSnapshots[`${phase}-trip`] = { traveler, first, focused };
+                if (townEvidenceDir) await writeFile(join(townEvidenceDir, "town.json"), JSON.stringify(townSnapshots, null, 2));
+                console.log(`Connected town ${phase}: ${trip} (${traveler.originStyle}), ${first.text}; centered on the road car, paused for reload.`);
+                return;
+            }
+            await target.evaluate(() => window.cbRustBrowser.set_sim_speed(1));
+            await target.waitForFunction(({ trip, previous }) => {
+                const car = window.cbReactApp.state.transport.roadTrips.find(([id]) => id === trip);
+                return car && Math.hypot(car[1][0] - previous[0], car[1][1] - previous[1]) > 0.5;
+            }, { trip, previous: first.position }, { timeout: browserTimeoutMs });
+            const moved = await target.evaluate(trip => window.cbReactApp.state.transport.roadTrips
+                .find(([id]) => id === trip)[1], trip);
+            await target.waitForFunction(({ trip, household, member, destination }) => {
+                const state = window.cbReactApp.state;
+                const task = state.households.householdInfo[household]?.core.member_tasks[member];
+                return task?.state.StartedAt?.[1] === destination && !state.transport.roadTrips.some(([id]) => id === trip)
+                    && !document.querySelector(`[data-town-trip="${trip}"]`);
+            }, traveler, { timeout: browserTimeoutMs });
+            await target.evaluate(() => window.cbRustBrowser.set_sim_speed(0));
+            townSnapshots[`${phase}-trip`] = { traveler, first, moved, focused };
+            if (townEvidenceDir) await writeFile(join(townEvidenceDir, "town.json"), JSON.stringify(townSnapshots, null, 2));
+            console.log(`Connected town ${phase}: ${trip} (${traveler.originStyle}), ${first.text}; moved ${JSON.stringify(first.position)} -> ${JSON.stringify(moved)}, centered and arrived and started its destination activity.`);
+        };
+        if (testConnectedTown) {
+            await page.locator('#planning').click();
+            // Commercial frontage on the opposite side of the same built road.
+            await page.evaluate(() => {
+                const id = "00000000-0000-4000-8000-000000000040";
+                window.cbRustBrowser.set_sim_speed(1);
+                window.cbRustBrowser.start_new_project(id);
+                let intent = { Zone: window.cbRustBrowser.new_zone_intent("Commercial") };
+                for (const point of [[-300, -300], [-240, -300], [-240, -360], [-300, -360]]) {
+                    intent = window.cbRustBrowser.with_control_point_added(intent, point, true);
+                }
+                window.cbRustBrowser.start_new_gesture(id, "00000000-0000-4000-8000-000000004000", intent);
+                window.cbReactApp.boundSetState(old => ({ ...old,
+                    planning: { ...old.planning, currentProject: id } }));
+            });
+            await page.waitForFunction(() => [...(window.cbReactApp.state.planning.rendering
+                .currentPreview.zoneGroups.get("Commercial")?.values() ?? [])]
+                .some(m => m.indices.length > 0), undefined, { timeout: browserTimeoutMs });
+            await page.evaluate(() => {
+                window.cbRustBrowser.implement_project("00000000-0000-4000-8000-000000000040");
+                window.cbReactApp.boundSetState(old => ({ ...old,
+                    planning: { ...old.planning, currentProject: null } }));
+                window.cbRustBrowser.set_sim_speed(10);
+            });
+            await page.waitForFunction(() => Object.values(window.cbReactApp.state.households.buildings)
+                .some(b => ["GroceryShop", "Mill", "Bakery"].includes(b.style) && b.households.length > 0),
+                undefined, { timeout: Math.max(browserTimeoutMs, 180_000) });
+            const mixedUse = await page.evaluate(() => ({
+                buildings: window.cbReactApp.state.households.buildings,
+                households: window.cbReactApp.state.households.householdInfo,
+                roadTrips: window.cbReactApp.state.transport.roadTrips,
+                time: window.cbReactApp.state.time,
+            }));
+            townSnapshots["mixed-use"] = mixedUse;
+            if (townEvidenceDir) await writeFile(join(townEvidenceDir, "town.json"), JSON.stringify(townSnapshots, null, 2));
+            console.log("Connected town: occupied residential and commercial development on the built road.");
+            await checkConnectedTrip(page, "developed");
+        }
+
         // A page reload starts with empty browser geometry and no current project.
         await page.reload({ waitUntil: "domcontentloaded", timeout: browserTimeoutMs });
         await page.waitForFunction(() => typeof window.cbRustBrowser?.start_new_project === "function",
@@ -586,6 +705,7 @@ try {
         if (testFamilyHouseReload) {
             await page.waitForFunction(hasHouseMeshes, houseIds, { timeout: browserTimeoutMs });
             if (testFirstTown) await checkTown(page, "page-reload");
+            if (testConnectedTown) await checkConnectedTrip(page, "page-reload");
             console.log("FamilyHouse regression: page reload restored developed house meshes.");
         }
         console.log("Zone regression: page reload restored geometry without a project.");
@@ -619,6 +739,7 @@ try {
         if (testFamilyHouseReload) {
             await restored.waitForFunction(hasHouseMeshes, houseIds, { timeout: browserTimeoutMs });
             if (testFirstTown) await checkTown(restored, "server-restart");
+            if (testConnectedTown) await checkConnectedTrip(restored, "server-restart");
             console.log(`FamilyHouse regression: ${houseIds.length} developed houses restored after page reload and save/server restart.`);
         }
         if (browserErrors.length > 0) throw new Error(browserErrors.join("\n"));
