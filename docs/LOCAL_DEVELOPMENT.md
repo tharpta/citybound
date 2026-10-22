@@ -103,6 +103,18 @@ in a disposable city, reloads the page, safely restarts its own server against
 the saved city, and checks that fill and outline meshes return in planning mode
 without an active or dummy project. It refuses an explicit city directory.
 
+`npm run smoke-road-reload-compat` implements a fixed straight road in its own
+empty disposable city. It compares the implemented master gesture and canonical
+asphalt/marker triangles after page reload and a clean server restart, with no
+active planning project. Both server shutdowns must exit cleanly, and the browser
+must report no errors. Set `CITYBOUND_ROAD_EVIDENCE_DIR` to retain screenshots,
+triangle snapshots, save inventory, and server logs outside the disposable city.
+`npm run test-road-reload-geometry` checks the comparison helper against
+regrouping, reindexing, and missing/moved/reversed surface mutations.
+The screenshots show inspection mode, so road previews cannot mask missing
+constructed geometry. This checks same-build straight-road continuity; it does
+not exercise routing, intersections, or historical saves.
+
 `npm run smoke-family-house-reload-compat` extends that probe with an
 implemented straight road and normal residential development. It checks the
 same house IDs have wall, roof, and fence meshes after both page reload and

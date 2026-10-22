@@ -1,0 +1,11 @@
+{
+  "source": "492f8597e9a60df69048cf5d6e33a3dbd233dc29",
+  "version": "v0.1.2-891-g492f859",
+  "date": "2026-10-21 America/Los_Angeles",
+  "toolchain": "nightly-2020-03-10-x86_64-apple-darwin",
+  "artifacts": {
+    "target/debug/citybound": "32b695429a1ccc0c76209857b4419ded2b69c71916295ec717c25b99a22fec69",
+    "cb_browser_ui/dist/cb_browser_ui.wasm": "69341a512060d9365c0a2d51fb45d5f8739d195adc241285abe8595ffb89dfd8",
+    "cb_browser_ui/dist/citybound.664e182b.js": "885da269134eef73fab15e24e4729886f9a593f81e5a34776842c5eaa3271682"
+  }
+}

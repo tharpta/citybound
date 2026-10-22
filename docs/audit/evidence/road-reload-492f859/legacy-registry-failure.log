@@ -1,0 +1,10 @@
+Browser dist artifacts look usable: /Users/tylertharp/Documents/Citybound Revival/.worktrees/issue-8-road-reload/cb_browser_ui/dist
+    Updating crates.io index
+warning: spurious network error (2 tries remaining): bad packet length; class=Net (12)
+error: failed to get `arrayvec` as a dependency of package `cb_simulation v0.3.0 (/Users/tylertharp/Documents/Citybound Revival/.worktrees/issue-8-road-reload/cb_simulation)`
+
+Caused by:
+  failed to fetch `https://github.com/rust-lang/crates.io-index`
+
+Caused by:
+  error reading from the zlib stream; class=Zlib (5)

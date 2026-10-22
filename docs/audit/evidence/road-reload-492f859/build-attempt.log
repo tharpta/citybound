@@ -1,0 +1,365 @@
+Building browser assets from no-spaces copy: /private/tmp/citybound-issue-8-build-492f859
+Explicit legacy lifecycle authorization accepted inside compatibility build root.
+   Compiling autocfg v1.0.0
+   Compiling libm v0.2.1
+   Compiling serde v1.0.105
+   Compiling proc-macro2 v0.4.30
+   Compiling unicode-xid v0.1.0
+   Compiling proc-macro2 v1.0.9
+   Compiling unicode-xid v0.2.0
+   Compiling syn v0.15.44
+   Compiling syn v1.0.17
+   Compiling rand_core v0.4.2
+   Compiling unindent v0.1.5
+   Compiling ryu v1.0.3
+   Compiling glob v0.3.0
+   Compiling autocfg v0.1.7
+   Compiling maybe-uninit v2.0.0
+   Compiling semver-parser v0.7.0
+   Compiling getrandom v0.1.14
+   Compiling hamming v0.1.3
+   Compiling primal-estimate v0.2.1
+   Compiling itoa v0.4.5
+   Compiling cfg-if v0.1.10
+   Compiling stdweb-internal-runtime v0.1.5
+   Compiling unicode-xid v0.0.4
+   Compiling sha1 v0.6.0
+   Compiling arrayvec v0.4.12
+   Compiling base-x v0.2.6
+   Compiling quote v0.3.15
+   Compiling lazy_static v1.4.0
+   Compiling typenum v1.11.2
+   Compiling matches v0.1.8
+   Compiling nodrop v0.1.14
+   Compiling smallvec v1.2.0
+   Compiling ppv-lite86 v0.2.6
+   Compiling simple_allocator_trait v0.1.0
+   Compiling discard v1.0.4
+   Compiling byteorder v1.3.4
+   Compiling void v1.0.2
+   Compiling percent-encoding v1.0.1
+   Compiling rawpointer v0.2.1
+   Compiling bit-vec v0.5.1
+   Compiling fnv v1.0.6
+   Compiling chunky v0.3.7
+   Compiling either v1.5.3
+   Compiling byteorder v0.5.3
+   Compiling rand_core v0.3.1
+   Compiling rand_os v0.1.3
+   Compiling rand_jitter v0.1.4
+   Compiling num-traits v0.2.11
+   Compiling indexmap v1.3.2
+   Compiling num-integer v0.1.42
+   Compiling num-complex v0.2.4
+   Compiling num-rational v0.2.4
+   Compiling rand_pcg v0.1.2
+   Compiling rand_chacha v0.1.1
+   Compiling rand v0.6.5
+   Compiling semver v0.9.0
+   Compiling primal-bit v0.2.4
+   Compiling synom v0.11.3
+   Compiling unicode-bidi v0.3.4
+   Compiling unicode-normalization v0.1.12
+   Compiling unreachable v1.0.0
+   Compiling matrixmultiply v0.2.3
+   Compiling stable-vec v0.3.2
+   Compiling itertools v0.7.11
+   Compiling rand_xorshift v0.1.1
+   Compiling rand_hc v0.1.0
+   Compiling rand_isaac v0.1.1
+   Compiling roaring v0.5.2
+   Compiling rustc_version v0.2.3
+   Compiling syn v0.11.11
+   Compiling idna v0.1.5
+   Compiling quote v1.0.3
+   Compiling quote v0.6.13
+   Compiling stdweb v0.4.20
+   Compiling smallvec v0.6.13
+   Compiling rand_core v0.5.1
+   Compiling url v1.7.2
+   Compiling serde_json v1.0.50
+   Compiling generic-array v0.13.2
+   Compiling num-traits v0.1.43
+   Compiling approx v0.3.2
+   Compiling ordered-float v1.0.2
+   Compiling primal-sieve v0.2.9
+   Compiling rand_chacha v0.2.2
+   Compiling euclid v0.18.2
+   Compiling ordered-float v0.5.2
+   Compiling sid v0.5.2
+   Compiling primal-check v0.2.3
+   Compiling alga v0.9.3
+   Compiling rand v0.7.3
+   Compiling kay_codegen v0.3.10
+   Compiling compact_macros v0.1.0
+   Compiling lyon_geom v0.11.1
+   Compiling uuid v0.7.4
+   Compiling primal v0.2.3
+   Compiling rand_distr v0.2.2
+   Compiling compact v0.2.16
+   Compiling lyon_path v0.11.0
+   Compiling lyon_tessellation v0.11.0
+   Compiling serde_derive v1.0.105
+   Compiling cb_time v0.3.0 (/private/tmp/citybound-issue-8-build-492f859/cb_time)
+   Compiling cb_util v0.3.0 (/private/tmp/citybound-issue-8-build-492f859/cb_util)
+   Compiling cb_planning v0.3.0 (/private/tmp/citybound-issue-8-build-492f859/cb_planning)
+   Compiling cb_simulation v0.3.0 (/private/tmp/citybound-issue-8-build-492f859/cb_simulation)
+   Compiling cb_browser_ui v0.3.0 (/private/tmp/citybound-issue-8-build-492f859/cb_browser_ui)
+   Compiling stdweb-derive v0.5.3
+   Compiling stdweb-internal-macros v0.2.9
+   Compiling nalgebra v0.20.0
+   Compiling descartes v0.1.20
+   Compiling michelangelo v0.2.5
+   Compiling rand v0.5.6
+   Compiling kay v0.5.1
+   Compiling noise v0.5.1 (https://github.com/Razaekel/noise-rs?rev=4606a00#4606a00c)
+warning: unnecessary parentheses around type
+  --> /private/tmp/citybound-issue-8-build-492f859/cb_util/src/config_manager/kay_auto.rs:10:61
+   |
+10 |     _raw_id: RawID, _marker: ::std::marker::PhantomData<Box<(C)>>
+   |                                                             ^^^ help: remove these parentheses
+   |
+   = note: `#[warn(unused_parens)]` on by default
+
+warning: unnecessary parentheses around type
+  --> /private/tmp/citybound-issue-8-build-492f859/cb_util/src/config_manager/kay_auto.rs:32:89
+   |
+32 | pub struct ConfigUserRepresentative<C: Config>{ _marker: ::std::marker::PhantomData<Box<(C)>> }
+   |                                                                                         ^^^ help: remove these parentheses
+
+warning: unnecessary parentheses around type
+   --> /private/tmp/citybound-issue-8-build-492f859/cb_util/src/config_manager/kay_auto.rs:114:61
+    |
+114 |     _raw_id: RawID, _marker: ::std::marker::PhantomData<Box<(C)>>
+    |                                                             ^^^ help: remove these parentheses
+
+warning: unnecessary parentheses around type
+   --> /private/tmp/citybound-issue-8-build-492f859/cb_util/src/config_manager/kay_auto.rs:192:61
+    |
+192 |     _raw_id: RawID, _marker: ::std::marker::PhantomData<Box<(CD)>>
+    |                                                             ^^^^ help: remove these parentheses
+
+warning: use of deprecated item 'uuid::Uuid::from_random_bytes': please use the `uuid::Builder` instead to set the variant and version
+  --> /private/tmp/citybound-issue-8-build-492f859/cb_util/src/random.rs:43:5
+   |
+43 |     Uuid::from_random_bytes(thread_rng().gen())
+   |     ^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(deprecated)]` on by default
+warning: unused variable: `world`
+   --> /private/tmp/citybound-issue-8-build-492f859/cb_util/src/config_manager/mod.rs:113:30
+    |
+113 |     pub fn reload(&mut self, world: &mut World) {
+    |                              ^^^^^ help: consider prefixing with an underscore: `_world`
+    |
+    = note: `#[warn(unused_variables)]` on by default
+
+warning: unused variable: `world`
+   --> /private/tmp/citybound-issue-8-build-492f859/cb_util/src/config_manager/mod.rs:128:61
+    |
+128 |     fn tick(&mut self, _dt: f32, _current_instant: Instant, world: &mut World) {
+    |                                                             ^^^^^ help: consider prefixing with an underscore: `_world`
+
+warning: unnecessary parentheses around type
+  --> /private/tmp/citybound-issue-8-build-492f859/cb_planning/src/construction/kay_auto.rs:10:61
+   |
+10 |     _raw_id: RawID, _marker: ::std::marker::PhantomData<Box<(PK)>>
+   |                                                             ^^^^ help: remove these parentheses
+   |
+   = note: `#[warn(unused_parens)]` on by default
+
+warning: unnecessary parentheses around type
+  --> /private/tmp/citybound-issue-8-build-492f859/cb_planning/src/construction/kay_auto.rs:32:100
+   |
+32 | pub struct ConstructableRepresentative<PK: PrototypeKind>{ _marker: ::std::marker::PhantomData<Box<(PK)>> }
+   |                                                                                                    ^^^^ help: remove these parentheses
+
+warning: unnecessary parentheses around type
+   --> /private/tmp/citybound-issue-8-build-492f859/cb_planning/src/construction/kay_auto.rs:101:61
+    |
+101 |     _raw_id: RawID, _marker: ::std::marker::PhantomData<Box<(PK)>>
+    |                                                             ^^^^ help: remove these parentheses
+
+warning: unnecessary parentheses around type
+  --> /private/tmp/citybound-issue-8-build-492f859/cb_planning/src/plan_manager/ui/kay_auto.rs:10:61
+   |
+10 |     _raw_id: RawID, _marker: ::std::marker::PhantomData<Box<(Logic)>>
+   |                                                             ^^^^^^^ help: remove these parentheses
+
+warning: unnecessary parentheses around type
+  --> /private/tmp/citybound-issue-8-build-492f859/cb_planning/src/plan_manager/ui/kay_auto.rs:32:100
+   |
+32 | pub struct PlanningUIRepresentative<Logic: PlanningLogic>{ _marker: ::std::marker::PhantomData<Box<(Logic)>> }
+   |                                                                                                    ^^^^^^^ help: remove these parentheses
+
+warning: unnecessary parentheses around type
+  --> /private/tmp/citybound-issue-8-build-492f859/cb_planning/src/plan_manager/kay_auto.rs:23:61
+   |
+23 |     _raw_id: RawID, _marker: ::std::marker::PhantomData<Box<(Logic)>>
+   |                                                             ^^^^^^^ help: remove these parentheses
+
+warning: unused import: `std::fs::File`
+ --> /private/tmp/citybound-issue-8-build-492f859/cb_simulation/src/land_use/buildings/architecture/mod.rs:8:5
+  |
+8 | use std::fs::File;
+  |     ^^^^^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` on by default
+
+warning: unused import: `std::io::BufReader`
+ --> /private/tmp/citybound-issue-8-build-492f859/cb_simulation/src/land_use/buildings/architecture/mod.rs:9:5
+  |
+9 | use std::io::BufReader;
+  |     ^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `std::iter::FromIterator`
+  --> /private/tmp/citybound-issue-8-build-492f859/cb_simulation/src/land_use/buildings/architecture/mod.rs:10:5
+   |
+10 | use std::iter::FromIterator;
+   |     ^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: use of deprecated item 'nalgebra::geometry::point::Point::<N, D>::from_coordinates': Use Point::from(vector) instead.
+  --> /private/tmp/citybound-issue-8-build-492f859/cb_simulation/src/land_use/zone_planning/mod.rs:68:9
+   |
+68 |         P2::from_coordinates(
+   |         ^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(deprecated)]` on by default
+warning: unnecessary trailing semicolon
+   --> src/land_use_browser/mod.rs:112:29
+    |
+112 |                     .into();;
+    |                             ^ help: remove this semicolon
+    |
+    = note: `#[warn(redundant_semicolons)]` on by default
+
+    Finished release [optimized + debuginfo] target(s) in 2m 46s
+    Processing "cb_browser_ui.wasm"...
+    Finished processing of "cb_browser_ui.wasm"!
+Browserslist: caniuse-lite is outdated. Please run the following command: `npx browserslist --update-db`
+Browserslist: caniuse-lite is outdated. Please run the following command: `npx browserslist --update-db`
+Browserslist: caniuse-lite is outdated. Please run the following command: `npx browserslist --update-db`
+Browserslist: caniuse-lite is outdated. Please run the following command: `npx browserslist --update-db`
+Browserslist: caniuse-lite is outdated. Please run the following command: `npx browserslist --update-db`
+Browserslist: caniuse-lite is outdated. Please run the following command: `npx browserslist --update-db`
+Browserslist: caniuse-lite is outdated. Please run the following command: `npx browserslist --update-db`
+Browserslist: caniuse-lite is outdated. Please run the following command: `npx browserslist --update-db`
+Browserslist: caniuse-lite is outdated. Please run the following command: `npx browserslist --update-db`
+Browserslist: caniuse-lite is outdated. Please run the following command: `npx browserslist --update-db`
+Browserslist: caniuse-lite is outdated. Please run the following command: `npx browserslist --update-db`
+✨  Built in 6.72s.
+
+dist/citybound.664e182b.js.map          ⚠️  9.3 MB    398ms
+dist/citybound.664e182b.js             ⚠️  5.98 MB    5.90s
+dist/main.955969ad.css.map              659.08 KB     21ms
+dist/main.955969ad.css                  497.41 KB    2.77s
+dist/Inter-UI-Regular.34a5ca18.woff     113.06 KB    102ms
+dist/ae_play.fa4503e6.png                 9.91 KB    797ms
+dist/patron.f135387d.png                  6.42 KB    161ms
+dist/index.html                           3.71 KB    379ms
+dist/icons8-cash.9b40f046.png               687 B     96ms
+dist/icons8-visible.5a21bfe2.png            669 B     96ms
+dist/icons8-forest.95dc9351.png             636 B    103ms
+dist/icons8-city_hall.20164775.png          567 B    102ms
+dist/icons8-redo.063d6921.png               561 B    331ms
+dist/icons8-undo.9aaa934f.png               556 B    161ms
+dist/icons8-farm.f980c6ae.png               544 B    503ms
+dist/icons8-pencil.69fbce97.png             506 B    233ms
+dist/icons8-categorize.a2444935.png         455 B    331ms
+dist/icons8-road.89339f20.png               375 B    161ms
+dist/icons8-cottage.048bbf5e.png            358 B    161ms
+dist/icons8-shop.0f0742f8.png               264 B    331ms
+dist/icons8-factory.cf3dfd71.png            260 B    103ms
+dist/icons8-company.5e9e4804.png            204 B    1.54s
+dist/icons8-menu.c729e5f1.png               188 B    233ms
+Browser assets copied to /Users/tylertharp/Documents/Citybound Revival/.worktrees/issue-8-road-reload/cb_browser_ui/dist
+Browser dist artifacts look usable: /Users/tylertharp/Documents/Citybound Revival/.worktrees/issue-8-road-reload/cb_browser_ui/dist
+warning: /Users/tylertharp/Documents/Citybound Revival/.worktrees/issue-8-road-reload/cb_time/Cargo.toml: `package.edition` is unspecified, defaulting to `2015` while the latest is `2024`
+warning: /Users/tylertharp/Documents/Citybound Revival/.worktrees/issue-8-road-reload/cb_util/Cargo.toml: `package.edition` is unspecified, defaulting to `2015` while the latest is `2024`
+warning: /Users/tylertharp/Documents/Citybound Revival/.worktrees/issue-8-road-reload/cb_planning/Cargo.toml: `package.edition` is unspecified, defaulting to `2015` while the latest is `2024`
+warning: /Users/tylertharp/Documents/Citybound Revival/.worktrees/issue-8-road-reload/repo_scripts/codegen_runner/Cargo.toml: `package.edition` is unspecified, defaulting to `2015` while the latest is `2024`
+warning: /Users/tylertharp/Documents/Citybound Revival/.worktrees/issue-8-road-reload/cb_simulation/Cargo.toml: `package.edition` is unspecified, defaulting to `2015` while the latest is `2024`
+warning: /Users/tylertharp/Documents/Citybound Revival/.worktrees/issue-8-road-reload/Cargo.toml: `package.edition` is unspecified, defaulting to `2015` while the latest is `2024`
+   Compiling libc v0.2.68
+   Compiling autocfg v1.0.0
+   Compiling libm v0.2.1
+   Compiling cfg-if v0.1.10
+   Compiling autocfg v0.1.7
+   Compiling serde v1.0.105
+   Compiling proc-macro2 v0.4.30
+   Compiling unicode-xid v0.1.0
+   Compiling rand_core v0.4.2
+   Compiling syn v0.15.44
+   Compiling version_check v0.1.5
+   Compiling log v0.4.8
+   Compiling proc-macro2 v1.0.9
+   Compiling num-traits v0.2.11
+   Compiling rand_chacha v0.1.1
+   Compiling rand_pcg v0.1.2
+   Compiling num-integer v0.1.42
+   Compiling rand v0.6.5
+   Compiling indexmap v1.3.2
+   Compiling quote v0.6.13
+   Compiling unicase v1.4.2
+   Compiling unindent v0.1.5
+   Compiling glob v0.3.0
+   Compiling unicode-xid v0.2.0
+   Compiling maybe-uninit v2.0.0
+   Compiling byteorder v1.3.4
+   Compiling rand_core v0.3.1
+   Compiling syn v1.0.17
+   Compiling hamming v0.1.3
+   Compiling unicode-xid v0.0.4
+   Compiling getrandom v0.1.14
+   Compiling matches v0.1.8
+   Compiling smallvec v1.2.0
+   Compiling unicode-bidi v0.3.4
+   Compiling unicode-normalization v0.1.12
+   Compiling quote v1.0.3
+   Compiling synom v0.11.3
+   Compiling num-traits v0.1.43
+   Compiling primal-bit v0.2.4
+   Compiling rand v0.4.6
+   Compiling httparse v1.3.4
+   Compiling bitflags v1.2.1
+   Compiling primal-estimate v0.2.1
+   Compiling quote v0.3.15
+   Compiling syn v0.11.11
+   Compiling smallvec v0.6.13
+   Compiling idna v0.1.5
+   Compiling primal-sieve v0.2.9
+   Compiling primal-check v0.2.3
+   Compiling arrayvec v0.4.12
+   Compiling siphasher v0.2.3
+   Compiling percent-encoding v1.0.1
+   Compiling primal v0.2.3
+   Compiling url v1.7.2
+   Compiling rand_core v0.5.1
+   Compiling phf_shared v0.7.24
+   Compiling rand_os v0.1.3
+   Compiling rand_jitter v0.1.4
+   Compiling rand_hc v0.1.0
+   Compiling rand_xorshift v0.1.1
+   Compiling rand_isaac v0.1.1
+   Compiling iovec v0.1.4
+   Compiling num-complex v0.2.4
+   Compiling typenum v1.11.2
+   Compiling ppv-lite86 v0.2.6
+   Compiling void v1.0.2
+   Compiling safemem v0.3.3
+   Compiling kay_codegen v0.3.10
+   Compiling nodrop v0.1.14
+   Compiling lazy_static v1.4.0
+   Compiling simple_allocator_trait v0.1.0
+   Compiling compact v0.2.16
+   Compiling base64 v0.9.3
+error[E0554]: `#![feature]` may not be used on the stable release channel
+  --> /Users/tylertharp/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/compact-0.2.16/src/lib.rs:17:1
+   |
+17 | #![feature(specialization)]
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+   Compiling rand_chacha v0.2.2
+For more information about this error, try `rustc --explain E0554`.
+error: could not compile `compact` (lib) due to 1 previous error
+warning: build failed, waiting for other jobs to finish...

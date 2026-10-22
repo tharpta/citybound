@@ -1,0 +1,441 @@
+Browser dist artifacts look usable: /Users/tylertharp/Documents/Citybound Revival/.worktrees/issue-8-road-reload/cb_browser_ui/dist
+    Updating crates.io index
+    Updating git repository `https://github.com/Razaekel/noise-rs`
+    Updating git repository `https://github.com/aeickhoff/rust-embed`
+ Downloading crates ...
+  Downloaded backtrace v0.3.46
+  Downloaded kay_codegen v0.3.10
+  Downloaded quote v0.3.15
+  Downloaded descartes v0.1.20
+  Downloaded ctrlc v3.1.4
+  Downloaded compact_macros v0.1.0
+  Downloaded ordered-float v1.0.2
+  Downloaded fnv v1.0.6
+  Downloaded arrayvec v0.4.12
+  Downloaded kay v0.5.1
+  Downloaded walkdir v2.3.1
+  Downloaded roaring v0.5.2
+  Downloaded syn v0.11.11
+  Downloaded notify v4.0.15
+  Downloaded itertools v0.7.11
+  Downloaded compact v0.2.16
+  Downloaded rouille v2.2.0
+  Downloaded rand v0.5.6
+  Downloaded clap v2.33.0
+  Downloaded serde v1.0.105
+  Downloaded michelangelo v0.2.5
+  Downloaded serde_yaml v0.8.13
+  Downloaded uuid v0.7.4
+  Downloaded serde_derive v1.0.105
+  Downloaded cfg-if v0.1.10
+  Downloaded unindent v0.1.5
+  Downloaded glob v0.3.0
+  Downloaded libc v0.2.68
+  Downloaded threadpool v1.7.1
+  Downloaded sha1 v0.6.0
+  Downloaded tiny_http v0.6.2
+  Downloaded rand v0.4.6
+  Downloaded multipart v0.13.6
+  Downloaded base64 v0.9.3
+  Downloaded vec_map v0.8.1
+  Downloaded chrono v0.4.11
+  Downloaded nix v0.17.0
+  Downloaded textwrap v0.11.0
+  Downloaded serde_json v1.0.50
+  Downloaded stable-vec v0.3.2
+  Downloaded time v0.1.42
+  Downloaded term v0.5.2
+  Downloaded num_cpus v1.12.0
+  Downloaded ansi_term v0.11.0
+  Downloaded num-traits v0.2.11
+  Downloaded either v1.5.3
+  Downloaded ordered-float v0.5.2
+  Downloaded nalgebra v0.20.0
+  Downloaded unicode-width v0.1.7
+  Downloaded strsim v0.8.0
+  Downloaded atty v0.2.14
+  Downloaded byteorder v0.5.3
+  Downloaded smallvec v0.6.13
+  Downloaded same-file v1.0.6
+  Downloaded fsevent-sys v2.0.1
+  Downloaded filetime v0.2.8
+  Downloaded bitflags v1.2.1
+  Downloaded syn v0.15.44
+  Downloaded indexmap v1.3.2
+  Downloaded url v1.7.2
+  Downloaded tungstenite v0.5.4
+  Downloaded byteorder v1.3.4
+  Downloaded synom v0.11.3
+  Downloaded simple_allocator_trait v0.1.0
+  Downloaded primal v0.2.3
+  Downloaded nodrop v0.1.14
+  Downloaded rustc-demangle v0.1.16
+  Downloaded backtrace-sys v0.1.35
+  Downloaded rand_core v0.3.1
+  Downloaded fsevent v0.4.0
+  Downloaded chunky v0.3.7
+  Downloaded unicode-xid v0.0.4
+  Downloaded lazy_static v1.4.0
+  Downloaded matches v0.1.8
+  Downloaded utf-8 v0.7.5
+  Downloaded libm v0.2.1
+  Downloaded buf_redux v0.6.3
+  Downloaded mime v0.2.6
+  Downloaded chunked_transfer v0.3.1
+  Downloaded ascii v0.8.7
+  Downloaded twoway v0.1.8
+  Downloaded ryu v1.0.3
+  Downloaded itoa v0.4.5
+  Downloaded tempdir v0.3.7
+  Downloaded safemem v0.2.0
+  Downloaded rand v0.3.23
+  Downloaded lyon_tessellation v0.11.0
+  Downloaded bytes v0.4.12
+  Downloaded cc v1.0.50
+  Downloaded dirs v1.0.5
+  Downloaded mime_guess v1.8.8
+  Downloaded matrixmultiply v0.2.3
+  Downloaded log v0.3.9
+  Downloaded num-integer v0.1.42
+  Downloaded void v1.0.2
+  Downloaded typenum v1.11.2
+  Downloaded num-rational v0.2.4
+  Downloaded unicode-xid v0.1.0
+  Downloaded safemem v0.3.3
+  Downloaded log v0.4.8
+  Downloaded input_buffer v0.1.1
+  Downloaded proc-macro2 v1.0.9
+  Downloaded primal-estimate v0.2.1
+  Downloaded primal-check v0.2.3
+  Downloaded bit-vec v0.5.1
+  Downloaded maybe-uninit v2.0.0
+  Downloaded num-traits v0.1.43
+  Downloaded rand_distr v0.2.2
+  Downloaded generic-array v0.13.2
+  Downloaded approx v0.3.2
+  Downloaded alga v0.9.3
+  Downloaded yaml-rust v0.4.4
+  Downloaded linked-hash-map v0.5.3
+  Downloaded dtoa v0.4.6
+  Downloaded rand_core v0.4.2
+  Downloaded quote v0.6.13
+  Downloaded proc-macro2 v0.4.30
+  Downloaded rand v0.6.5
+  Downloaded idna v0.1.5
+  Downloaded sha1 v0.4.0
+  Downloaded httparse v1.3.4
+  Downloaded syn v1.0.17
+  Downloaded quote v1.0.3
+  Downloaded primal-sieve v0.2.9
+  Downloaded unreachable v1.0.0
+  Downloaded num-complex v0.2.4
+  Downloaded autocfg v1.0.0
+  Downloaded percent-encoding v1.0.1
+  Downloaded rand v0.7.3
+  Downloaded primal-bit v0.2.4
+  Downloaded hamming v0.1.3
+  Downloaded phf_codegen v0.7.24
+  Downloaded rand_hc v0.1.0
+  Downloaded memchr v2.3.3
+  Downloaded unicase v1.4.2
+  Downloaded remove_dir_all v0.5.2
+  Downloaded sid v0.5.2
+  Downloaded phf v0.7.24
+  Downloaded memmap v0.7.0
+  Downloaded autocfg v0.1.7
+  Downloaded unicode-normalization v0.1.12
+  Downloaded rand_os v0.1.3
+  Downloaded rand_chacha v0.1.1
+  Downloaded lyon_path v0.11.0
+  Downloaded rand_pcg v0.1.2
+  Downloaded rand_isaac v0.1.1
+  Downloaded iovec v0.1.4
+  Downloaded unicode-xid v0.2.0
+  Downloaded rand_xorshift v0.1.1
+  Downloaded rand_jitter v0.1.4
+  Downloaded unicode-bidi v0.3.4
+  Downloaded memchr v1.0.2
+  Downloaded rawpointer v0.2.1
+  Downloaded getrandom v0.1.14
+  Downloaded rand_core v0.5.1
+  Downloaded smallvec v1.2.0
+  Downloaded rand_chacha v0.2.2
+  Downloaded lyon_geom v0.11.1
+  Downloaded phf_shared v0.7.24
+  Downloaded version_check v0.1.5
+  Downloaded phf_generator v0.7.24
+  Downloaded ppv-lite86 v0.2.6
+  Downloaded euclid v0.18.2
+  Downloaded siphasher v0.2.3
+   Compiling libc v0.2.68
+   Compiling autocfg v1.0.0
+   Compiling libm v0.2.1
+   Compiling cfg-if v0.1.10
+   Compiling rand_core v0.4.2
+   Compiling serde v1.0.105
+   Compiling autocfg v0.1.7
+   Compiling proc-macro2 v0.4.30
+   Compiling unicode-xid v0.1.0
+   Compiling syn v0.15.44
+   Compiling proc-macro2 v1.0.9
+   Compiling log v0.4.8
+   Compiling maybe-uninit v2.0.0
+   Compiling glob v0.3.0
+   Compiling unicode-xid v0.2.0
+   Compiling unindent v0.1.5
+   Compiling byteorder v1.3.4
+   Compiling version_check v0.1.5
+   Compiling syn v1.0.17
+   Compiling getrandom v0.1.14
+   Compiling unicode-xid v0.0.4
+   Compiling smallvec v1.2.0
+   Compiling matches v0.1.8
+   Compiling hamming v0.1.3
+   Compiling primal-estimate v0.2.1
+   Compiling httparse v1.3.4
+   Compiling bitflags v1.2.1
+   Compiling quote v0.3.15
+   Compiling arrayvec v0.4.12
+   Compiling siphasher v0.2.3
+   Compiling percent-encoding v1.0.1
+   Compiling nodrop v0.1.14
+   Compiling ppv-lite86 v0.2.6
+   Compiling simple_allocator_trait v0.1.0
+   Compiling void v1.0.2
+   Compiling safemem v0.3.3
+   Compiling lazy_static v1.4.0
+   Compiling typenum v1.11.2
+   Compiling rawpointer v0.2.1
+   Compiling utf-8 v0.7.5
+   Compiling sha1 v0.4.0
+   Compiling same-file v1.0.6
+   Compiling bit-vec v0.5.1
+   Compiling either v1.5.3
+   Compiling linked-hash-map v0.5.3
+   Compiling memchr v2.3.3
+   Compiling fnv v1.0.6
+   Compiling ryu v1.0.3
+   Compiling dtoa v0.4.6
+   Compiling cc v1.0.50
+   Compiling safemem v0.2.0
+   Compiling nix v0.17.0
+   Compiling remove_dir_all v0.5.2
+   Compiling itoa v0.4.5
+   Compiling chunked_transfer v0.3.1
+   Compiling byteorder v0.5.3
+   Compiling unicode-width v0.1.7
+   Compiling ascii v0.8.7
+   Compiling sha1 v0.6.0
+   Compiling vec_map v0.8.1
+   Compiling rustc-demangle v0.1.16
+   Compiling strsim v0.8.0
+   Compiling ansi_term v0.11.0
+   Compiling rand_core v0.3.1
+   Compiling rand_chacha v0.1.1
+   Compiling rand_pcg v0.1.2
+   Compiling rand v0.6.5
+   Compiling num-traits v0.2.11
+   Compiling num-integer v0.1.42
+   Compiling indexmap v1.3.2
+   Compiling num-complex v0.2.4
+   Compiling num-rational v0.2.4
+   Compiling unicase v1.4.2
+   Compiling unicode-bidi v0.3.4
+   Compiling synom v0.11.3
+   Compiling primal-bit v0.2.4
+   Compiling unicode-normalization v0.1.12
+   Compiling unreachable v1.0.0
+   Compiling matrixmultiply v0.2.3
+   Compiling walkdir v2.3.1
+   Compiling stable-vec v0.3.2
+   Compiling itertools v0.7.11
+   Compiling yaml-rust v0.4.4
+   Compiling roaring v0.5.2
+   Compiling textwrap v0.11.0
+   Compiling rand_isaac v0.1.1
+   Compiling rand_hc v0.1.0
+   Compiling rand_xorshift v0.1.1
+   Compiling backtrace-sys v0.1.35
+   Compiling syn v0.11.11
+   Compiling idna v0.1.5
+   Compiling quote v0.6.13
+   Compiling log v0.3.9
+   Compiling quote v1.0.3
+   Compiling smallvec v0.6.13
+   Compiling rand_jitter v0.1.4
+   Compiling rand_os v0.1.3
+   Compiling rand v0.4.6
+   Compiling iovec v0.1.4
+   Compiling memmap v0.7.0
+   Compiling fsevent-sys v2.0.1
+   Compiling filetime v0.2.8
+   Compiling rand v0.5.6
+   Compiling memchr v1.0.2
+   Compiling time v0.1.42
+   Compiling num_cpus v1.12.0
+   Compiling dirs v1.0.5
+   Compiling atty v0.2.14
+   Compiling base64 v0.9.3
+   Compiling url v1.7.2
+   Compiling generic-array v0.13.2
+   Compiling twoway v0.1.8
+   Compiling mime v0.2.6
+   Compiling primal-sieve v0.2.9
+   Compiling compact_macros v0.1.0
+   Compiling rust-embed-flag v3.0.1 (https://github.com/aeickhoff/rust-embed#3f1ce67f)
+   Compiling rand_core v0.5.1
+   Compiling serde_yaml v0.8.13
+   Compiling serde_json v1.0.50
+   Compiling bytes v0.4.12
+   Compiling fsevent v0.4.0
+   Compiling chunky v0.3.7
+   Compiling rand v0.3.23
+   Compiling tempdir v0.3.7
+   Compiling buf_redux v0.6.3
+   Compiling threadpool v1.7.1
+   Compiling clap v2.33.0
+   Compiling term v0.5.2
+   Compiling noise v0.5.1 (https://github.com/Razaekel/noise-rs?rev=4606a00#4606a00c)
+   Compiling phf_shared v0.7.24
+   Compiling num-traits v0.1.43
+   Compiling approx v0.3.2
+   Compiling ordered-float v1.0.2
+   Compiling uuid v0.7.4
+   Compiling ctrlc v3.1.4
+   Compiling rand_chacha v0.2.2
+   Compiling input_buffer v0.1.1
+   Compiling notify v4.0.15
+   Compiling kay_codegen v0.3.10
+   Compiling phf_generator v0.7.24
+   Compiling phf v0.7.24
+   Compiling euclid v0.18.2
+   Compiling ordered-float v0.5.2
+   Compiling sid v0.5.2
+   Compiling primal-check v0.2.3
+   Compiling chrono v0.4.11
+   Compiling alga v0.9.3
+   Compiling backtrace v0.3.46
+   Compiling serde_derive v1.0.105
+   Compiling rand v0.7.3
+   Compiling tungstenite v0.5.4
+   Compiling phf_codegen v0.7.24
+   Compiling primal v0.2.3
+   Compiling lyon_geom v0.11.1
+   Compiling tiny_http v0.6.2
+   Compiling cb_time v0.3.0 (/Users/tylertharp/Documents/Citybound Revival/.worktrees/issue-8-road-reload/cb_time)
+   Compiling cb_util v0.3.0 (/Users/tylertharp/Documents/Citybound Revival/.worktrees/issue-8-road-reload/cb_util)
+   Compiling cb_planning v0.3.0 (/Users/tylertharp/Documents/Citybound Revival/.worktrees/issue-8-road-reload/cb_planning)
+   Compiling cb_simulation v0.3.0 (/Users/tylertharp/Documents/Citybound Revival/.worktrees/issue-8-road-reload/cb_simulation)
+   Compiling mime_guess v1.8.8
+   Compiling compact v0.2.16
+   Compiling rand_distr v0.2.2
+   Compiling lyon_path v0.11.0
+   Compiling lyon_tessellation v0.11.0
+   Compiling kay v0.5.1
+   Compiling nalgebra v0.20.0
+   Compiling multipart v0.13.6
+   Compiling rouille v2.2.0
+warning: unnecessary parentheses around type
+  --> cb_util/src/config_manager/kay_auto.rs:10:61
+   |
+10 |     _raw_id: RawID, _marker: ::std::marker::PhantomData<Box<(C)>>
+   |                                                             ^^^ help: remove these parentheses
+   |
+   = note: `#[warn(unused_parens)]` on by default
+
+warning: unnecessary parentheses around type
+  --> cb_util/src/config_manager/kay_auto.rs:32:89
+   |
+32 | pub struct ConfigUserRepresentative<C: Config>{ _marker: ::std::marker::PhantomData<Box<(C)>> }
+   |                                                                                         ^^^ help: remove these parentheses
+
+warning: unnecessary parentheses around type
+   --> cb_util/src/config_manager/kay_auto.rs:114:61
+    |
+114 |     _raw_id: RawID, _marker: ::std::marker::PhantomData<Box<(C)>>
+    |                                                             ^^^ help: remove these parentheses
+
+warning: unnecessary parentheses around type
+   --> cb_util/src/config_manager/kay_auto.rs:192:61
+    |
+192 |     _raw_id: RawID, _marker: ::std::marker::PhantomData<Box<(CD)>>
+    |                                                             ^^^^ help: remove these parentheses
+
+warning: use of deprecated item 'uuid::Uuid::from_random_bytes': please use the `uuid::Builder` instead to set the variant and version
+  --> cb_util/src/random.rs:43:5
+   |
+43 |     Uuid::from_random_bytes(thread_rng().gen())
+   |     ^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(deprecated)]` on by default
+
+   Compiling descartes v0.1.20
+   Compiling michelangelo v0.2.5
+warning: unnecessary parentheses around type
+  --> cb_planning/src/construction/kay_auto.rs:10:61
+   |
+10 |     _raw_id: RawID, _marker: ::std::marker::PhantomData<Box<(PK)>>
+   |                                                             ^^^^ help: remove these parentheses
+   |
+   = note: `#[warn(unused_parens)]` on by default
+
+warning: unnecessary parentheses around type
+  --> cb_planning/src/construction/kay_auto.rs:32:100
+   |
+32 | pub struct ConstructableRepresentative<PK: PrototypeKind>{ _marker: ::std::marker::PhantomData<Box<(PK)>> }
+   |                                                                                                    ^^^^ help: remove these parentheses
+
+warning: unnecessary parentheses around type
+   --> cb_planning/src/construction/kay_auto.rs:101:61
+    |
+101 |     _raw_id: RawID, _marker: ::std::marker::PhantomData<Box<(PK)>>
+    |                                                             ^^^^ help: remove these parentheses
+
+warning: unnecessary parentheses around type
+  --> cb_planning/src/plan_manager/ui/kay_auto.rs:10:61
+   |
+10 |     _raw_id: RawID, _marker: ::std::marker::PhantomData<Box<(Logic)>>
+   |                                                             ^^^^^^^ help: remove these parentheses
+
+warning: unnecessary parentheses around type
+  --> cb_planning/src/plan_manager/ui/kay_auto.rs:32:100
+   |
+32 | pub struct PlanningUIRepresentative<Logic: PlanningLogic>{ _marker: ::std::marker::PhantomData<Box<(Logic)>> }
+   |                                                                                                    ^^^^^^^ help: remove these parentheses
+
+warning: unnecessary parentheses around type
+  --> cb_planning/src/plan_manager/kay_auto.rs:23:61
+   |
+23 |     _raw_id: RawID, _marker: ::std::marker::PhantomData<Box<(Logic)>>
+   |                                                             ^^^^^^^ help: remove these parentheses
+
+warning: unused import: `std::fs::File`
+ --> cb_simulation/src/land_use/buildings/architecture/mod.rs:8:5
+  |
+8 | use std::fs::File;
+  |     ^^^^^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` on by default
+
+warning: unused import: `std::io::BufReader`
+ --> cb_simulation/src/land_use/buildings/architecture/mod.rs:9:5
+  |
+9 | use std::io::BufReader;
+  |     ^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `std::iter::FromIterator`
+  --> cb_simulation/src/land_use/buildings/architecture/mod.rs:10:5
+   |
+10 | use std::iter::FromIterator;
+   |     ^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: use of deprecated item 'nalgebra::geometry::point::Point::<N, D>::from_coordinates': Use Point::from(vector) instead.
+  --> cb_simulation/src/land_use/zone_planning/mod.rs:68:9
+   |
+68 |         P2::from_coordinates(
+   |         ^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(deprecated)]` on by default
+
+   Compiling citybound v0.3.0 (/Users/tylertharp/Documents/Citybound Revival/.worktrees/issue-8-road-reload)
+    Finished dev [unoptimized + debuginfo] target(s) in 3m 13s
