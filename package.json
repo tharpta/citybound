@@ -24,7 +24,7 @@
         "audit-dependencies-readonly": "repo_scripts/audit-dependencies-readonly.sh",
         "test-legacy-install-containment": "repo_scripts/test-legacy-install-containment.sh",
         "test-simulation-next": "cargo +stable test --manifest-path cb_simulation_next/Cargo.toml",
-        "test-compat": "npm run test-runtime-teardown-compat && npm run test-planning-compat && npm run check-codegen-compat && npm run check-browser-dist-compat && npm run smoke-server-compat && npm run smoke-save-reload-compat && npm run smoke-zone-reload-compat",
+        "test-compat": "npm run test-runtime-teardown-compat && npm run test-road-reload-geometry && npm run test-planning-compat && npm run check-codegen-compat && npm run check-browser-dist-compat && npm run smoke-server-compat && npm run smoke-save-reload-compat && npm run smoke-road-reload-compat && npm run smoke-zone-reload-compat",
         "build-browser": "repo_scripts/install-browser-dependencies-compat.sh && cd cb_browser_ui && npm run build",
         "watch-browser": "repo_scripts/install-browser-dependencies-compat.sh && cd cb_browser_ui && npm start",
         "build-server": "git describe > .version && npm run ensure-tooling -- -q && cargo build --release",
