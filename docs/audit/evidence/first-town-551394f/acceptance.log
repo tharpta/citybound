@@ -1,0 +1,13 @@
+FamilyHouse regression: road preview received.
+Reload regression: creating residential zone.
+Zone regression: preview geometry received.
+First town developed: Buildings: 1 · Occupied: 1 · Households: 1; focus and household inspection passed.
+FamilyHouse regression: developed houses ["29_2.0@0"].
+First town page-reload: Buildings: 1 · Occupied: 1 · Households: 1; focus and household inspection passed.
+FamilyHouse regression: page reload restored developed house meshes.
+Zone regression: page reload restored geometry without a project.
+First town server-restart: Buildings: 1 · Occupied: 1 · Households: 1; focus and household inspection passed.
+FamilyHouse regression: 1 developed houses restored after page reload and save/server restart.
+FamilyHouse reload passed without browser errors.
+Zone reload regression passed: filled and outlined residential meshes after page reload and save/server restart, with no active or dummy project.
+Browser smoke passed: http://127.0.0.1:55448/ rendered 1280x720, network turns advanced to {"0":6,"1":7}.

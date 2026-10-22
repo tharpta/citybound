@@ -42,7 +42,8 @@ const browserTimeoutMs = Number(process.env.CITYBOUND_BROWSER_SMOKE_TIMEOUT_MS ?
 const explicitCityDir = process.env.CITYBOUND_BROWSER_SMOKE_CITY_DIR;
 const testRoadReload = process.argv.includes("--road-reload");
 const roadEvidenceDir = process.env.CITYBOUND_ROAD_EVIDENCE_DIR;
-const testFamilyHouseReload = process.argv.includes("--family-house-reload");
+const testFirstTown = process.argv.includes("--first-town");
+const testFamilyHouseReload = process.argv.includes("--family-house-reload") || testFirstTown;
 const testZoneReload = process.argv.includes("--zone-reload") || testFamilyHouseReload;
 
 let browser;
@@ -437,6 +438,48 @@ try {
 
     if (testZoneReload) {
         let houseIds = [];
+        const townSnapshots = {};
+        const townEvidenceDir = process.env.CITYBOUND_FIRST_TOWN_EVIDENCE_DIR;
+        const checkTown = async (target, phase) => {
+            await target.waitForFunction(() => Object.values(window.cbReactApp.state.households.buildings)
+                .some(b => b.style === "FamilyHouse" && b.households.length > 0),
+                undefined, { timeout: Math.max(browserTimeoutMs, 90_000) });
+            await target.evaluate(() => window.cbRustBrowser.set_sim_speed(0));
+            await target.locator('.window.menu .close-window').click();
+            const id = await target.evaluate(() => Object.entries(window.cbReactApp.state.households.buildings)
+                .find(([, b]) => b.style === "FamilyHouse" && b.households.length > 0)[0]);
+            await target.locator(`[data-town-building="${id}"]`).click();
+            await target.waitForFunction(id => {
+                const s = window.cbReactApp.state;
+                return s.uiMode === "inspection" && s.households.inspectedBuilding === id
+                    && s.households.inspectedBuildingPinned
+                    && s.households.inspectedBuildingState?.households.length > 0
+                    && s.households.inspectedBuildingState.households.every(h => s.households.householdInfo[h]);
+            }, id, { timeout: browserTimeoutMs });
+            townSnapshots[phase] = await target.evaluate(() => ({
+                counts: document.querySelector('[data-town-counts]').textContent,
+                buildings: window.cbReactApp.state.households.buildings,
+                selected: window.cbReactApp.state.households.inspectedBuilding,
+                inspector: document.querySelector('.window.building').innerText,
+                target: window.cbReactApp.state.camera.target,
+                position: window.cbReactApp.state.households.buildingPositions[window.cbReactApp.state.households.inspectedBuilding],
+            }));
+            const snapshot = townSnapshots[phase];
+            const town = Object.values(snapshot.buildings).filter(b => b.style !== "NeighboringTownConnection");
+            const occupied = town.filter(b => b.households.length > 0).length;
+            const households = new Set(town.flatMap(b => b.households)).size;
+            const expected = `Buildings: ${town.length} · Occupied: ${occupied} · Households: ${households}`;
+            if (snapshot.counts !== expected || snapshot.target[0] !== snapshot.position[0]
+                || snapshot.target[1] !== snapshot.position[1] || !snapshot.inspector.includes("Member 0")) {
+                throw new Error(`Town panel mismatch: ${JSON.stringify(snapshot)}`);
+            }
+            if (townEvidenceDir) {
+                await mkdir(townEvidenceDir, { recursive: true });
+                await target.screenshot({ path: join(townEvidenceDir, `${phase}.png`) });
+                await writeFile(join(townEvidenceDir, "town.json"), JSON.stringify(townSnapshots, null, 2));
+            }
+            console.log(`First town ${phase}: ${snapshot.counts}; focus and household inspection passed.`);
+        };
         const hasHouseMeshes = ids => ids.every(id =>
             ["WhiteWall", "TiledRoof", "WoodenFence"].every(material => {
                 const mesh = window.cbReactApp.state.landUse.rendering.buildingMeshes[material][id];
@@ -524,6 +567,7 @@ try {
                 window.cbReactApp.state.landUse.rendering.buildingMeshes.WoodenFence,
             ).some(mesh => mesh.vertices.length > 0 && mesh.indices.length > 0),
             undefined, { timeout: Math.max(browserTimeoutMs, 90_000) });
+            if (testFirstTown) await checkTown(page, "developed");
             await page.evaluate(() => window.cbRustBrowser.set_sim_speed(0));
             houseIds = await page.evaluate(renderedHouseIds);
             console.log(`FamilyHouse regression: developed houses ${JSON.stringify(houseIds)}.`);
@@ -541,6 +585,7 @@ try {
 
         if (testFamilyHouseReload) {
             await page.waitForFunction(hasHouseMeshes, houseIds, { timeout: browserTimeoutMs });
+            if (testFirstTown) await checkTown(page, "page-reload");
             console.log("FamilyHouse regression: page reload restored developed house meshes.");
         }
         console.log("Zone regression: page reload restored geometry without a project.");
@@ -573,6 +618,7 @@ try {
         }
         if (testFamilyHouseReload) {
             await restored.waitForFunction(hasHouseMeshes, houseIds, { timeout: browserTimeoutMs });
+            if (testFirstTown) await checkTown(restored, "server-restart");
             console.log(`FamilyHouse regression: ${houseIds.length} developed houses restored after page reload and save/server restart.`);
         }
         if (browserErrors.length > 0) throw new Error(browserErrors.join("\n"));

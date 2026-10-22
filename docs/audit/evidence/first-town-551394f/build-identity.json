@@ -1,0 +1,11 @@
+{
+  "base": "551394f1bd61b796be25ad170c1989f83e843f84",
+  "toolchain": "nightly-2020-03-10-x86_64-apple-darwin",
+  "serverSource": "492f8597e9a60df69048cf5d6e33a3dbd233dc29 (unchanged native product code through base)",
+  "serverSha256": "32b695429a1ccc0c76209857b4419ded2b69c71916295ec717c25b99a22fec69",
+  "scope": "Browser-only gameplay projection; no actor layouts, registrations, save formats or network methods changed",
+  "browserArtifacts": {
+    "cb_browser_ui.wasm": "3ef8361a23d4c952242efcfa2108245f982b55873782a79ece31e4f6129abda0",
+    "citybound.ac5383ae.js": "e86414f569cdb1f230d69028983814db89396ca9efcccf6ad4e71f951574015e"
+  }
+}

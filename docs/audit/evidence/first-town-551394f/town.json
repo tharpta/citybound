@@ -1,0 +1,128 @@
+{
+  "developed": {
+    "counts": "Buildings: 1 · Occupied: 1 · Households: 1",
+    "buildings": {
+      "29_0.0@0": {
+        "style": "NeighboringTownConnection",
+        "households": [
+          "1E_0.0@0",
+          "1E_1.0@0",
+          "1E_2.0@0",
+          "1E_3.0@0",
+          "1E_4.0@0"
+        ]
+      },
+      "29_1.0@0": {
+        "style": "NeighboringTownConnection",
+        "households": [
+          "1E_5.0@0",
+          "1E_6.0@0",
+          "1E_7.0@0",
+          "1E_8.0@0",
+          "1E_9.0@0"
+        ]
+      },
+      "29_2.0@0": {
+        "style": "FamilyHouse",
+        "households": [
+          "1E_A.0@0"
+        ]
+      }
+    },
+    "selected": "29_2.0@0",
+    "inspector": "Building #2\n\n×\nFamilyHouse\nFamily #10\nMember 0\n\nIdle here.\n\nWakefulness: -0.00\n\nSatiety: -0.00\n\nMember 1\n\nIdle here.\n\nWakefulness: -0.00\n\nSatiety: -0.00\n\nMember 2\n\nIdle here.\n\nWakefulness: -0.00\n\nSatiety: -0.00",
+    "target": [
+      -285,
+      -266.5679931640625,
+      0
+    ],
+    "position": [
+      -285,
+      -266.5679931640625
+    ]
+  },
+  "page-reload": {
+    "counts": "Buildings: 1 · Occupied: 1 · Households: 1",
+    "buildings": {
+      "29_0.0@0": {
+        "style": "NeighboringTownConnection",
+        "households": [
+          "1E_0.0@0",
+          "1E_1.0@0",
+          "1E_2.0@0",
+          "1E_3.0@0",
+          "1E_4.0@0"
+        ]
+      },
+      "29_1.0@0": {
+        "style": "NeighboringTownConnection",
+        "households": [
+          "1E_5.0@0",
+          "1E_6.0@0",
+          "1E_7.0@0",
+          "1E_8.0@0",
+          "1E_9.0@0"
+        ]
+      },
+      "29_2.0@0": {
+        "style": "FamilyHouse",
+        "households": [
+          "1E_A.0@0"
+        ]
+      }
+    },
+    "selected": "29_2.0@0",
+    "inspector": "Building #2\n\n×\nFamilyHouse\nFamily #10\nMember 0\n\nIdle here.\n\nWakefulness: -0.00\n\nSatiety: -0.00\n\nMember 1\n\nIdle here.\n\nWakefulness: -0.00\n\nSatiety: -0.00\n\nMember 2\n\nIdle here.\n\nWakefulness: -0.00\n\nSatiety: -0.00",
+    "target": [
+      -285,
+      -266.5679931640625,
+      0
+    ],
+    "position": [
+      -285,
+      -266.5679931640625
+    ]
+  },
+  "server-restart": {
+    "counts": "Buildings: 1 · Occupied: 1 · Households: 1",
+    "buildings": {
+      "29_0.0@0": {
+        "style": "NeighboringTownConnection",
+        "households": [
+          "1E_0.0@0",
+          "1E_1.0@0",
+          "1E_2.0@0",
+          "1E_3.0@0",
+          "1E_4.0@0"
+        ]
+      },
+      "29_1.0@0": {
+        "style": "NeighboringTownConnection",
+        "households": [
+          "1E_5.0@0",
+          "1E_6.0@0",
+          "1E_7.0@0",
+          "1E_8.0@0",
+          "1E_9.0@0"
+        ]
+      },
+      "29_2.0@0": {
+        "style": "FamilyHouse",
+        "households": [
+          "1E_A.0@0"
+        ]
+      }
+    },
+    "selected": "29_2.0@0",
+    "inspector": "Building #2\n\n×\nFamilyHouse\nFamily #10\nMember 0\n\nIdle here.\n\nWakefulness: -0.00\n\nSatiety: -0.00\n\nMember 1\n\nIdle here.\n\nWakefulness: -0.00\n\nSatiety: -0.00\n\nMember 2\n\nIdle here.\n\nWakefulness: -0.00\n\nSatiety: -0.00",
+    "target": [
+      -285,
+      -266.5679931640625,
+      0
+    ],
+    "position": [
+      -285,
+      -266.5679931640625
+    ]
+  }
+}
