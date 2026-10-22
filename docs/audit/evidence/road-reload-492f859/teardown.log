@@ -1,0 +1,9 @@
+/Users/tylertharp/Documents/Citybound Revival/.worktrees/issue-8-road-reload/repo_scripts/runtime-teardown.sh: line 123: 73812 Killed: 9               bash -c "
+        trap '$int_action' INT
+        trap '$term_action' TERM
+        while :; do sleep 0.05; done
+    " "citybound-fake-$mode"
+Runtime teardown failed during stubborn child regression; PID 74238 remains after SIGINT/SIGTERM/SIGKILL.
+Diagnostics preserved at /var/folders/x_/3cp_bb5n1pj16thcpgp14tzm0000gn/T//citybound-runtime-teardown-test.OhPkXq/stubborn.diag. Do not start another runtime probe.
+Refusing to signal PID 74512 during identity regression: exact child identity cannot be proven.
+Runtime teardown tests passed: escalation is bounded and siblings/identity are protected.

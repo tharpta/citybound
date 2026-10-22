@@ -1,0 +1,436 @@
+{
+  "snapshots": {
+    "before-reload": {
+      "gesture": [
+        {
+          "intent": {
+            "Road": {
+              "lane_config": {
+                "n_lanes_backward": 1,
+                "n_lanes_forward": 1
+              },
+              "path": {
+                "closed": "NeverClosed",
+                "corners": [
+                  {
+                    "in_direction": null,
+                    "out_direction": null,
+                    "position": [
+                      -320,
+                      -300
+                    ]
+                  },
+                  {
+                    "in_direction": null,
+                    "out_direction": null,
+                    "position": [
+                      -220,
+                      -300
+                    ]
+                  }
+                ],
+                "strategy": "AssumeSmooth"
+              }
+            }
+          }
+        },
+        "11c15be8-ae46-4395-a0c7-f8b3212235c4"
+      ],
+      "geometry": {
+        "laneAsphaltGroups": {
+          "triangles": 44,
+          "sha256": "5682f1a271ea23f0bb0b0fd4c1942be12639e76c3d72db2b6cf259325fd6975c"
+        },
+        "laneMarkerGroups": {
+          "triangles": 8,
+          "sha256": "82d71f007c2da44edc7911069eb7699be5761877e583dd07c54061e44e12510d"
+        },
+        "laneMarkerGapGroups": {
+          "triangles": 0,
+          "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        }
+      }
+    },
+    "page-reload": {
+      "gesture": [
+        {
+          "intent": {
+            "Road": {
+              "lane_config": {
+                "n_lanes_backward": 1,
+                "n_lanes_forward": 1
+              },
+              "path": {
+                "closed": "NeverClosed",
+                "corners": [
+                  {
+                    "in_direction": null,
+                    "out_direction": null,
+                    "position": [
+                      -320,
+                      -300
+                    ]
+                  },
+                  {
+                    "in_direction": null,
+                    "out_direction": null,
+                    "position": [
+                      -220,
+                      -300
+                    ]
+                  }
+                ],
+                "strategy": "AssumeSmooth"
+              }
+            }
+          }
+        },
+        "11c15be8-ae46-4395-a0c7-f8b3212235c4"
+      ],
+      "geometry": {
+        "laneAsphaltGroups": {
+          "triangles": 44,
+          "sha256": "5682f1a271ea23f0bb0b0fd4c1942be12639e76c3d72db2b6cf259325fd6975c"
+        },
+        "laneMarkerGroups": {
+          "triangles": 8,
+          "sha256": "82d71f007c2da44edc7911069eb7699be5761877e583dd07c54061e44e12510d"
+        },
+        "laneMarkerGapGroups": {
+          "triangles": 0,
+          "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        }
+      }
+    },
+    "server-restart": {
+      "gesture": [
+        {
+          "intent": {
+            "Road": {
+              "lane_config": {
+                "n_lanes_backward": 1,
+                "n_lanes_forward": 1
+              },
+              "path": {
+                "closed": "NeverClosed",
+                "corners": [
+                  {
+                    "in_direction": null,
+                    "out_direction": null,
+                    "position": [
+                      -320,
+                      -300
+                    ]
+                  },
+                  {
+                    "in_direction": null,
+                    "out_direction": null,
+                    "position": [
+                      -220,
+                      -300
+                    ]
+                  }
+                ],
+                "strategy": "AssumeSmooth"
+              }
+            }
+          }
+        },
+        "11c15be8-ae46-4395-a0c7-f8b3212235c4"
+      ],
+      "geometry": {
+        "laneAsphaltGroups": {
+          "triangles": 44,
+          "sha256": "5682f1a271ea23f0bb0b0fd4c1942be12639e76c3d72db2b6cf259325fd6975c"
+        },
+        "laneMarkerGroups": {
+          "triangles": 8,
+          "sha256": "82d71f007c2da44edc7911069eb7699be5761877e583dd07c54061e44e12510d"
+        },
+        "laneMarkerGapGroups": {
+          "triangles": 0,
+          "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        }
+      }
+    }
+  },
+  "saveInventory": [
+    "Bakery_inbx_0",
+    "Bakery_inbx_q_state",
+    "Bakery_inst_bin_sizes_len",
+    "Bakery_n",
+    "Bakery_slts_entr_len",
+    "Bakery_slts_free_len",
+    "Bakery_slts_vrsns_len",
+    "Building_inbx_0",
+    "Building_inbx_q_state",
+    "Building_inst_864_0",
+    "Building_inst_864_len",
+    "Building_inst_bin_sizes_0",
+    "Building_inst_bin_sizes_len",
+    "Building_n",
+    "Building_slts_entr_0",
+    "Building_slts_entr_len",
+    "Building_slts_free_len",
+    "Building_slts_vrsns_0",
+    "Building_slts_vrsns_len",
+    "ConfigFileWatcher(ArchitectureRule)_inbx_0",
+    "ConfigFileWatcher(ArchitectureRule)_inbx_q_state",
+    "ConfigFileWatcher(ArchitectureRule)_inst_96_0",
+    "ConfigFileWatcher(ArchitectureRule)_inst_96_len",
+    "ConfigFileWatcher(ArchitectureRule)_inst_bin_sizes_0",
+    "ConfigFileWatcher(ArchitectureRule)_inst_bin_sizes_len",
+    "ConfigFileWatcher(ArchitectureRule)_n",
+    "ConfigFileWatcher(ArchitectureRule)_slts_entr_0",
+    "ConfigFileWatcher(ArchitectureRule)_slts_entr_len",
+    "ConfigFileWatcher(ArchitectureRule)_slts_free_len",
+    "ConfigFileWatcher(ArchitectureRule)_slts_vrsns_0",
+    "ConfigFileWatcher(ArchitectureRule)_slts_vrsns_len",
+    "ConfigManager(ArchitectureRule)_inbx_0",
+    "ConfigManager(ArchitectureRule)_inbx_q_state",
+    "ConfigManager(ArchitectureRule)_inst_10240_0",
+    "ConfigManager(ArchitectureRule)_inst_10240_len",
+    "ConfigManager(ArchitectureRule)_inst_1280_len",
+    "ConfigManager(ArchitectureRule)_inst_bin_sizes_0",
+    "ConfigManager(ArchitectureRule)_inst_bin_sizes_len",
+    "ConfigManager(ArchitectureRule)_n",
+    "ConfigManager(ArchitectureRule)_slts_entr_0",
+    "ConfigManager(ArchitectureRule)_slts_entr_len",
+    "ConfigManager(ArchitectureRule)_slts_free_len",
+    "ConfigManager(ArchitectureRule)_slts_vrsns_0",
+    "ConfigManager(ArchitectureRule)_slts_vrsns_len",
+    "Construction(CBPrototypeKind)_inbx_0",
+    "Construction(CBPrototypeKind)_inbx_q_state",
+    "Construction(CBPrototypeKind)_inst_1920_len",
+    "Construction(CBPrototypeKind)_inst_1966080_0",
+    "Construction(CBPrototypeKind)_inst_1966080_len",
+    "Construction(CBPrototypeKind)_inst_bin_sizes_0",
+    "Construction(CBPrototypeKind)_inst_bin_sizes_len",
+    "Construction(CBPrototypeKind)_n",
+    "Construction(CBPrototypeKind)_slts_entr_0",
+    "Construction(CBPrototypeKind)_slts_entr_len",
+    "Construction(CBPrototypeKind)_slts_free_len",
+    "Construction(CBPrototypeKind)_slts_vrsns_0",
+    "Construction(CBPrototypeKind)_slts_vrsns_len",
+    "CowFarm_inbx_0",
+    "CowFarm_inbx_q_state",
+    "CowFarm_inst_bin_sizes_len",
+    "CowFarm_n",
+    "CowFarm_slts_entr_len",
+    "CowFarm_slts_free_len",
+    "CowFarm_slts_vrsns_len",
+    "DevelopmentManager_inbx_0",
+    "DevelopmentManager_inbx_q_state",
+    "DevelopmentManager_inst_28_0",
+    "DevelopmentManager_inst_28_len",
+    "DevelopmentManager_inst_bin_sizes_0",
+    "DevelopmentManager_inst_bin_sizes_len",
+    "DevelopmentManager_n",
+    "DevelopmentManager_slts_entr_0",
+    "DevelopmentManager_slts_entr_len",
+    "DevelopmentManager_slts_free_len",
+    "DevelopmentManager_slts_vrsns_0",
+    "DevelopmentManager_slts_vrsns_len",
+    "FailedTripDebugger_inbx_q_state",
+    "FailedTripDebugger_inst_bin_sizes_len",
+    "FailedTripDebugger_n",
+    "FailedTripDebugger_slts_entr_len",
+    "FailedTripDebugger_slts_free_len",
+    "FailedTripDebugger_slts_vrsns_len",
+    "Family_inbx_0",
+    "Family_inbx_q_state",
+    "Family_inst_bin_sizes_len",
+    "Family_n",
+    "Family_slts_entr_len",
+    "Family_slts_free_len",
+    "Family_slts_vrsns_len",
+    "GrainFarm_inbx_0",
+    "GrainFarm_inbx_q_state",
+    "GrainFarm_inst_bin_sizes_len",
+    "GrainFarm_n",
+    "GrainFarm_slts_entr_len",
+    "GrainFarm_slts_free_len",
+    "GrainFarm_slts_vrsns_len",
+    "GroceryShop_inbx_0",
+    "GroceryShop_inbx_q_state",
+    "GroceryShop_inst_bin_sizes_len",
+    "GroceryShop_n",
+    "GroceryShop_slts_entr_len",
+    "GroceryShop_slts_free_len",
+    "GroceryShop_slts_vrsns_len",
+    "ImmigrationManager_inbx_0",
+    "ImmigrationManager_inbx_q_state",
+    "ImmigrationManager_inst_28_0",
+    "ImmigrationManager_inst_28_len",
+    "ImmigrationManager_inst_bin_sizes_0",
+    "ImmigrationManager_inst_bin_sizes_len",
+    "ImmigrationManager_n",
+    "ImmigrationManager_slts_entr_0",
+    "ImmigrationManager_slts_entr_len",
+    "ImmigrationManager_slts_free_len",
+    "ImmigrationManager_slts_vrsns_0",
+    "ImmigrationManager_slts_vrsns_len",
+    "Lane_inbx_0",
+    "Lane_inbx_q_state",
+    "Lane_inst_1216_0",
+    "Lane_inst_1216_len",
+    "Lane_inst_608_len",
+    "Lane_inst_bin_sizes_0",
+    "Lane_inst_bin_sizes_len",
+    "Lane_n",
+    "Lane_slts_entr_0",
+    "Lane_slts_entr_len",
+    "Lane_slts_free_len",
+    "Lane_slts_vrsns_0",
+    "Lane_slts_vrsns_len",
+    "Log_inbx_0",
+    "Log_inbx_q_state",
+    "Log_inst_114688_0",
+    "Log_inst_114688_len",
+    "Log_inst_14336_len",
+    "Log_inst_1792_len",
+    "Log_inst_224_len",
+    "Log_inst_28672_len",
+    "Log_inst_3584_len",
+    "Log_inst_448_len",
+    "Log_inst_56_len",
+    "Log_inst_57344_len",
+    "Log_inst_7168_len",
+    "Log_inst_896_len",
+    "Log_inst_bin_sizes_0",
+    "Log_inst_bin_sizes_len",
+    "Log_n",
+    "Log_slts_entr_0",
+    "Log_slts_entr_len",
+    "Log_slts_free_len",
+    "Log_slts_vrsns_0",
+    "Log_slts_vrsns_len",
+    "Market_inbx_0",
+    "Market_inbx_q_state",
+    "Market_inst_56_0",
+    "Market_inst_56_len",
+    "Market_inst_bin_sizes_0",
+    "Market_inst_bin_sizes_len",
+    "Market_n",
+    "Market_slts_entr_0",
+    "Market_slts_entr_len",
+    "Market_slts_free_len",
+    "Market_slts_vrsns_0",
+    "Market_slts_vrsns_len",
+    "Mill_inbx_0",
+    "Mill_inbx_q_state",
+    "Mill_inst_bin_sizes_len",
+    "Mill_n",
+    "Mill_slts_entr_len",
+    "Mill_slts_free_len",
+    "Mill_slts_vrsns_len",
+    "NeighboringTownTrade_inbx_0",
+    "NeighboringTownTrade_inbx_q_state",
+    "NeighboringTownTrade_inst_bin_sizes_len",
+    "NeighboringTownTrade_n",
+    "NeighboringTownTrade_slts_entr_len",
+    "NeighboringTownTrade_slts_free_len",
+    "NeighboringTownTrade_slts_vrsns_len",
+    "PlanManager(CBPlanningLogic)_inbx_0",
+    "PlanManager(CBPlanningLogic)_inbx_q_state",
+    "PlanManager(CBPlanningLogic)_inst_1835008_0",
+    "PlanManager(CBPlanningLogic)_inst_1835008_len",
+    "PlanManager(CBPlanningLogic)_inst_3670016_len",
+    "PlanManager(CBPlanningLogic)_inst_7168_len",
+    "PlanManager(CBPlanningLogic)_inst_bin_sizes_0",
+    "PlanManager(CBPlanningLogic)_inst_bin_sizes_len",
+    "PlanManager(CBPlanningLogic)_n",
+    "PlanManager(CBPlanningLogic)_slts_entr_0",
+    "PlanManager(CBPlanningLogic)_slts_entr_len",
+    "PlanManager(CBPlanningLogic)_slts_free_len",
+    "PlanManager(CBPlanningLogic)_slts_vrsns_0",
+    "PlanManager(CBPlanningLogic)_slts_vrsns_len",
+    "Plant_inbx_0",
+    "Plant_inbx_q_state",
+    "Plant_inst_20_0",
+    "Plant_inst_20_len",
+    "Plant_inst_bin_sizes_0",
+    "Plant_inst_bin_sizes_len",
+    "Plant_n",
+    "Plant_slts_entr_0",
+    "Plant_slts_entr_len",
+    "Plant_slts_free_0",
+    "Plant_slts_free_len",
+    "Plant_slts_vrsns_0",
+    "Plant_slts_vrsns_len",
+    "SwitchLane_inbx_0",
+    "SwitchLane_inbx_q_state",
+    "SwitchLane_inst_bin_sizes_len",
+    "SwitchLane_n",
+    "SwitchLane_slts_entr_len",
+    "SwitchLane_slts_free_len",
+    "SwitchLane_slts_vrsns_len",
+    "TaskEndScheduler_inbx_0",
+    "TaskEndScheduler_inbx_q_state",
+    "TaskEndScheduler_inst_32_0",
+    "TaskEndScheduler_inst_32_len",
+    "TaskEndScheduler_inst_bin_sizes_0",
+    "TaskEndScheduler_inst_bin_sizes_len",
+    "TaskEndScheduler_n",
+    "TaskEndScheduler_slts_entr_0",
+    "TaskEndScheduler_slts_entr_len",
+    "TaskEndScheduler_slts_free_len",
+    "TaskEndScheduler_slts_vrsns_0",
+    "TaskEndScheduler_slts_vrsns_len",
+    "Time_inbx_0",
+    "Time_inbx_q_state",
+    "Time_inst_160_0",
+    "Time_inst_160_len",
+    "Time_inst_40_len",
+    "Time_inst_80_len",
+    "Time_inst_bin_sizes_0",
+    "Time_inst_bin_sizes_len",
+    "Time_n",
+    "Time_slts_entr_0",
+    "Time_slts_entr_len",
+    "Time_slts_free_len",
+    "Time_slts_vrsns_0",
+    "Time_slts_vrsns_len",
+    "TripCostEstimator_inbx_q_state",
+    "TripCostEstimator_inst_bin_sizes_len",
+    "TripCostEstimator_n",
+    "TripCostEstimator_slts_entr_len",
+    "TripCostEstimator_slts_free_len",
+    "TripCostEstimator_slts_vrsns_len",
+    "TripCreator_inbx_0",
+    "TripCreator_inbx_q_state",
+    "TripCreator_inst_40_0",
+    "TripCreator_inst_40_len",
+    "TripCreator_inst_bin_sizes_0",
+    "TripCreator_inst_bin_sizes_len",
+    "TripCreator_n",
+    "TripCreator_slts_entr_0",
+    "TripCreator_slts_entr_len",
+    "TripCreator_slts_free_len",
+    "TripCreator_slts_vrsns_0",
+    "TripCreator_slts_vrsns_len",
+    "Trip_inbx_q_state",
+    "Trip_inst_bin_sizes_len",
+    "Trip_n",
+    "Trip_slts_entr_len",
+    "Trip_slts_free_len",
+    "Trip_slts_vrsns_len",
+    "VacantLot_inbx_q_state",
+    "VacantLot_inst_bin_sizes_len",
+    "VacantLot_n",
+    "VacantLot_slts_entr_len",
+    "VacantLot_slts_free_len",
+    "VacantLot_slts_vrsns_len",
+    "VegetableFarm_inbx_0",
+    "VegetableFarm_inbx_q_state",
+    "VegetableFarm_inst_bin_sizes_len",
+    "VegetableFarm_n",
+    "VegetableFarm_slts_entr_len",
+    "VegetableFarm_slts_free_len",
+    "VegetableFarm_slts_vrsns_len",
+    "__cb_version.txt"
+  ],
+  "browserErrors": [],
+  "bind": "127.0.0.1:54530",
+  "bindSimulation": "127.0.0.1:54531"
+}

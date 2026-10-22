@@ -2,7 +2,8 @@
 
 import { spawn } from "node:child_process";
 import { once } from "node:events";
-import { access, mkdtemp, rm } from "node:fs/promises";
+import { access, mkdir, mkdtemp, readdir, rm, writeFile } from "node:fs/promises";
+import { createHash } from "node:crypto";
 import { createServer } from "node:net";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
@@ -10,6 +11,7 @@ import { fileURLToPath } from "node:url";
 
 import { chromium } from "playwright-core";
 import { installSignalCleanup } from "./signal-cleanup.mjs";
+import { roadGeometry } from "./road-reload-geometry.mjs";
 
 const scriptDir = dirname(fileURLToPath(import.meta.url));
 const repoRoot = resolve(scriptDir, "..");
@@ -38,6 +40,8 @@ const expectedSimulationPort = Number(bindSimulation.slice(bindSimulation.lastIn
 const serverPath = join(repoRoot, "target", "debug", "citybound");
 const browserTimeoutMs = Number(process.env.CITYBOUND_BROWSER_SMOKE_TIMEOUT_MS ?? 30_000);
 const explicitCityDir = process.env.CITYBOUND_BROWSER_SMOKE_CITY_DIR;
+const testRoadReload = process.argv.includes("--road-reload");
+const roadEvidenceDir = process.env.CITYBOUND_ROAD_EVIDENCE_DIR;
 const testFamilyHouseReload = process.argv.includes("--family-house-reload");
 const testZoneReload = process.argv.includes("--zone-reload") || testFamilyHouseReload;
 
@@ -179,8 +183,11 @@ function cleanup() {
 const removeSignalCleanup = installSignalCleanup(cleanup);
 
 try {
-    if (testZoneReload && explicitCityDir) {
-        throw new Error("Zone reload regression requires its own disposable city.");
+    if (testRoadReload && testZoneReload) {
+        throw new Error("Run road and zoning reload probes separately.");
+    }
+    if ((testZoneReload || testRoadReload) && explicitCityDir) {
+        throw new Error("Reload regression requires its own disposable city.");
     }
     await access(serverPath);
     await access(join(repoRoot, "cb_browser_ui", "dist", "index.html"));
@@ -290,6 +297,142 @@ try {
     }
     if (browserErrors.length > 0) {
         throw new Error(`Browser errors were reported:\n${browserErrors.join("\n")}`);
+    }
+
+    if (testRoadReload) {
+        const projectId = "00000000-0000-4000-8000-000000000008";
+        const gestureId = "00000000-0000-4000-8000-000000000800";
+        const snapshots = {};
+        const logs = [];
+        if (roadEvidenceDir) await mkdir(roadEvidenceDir, { recursive: true });
+
+        const hasRoad = () => {
+            const rendering = window.cbReactApp?.state?.transport?.rendering;
+            const indexCount = layer => [...(rendering?.[layer]?.values() ?? [])]
+                .reduce((count, mesh) => count + mesh.indices.length, 0);
+            // Two straight lanes plus the generated endpoint turnarounds.
+            return indexCount("laneAsphaltGroups") === 132
+                && indexCount("laneMarkerGroups") === 24;
+        };
+        const capture = async (activePage, label) => {
+            try {
+                await activePage.waitForFunction(hasRoad, undefined, { timeout: browserTimeoutMs });
+            } catch (error) {
+                console.error(`${label} road geometry:`, await activePage.evaluate(roadGeometry));
+                throw error;
+            }
+            await activePage.evaluate(() => {
+                document.querySelector(".window.menu .close-window")?.click();
+                window.cbReactApp.boundSetState(old => ({
+                    ...old, uiMode: "inspection", camera: { ...old.camera, target: [-270, -300, 0] },
+                }));
+            });
+            await activePage.waitForFunction(() => window.cbReactApp.state.uiMode === "inspection");
+            const planning = await activePage.evaluate(() => ({
+                currentProject: window.cbReactApp.state.planning.currentProject,
+                projects: Object.keys(window.cbReactApp.state.planning.projects),
+            }));
+            if (planning.currentProject != null || planning.projects.length !== 0) {
+                throw new Error(`${label}: a planning project remains active.`);
+            }
+            const geometry = await activePage.evaluate(roadGeometry);
+            const gestureHandle = await activePage.waitForFunction(id =>
+                window.cbReactApp.state.planning.master.gestures[id] || false,
+            gestureId, { timeout: browserTimeoutMs });
+            const gesture = await gestureHandle.jsonValue();
+            await gestureHandle.dispose();
+            snapshots[label] = {
+                gesture,
+                geometry: Object.fromEntries(Object.entries(geometry).map(([layer, triangles]) =>
+                    [layer, { triangles: triangles.length,
+                        sha256: createHash("sha256").update(JSON.stringify(triangles)).digest("hex") }])),
+            };
+            // Let the renderer consume the state before recording the visible surface.
+            await activePage.evaluate(() => new Promise(resolveFrame =>
+                requestAnimationFrame(() => requestAnimationFrame(resolveFrame))));
+            if (roadEvidenceDir) {
+                await activePage.screenshot({ path: join(roadEvidenceDir, `${label}.png`) });
+                await writeFile(join(roadEvidenceDir, `${label}.json`),
+                    JSON.stringify({ ...snapshots[label], triangles: geometry }, null, 2));
+            }
+            if (label !== "before-reload"
+                && JSON.stringify(snapshots[label]) !== JSON.stringify(snapshots["before-reload"])) {
+                throw new Error(`${label}: authoritative gesture or constructed road geometry changed.`);
+            }
+            console.log(`Road regression ${label}: ${JSON.stringify(snapshots[label])}`);
+        };
+
+        const initialGeometry = await page.evaluate(roadGeometry);
+        if (initialGeometry.laneAsphaltGroups.length !== 0) {
+            throw new Error("Disposable city unexpectedly already contains asphalt.");
+        }
+        await page.evaluate(({ projectId, gestureId }) => {
+            window.cbRustBrowser.start_new_project(projectId);
+            let intent = { Road: window.cbRustBrowser.new_road_intent(1, 1) };
+            for (const point of [[-320, -300], [-220, -300]]) {
+                intent = window.cbRustBrowser.with_control_point_added(intent, point, true);
+            }
+            window.cbRustBrowser.start_new_gesture(projectId, gestureId, intent);
+            window.cbReactApp.boundSetState(old => ({
+                ...old, planning: { ...old.planning, currentProject: projectId },
+            }));
+        }, { projectId, gestureId });
+        await page.waitForFunction(() => [...window.cbReactApp.state.planning.rendering
+            .currentPreview.lanesToConstructGroups.values()].some(mesh => mesh.indices.length > 0),
+        undefined, { timeout: browserTimeoutMs });
+        await page.evaluate(id => {
+            window.cbRustBrowser.implement_project(id);
+            window.cbReactApp.boundSetState(old => ({
+                ...old, planning: { ...old.planning, currentProject: null },
+            }));
+        }, projectId);
+        await page.waitForFunction(({ projectId, gestureId }) =>
+            window.cbReactApp.state.planning.projects[projectId] == null
+            && window.cbReactApp.state.planning.master.gestures[gestureId] != null,
+        { projectId, gestureId }, { timeout: browserTimeoutMs });
+        await capture(page, "before-reload");
+
+        await page.reload({ waitUntil: "domcontentloaded", timeout: browserTimeoutMs });
+        await page.waitForFunction(() => window.cbReactApp?.state?.planning?.master?.gestures[
+            "00000000-0000-4000-8000-000000000800"] != null,
+        undefined, { timeout: browserTimeoutMs });
+        await capture(page, "page-reload");
+        await page.close();
+        if (!await stopServer()) throw new Error("Could not stop road regression server.");
+        if (server.exitCode !== 0 || !serverLog.includes("Stopping Citybound safely...")) {
+            throw new Error("Road regression did not complete a clean first shutdown.");
+        }
+        logs.push(serverLog);
+        const saveInventory = (await readdir(cityDir)).sort();
+        if (!saveInventory.includes("Lane_n")) throw new Error("Save is missing Lane actor storage.");
+        serverLog = "";
+        await startServer(cityDir);
+        if (!serverLog.includes("Loading from savegame")) throw new Error("Server did not load save.");
+        const restored = await browser.newPage({ viewport: { width: 1280, height: 720 } });
+        restored.on("pageerror", error => browserErrors.push(`reload page: ${error.message}`));
+        restored.on("console", message => {
+            if (message.type() === "error") browserErrors.push(`reload console: ${message.text()}`);
+        });
+        await restored.goto(url, { waitUntil: "domcontentloaded", timeout: browserTimeoutMs });
+        await restored.waitForFunction(() => window.cbReactApp?.state?.planning?.master?.gestures[
+            "00000000-0000-4000-8000-000000000800"] != null,
+        undefined, { timeout: browserTimeoutMs });
+        await capture(restored, "server-restart");
+        await restored.close();
+        if (!await stopServer() || server.exitCode !== 0
+            || !serverLog.includes("Stopping Citybound safely...")) {
+            throw new Error("Road regression did not complete a clean second shutdown.");
+        }
+        logs.push(serverLog);
+        if (roadEvidenceDir) {
+            await writeFile(join(roadEvidenceDir, "server-first.log"), logs[0].replace(/[ \t]+$/gm, ""));
+            await writeFile(join(roadEvidenceDir, "server-restart.log"), logs[1].replace(/[ \t]+$/gm, ""));
+            await writeFile(join(roadEvidenceDir, "result.json"), JSON.stringify({
+                snapshots, saveInventory, browserErrors, bind, bindSimulation,
+            }, null, 2));
+        }
+        if (browserErrors.length > 0) throw new Error(browserErrors.join("\n"));
+        console.log("Road reload passed: identical master gesture, asphalt and marker triangles after page reload and clean save/server restart; no browser errors.");
     }
 
     if (testZoneReload) {

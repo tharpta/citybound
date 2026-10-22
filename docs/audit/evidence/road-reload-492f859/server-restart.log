@@ -1,0 +1,17 @@
+        Citybound v0.1.2-891-g492f859
+
+       This is the simulation server.
+  To connect and start playing, please open
+   this address in Chrome/Firefox/Safari:
+╭───────────────────────────────────────────╮
+│          http://localhost:54530           │
+╰───────────────────────────────────────────╯
+Loading from savegame /var/folders/x_/3cp_bb5n1pj16thcpgp14tzm0000gn/T/citybound-browser-smoke-xUVsj7...
+Simulation running.
+(You can stop this process at any point and the savegame should be fine)
+Started watching config file . "modding/architecture_rules.yaml"
+V4(127.0.0.1:54551) loaded page
+V4(127.0.0.1:54553) loaded page
+Got connection from 127.0.0.1:54557, shaking hands...
+...machine ID 1 connected!
+Stopping Citybound safely...
