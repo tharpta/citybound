@@ -309,3 +309,32 @@ pub fn spawn(world: &mut World, time: TimeID, plan_manager: CBPlanManagerID) {
 
 mod kay_auto;
 pub use self::kay_auto::*;
+
+#[cfg(test)]
+mod shortage_admission_tests {
+    use super::*;
+
+    #[test]
+    fn shortage_requests_respect_busy_manager_and_retry_after_timeout() {
+        let network = kay::Networking::new(0, vec!["127.0.0.1:0".to_owned()], 4096, 1, 1);
+        let mut system = ActorSystem::new(network, Default::default());
+        ::setup_common(&mut system);
+        let mut world = system.world();
+        let id = DevelopmentManagerID::global_first(&mut world);
+        let time = TimeID::global_first(&mut world);
+        let plans = CBPlanManagerID::global_first(&mut world);
+        let mut manager = DevelopmentManager::spawn(id, time, plans, &mut world);
+        manager.try_develop(BuildingStyle::FamilyHouse, &mut world);
+        for _ in 0..3 {
+            manager.try_develop(BuildingStyle::GroceryShop, &mut world);
+            assert_eq!(*manager.building_to_develop, Some(BuildingStyle::FamilyHouse));
+        }
+        manager.wake(Instant::new(30), &mut world);
+        manager.try_develop(BuildingStyle::GroceryShop, &mut world);
+        assert_eq!(*manager.building_to_develop, Some(BuildingStyle::GroceryShop));
+        for _ in 0..3 {
+            manager.try_develop(BuildingStyle::GroceryShop, &mut world);
+            assert_eq!(*manager.building_to_develop, Some(BuildingStyle::GroceryShop));
+        }
+    }
+}
