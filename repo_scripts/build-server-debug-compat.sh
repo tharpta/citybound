@@ -12,4 +12,5 @@ export CARGO_TARGET_X86_64_APPLE_DARWIN_LINKER="$REPO_ROOT/repo_scripts/cc-strip
 
 git describe > .version
 npm run ensure-tooling -- -q
-cargo build
+TOOLCHAIN="$("$SCRIPT_DIR/ensure-rust-toolchain-compat.sh")"
+RUSTUP_TOOLCHAIN="$TOOLCHAIN" cargo build

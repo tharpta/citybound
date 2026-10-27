@@ -11,6 +11,7 @@
         "build-compat": "repo_scripts/build-compat.sh",
         "test-planning-compat": "repo_scripts/test-planning-compat.sh",
         "test-linker-wrapper-compat": "repo_scripts/test-cc-strip-rmeta.sh",
+        "test-native-toolchain-compat": "node --test repo_scripts/test-native-toolchain-compat.mjs",
         "test-town-trips": "node --test repo_scripts/test-town-trips.mjs",
         "smoke-connected-town-compat": "node repo_scripts/smoke-browser-compat.mjs --connected-town",
         "test-town-summary": "node --test repo_scripts/test-town-summary.mjs",
