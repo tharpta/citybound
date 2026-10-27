@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { firstTownState, validateFirstTown, assertFirstTownContinuity } from "./first-town-continuity.mjs";
+import { firstTownState, validateFirstTown, assertFirstTownContinuity, assertRecoverableFirstTown } from "./first-town-continuity.mjs";
 
 function browserState() {
     const mesh = { vertices: new Float32Array([0, 0, 0, 1, 0, 0, 0, 1, 0]), indices: new Uint16Array([0, 1, 2]) };
@@ -82,4 +82,17 @@ test("geometry comparison preserves winding and duplicate triangle counts", () =
         vertices: new Float32Array([0, 0, 0, 1, 0, 0, 0, 1, 0]), indices: new Uint16Array([0, 1, 2, 0, 1, 2]),
     };
     assert.throws(() => assertFirstTownContinuity(before, snapshot(duplicate), "restart"), /geometry.WhiteWall/);
+});
+
+
+test("recovery rejects active, failed, and mismatched fixtures", () => {
+    const expected = { binarySha256: "native", browserSha256: "browser", cityDir: "/tmp/probe/city" };
+    const clean = { ...expected, fixture: "citybound-first-town-continuity-v1", phase: "safe-first-shutdown" };
+    assert.doesNotThrow(() => assertRecoverableFirstTown(clean, expected));
+    for (const phase of ["building", "running", "teardown-failed", "passed", undefined]) {
+        assert.throws(() => assertRecoverableFirstTown({ ...clean, phase }, expected));
+    }
+    for (const key of ["binarySha256", "browserSha256", "cityDir", "fixture"]) {
+        assert.throws(() => assertRecoverableFirstTown({ ...clean, [key]: "different" }, expected));
+    }
 });

@@ -86,3 +86,13 @@ export function assertFirstTownContinuity(before, after, phase) {
     const changed = difference(before, after, "town");
     if (changed) throw new Error(`${phase}: first-town continuity changed at ${changed}`);
 }
+
+export function assertRecoverableFirstTown(manifest, expected) {
+    if (manifest.fixture !== "citybound-first-town-continuity-v1"
+        || manifest.binarySha256 !== expected.binarySha256
+        || manifest.browserSha256 !== expected.browserSha256
+        || manifest.cityDir !== expected.cityDir
+        || manifest.phase !== "safe-first-shutdown") {
+        throw new Error("Recovery requires this probe's safely stopped fixture and identical binary/browser assets.");
+    }
+}

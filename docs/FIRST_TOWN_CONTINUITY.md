@@ -89,7 +89,10 @@ it is not part of the bounded acceptance pass and has not yet been exercised
 end to end. Do not treat its presence as a passing recovery result.
 
 Recovery accepts only a probe manifest at the safe-first-shutdown phase, the
-recorded `city/` path, and identical native/browser digests. It does not recreate the
+recorded `city/` path, and identical native/browser digests. Every server start
+marks the manifest `running` before opening the save, and an unresolved child
+marks it `teardown-failed`; neither phase is eligible for recovery. A clean
+checkpoint is recorded only after the explicitly verified SIGINT stop. It does not recreate the
 fixture: it reloads and compares the retained pre-failure town, repeats the
 restart check, and proves time advances. The original `failure.json` remains
 available after recovery. Arbitrary user save paths are rejected by the reload

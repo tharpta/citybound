@@ -12,7 +12,7 @@ import { fileURLToPath } from "node:url";
 import { chromium } from "playwright-core";
 import { installSignalCleanup } from "./signal-cleanup.mjs";
 import { roadGeometry } from "./road-reload-geometry.mjs";
-import { firstTownState, validateFirstTown, assertFirstTownContinuity } from "./first-town-continuity.mjs";
+import { firstTownState, validateFirstTown, assertFirstTownContinuity, assertRecoverableFirstTown } from "./first-town-continuity.mjs";
 
 const scriptDir = dirname(fileURLToPath(import.meta.url));
 const repoRoot = resolve(scriptDir, "..");
@@ -103,7 +103,15 @@ async function waitForServer() {
     throw new Error(`Timed out waiting for ${url}.\n${serverLog}`);
 }
 
+async function recordContinuityPhase(phase) {
+    if (!continuityManifest || !continuityDir) return;
+    continuityManifest.phase = phase;
+    await writeFile(join(continuityDir, "manifest.json"), JSON.stringify(continuityManifest, null, 2));
+}
+
 async function startServer(cityDir) {
+    // Invalidate the clean checkpoint before any process can reopen the mmap save.
+    await recordContinuityPhase("running");
     server = spawn(
         serverPath,
         [
@@ -183,7 +191,10 @@ async function stopServer() {
 async function cleanupOnce() {
     await browser?.close();
     const stopped = await stopServer();
-    if (!stopped) process.exitCode = 1;
+    if (!stopped) {
+        process.exitCode = 1;
+        await recordContinuityPhase("teardown-failed");
+    }
 
     if (continuityDir) {
         console.log(`Continuity save and evidence preserved at ${continuityDir}.`);
@@ -224,13 +235,10 @@ try {
         }
         if (recoveryDir) {
             continuityManifest = JSON.parse(await readFile(join(evidenceDir, "manifest.json"), "utf8"));
-            if (continuityManifest.fixture !== "citybound-first-town-continuity-v1"
-                || continuityManifest.binarySha256 !== await binarySha256()
-                || continuityManifest.browserSha256 !== await browserSha256()
-                || continuityManifest.cityDir !== join(evidenceDir, "city")
-                || continuityManifest.phase !== "safe-first-shutdown") {
-                throw new Error("Recovery requires this probe's safely stopped fixture and identical binary.");
-            }
+            assertRecoverableFirstTown(continuityManifest, {
+                binarySha256: await binarySha256(), browserSha256: await browserSha256(),
+                cityDir: join(evidenceDir, "city"),
+            });
             continuityDir = evidenceDir;
             continuityBefore = JSON.parse(await readFile(join(continuityDir, "before-reload.json"), "utf8"));
             validateFirstTown(continuityBefore);
@@ -833,8 +841,7 @@ try {
             }
             continuityManifest.saveInventory ??= saveInventory;
             continuityManifest.versionMarker ??= versionMarker;
-            continuityManifest.phase = "safe-first-shutdown";
-            await writeFile(join(continuityDir, "manifest.json"), JSON.stringify(continuityManifest, null, 2));
+            await recordContinuityPhase("safe-first-shutdown");
             if (process.env.CITYBOUND_CONTINUITY_FAIL_AFTER_SAVE === "1") {
                 throw new Error("Injected continuity harness failure after safe shutdown; recover the retained same-binary fixture.");
             }
@@ -904,8 +911,7 @@ try {
                 }
                 await writeFile(join(continuityDir, "server-restart.log"), serverLog);
                 if (browserErrors.length > 0) throw new Error(browserErrors.join("\n"));
-                continuityManifest.phase = "passed";
-                await writeFile(join(continuityDir, "manifest.json"), JSON.stringify(continuityManifest, null, 2));
+                await recordContinuityPhase("passed");
                 console.log(`First-town continuity passed: same paused state survived restart; simulation advanced from tick ${continuityBefore.ticks} to ${advanced.ticks}, visible clock ${advanced.visibleClock.trim()}.`);
             }
             if (testConnectedTown) await checkConnectedTrip(restored, "server-restart");
