@@ -92,7 +92,10 @@ impl Building {
             location: None,
             style,
             being_destroyed_for: COption(None),
-            started_reconnect: false,
+            // The initial wake starts the first reconnect loop. Keep this
+            // pending marker in sync so location-loss notifications cannot
+            // schedule a second loop before that wake arrives.
+            started_reconnect: true,
         }
     }
 
@@ -222,24 +225,28 @@ impl Attachee for Building {
                 .location = new;
         } else {
             self.location = None;
-            TimeID::local_first(world).wake_up_in(
-                Ticks::from(Duration::from_minutes(10)),
-                self.id_as(),
-                world,
+            let (should_schedule, started_reconnect) = reconnect_schedule_state(
+                self.started_reconnect,
             );
+            self.started_reconnect = started_reconnect;
+            if should_schedule {
+                TimeID::local_first(world).wake_up_in(
+                    Ticks::from(Duration::from_minutes(10)),
+                    self.id_as(),
+                    world,
+                );
+            }
         }
     }
 }
 
 impl Sleeper for Building {
     fn wake(&mut self, _instant: Instant, world: &mut World) {
-        if self.started_reconnect {
-            if self.location.is_none() {
-                // TODO: do we still need to destroy here?
-            } else {
-                self.started_reconnect = false;
-            }
-        } else {
+        let (should_reconnect, started_reconnect) =
+            reconnect_wake_state(self.location.is_some());
+        self.started_reconnect = started_reconnect;
+
+        if should_reconnect {
             debug(
                 LOG_T,
                 format!("Trying to connect building {:?}", self.id),
@@ -256,8 +263,39 @@ impl Sleeper for Building {
                 self.id_as(),
                 world,
             );
-            self.started_reconnect = true;
         }
+    }
+}
+
+fn reconnect_wake_state(location_is_resolved: bool) -> (bool, bool) {
+    if location_is_resolved {
+        (false, false)
+    } else {
+        (true, true)
+    }
+}
+
+fn reconnect_schedule_state(retry_wake_pending: bool) -> (bool, bool) {
+    (!retry_wake_pending, true)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{reconnect_schedule_state, reconnect_wake_state};
+
+    #[test]
+    fn reconnect_loop_keeps_one_pending_wake_across_location_lifecycle() {
+        // Spawn schedules the first reconnect wake and marks it pending.
+        assert_eq!(reconnect_schedule_state(false), (true, true));
+        // An unresolved wake requests a reconnect and schedules exactly one
+        // successor wake. A duplicate location-lost notification cannot add
+        // another chain while that successor is pending.
+        assert_eq!(reconnect_wake_state(false), (true, true));
+        assert_eq!(reconnect_schedule_state(true), (false, true));
+        // Resolution is observed by the pending wake, which clears the loop;
+        // a later loss therefore schedules one fresh reconnect wake.
+        assert_eq!(reconnect_wake_state(true), (false, false));
+        assert_eq!(reconnect_schedule_state(false), (true, true));
     }
 }
 
