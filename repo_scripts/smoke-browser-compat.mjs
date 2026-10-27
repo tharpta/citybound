@@ -113,17 +113,17 @@ async function startServer(cityDir) {
 async function launchBrowser() {
     const executablePath = process.env.CITYBOUND_BROWSER_EXECUTABLE;
     if (executablePath) {
-        return chromium.launch({ executablePath, headless: true });
+        return chromium.launch({ executablePath, headless: process.env.CITYBOUND_BROWSER_SMOKE_HEADLESS !== "0" });
     }
 
     const bundledExecutable = chromium.executablePath();
     try {
         await access(bundledExecutable);
-        return chromium.launch({ executablePath: bundledExecutable, headless: true });
+        return chromium.launch({ executablePath: bundledExecutable, headless: process.env.CITYBOUND_BROWSER_SMOKE_HEADLESS !== "0" });
     } catch {
         return chromium.launch({
             channel: process.env.CITYBOUND_BROWSER_CHANNEL ?? "chrome",
-            headless: true,
+            headless: process.env.CITYBOUND_BROWSER_SMOKE_HEADLESS !== "0",
         });
     }
 }
@@ -585,15 +585,17 @@ try {
         let connectedTraveler;
         const sampledTownTraveler = () => {
             const s = window.cbReactApp.state;
-            // A commercial supply trip is as real as a family commute. Exclude
-            // road boundary households and manually created/debug traffic.
+            // Require a natural family grocery trip to a developed shop.
             const buildings = Object.values(s.households.buildings)
-                .filter(b => b.style !== "NeighboringTownConnection")
-                .sort((a, b) => Number(a.style === "FamilyHouse") - Number(b.style === "FamilyHouse"));
+                .filter(b => b.style === "FamilyHouse");
             for (const b of buildings) {
                 for (const h of b.households) {
                     const tasks = s.households.householdInfo[h]?.core.member_tasks ?? [];
                     const member = tasks.findIndex(t => t.state.InTrip
+                        && t.goal[0] === "Groceries"
+                        && Object.values(s.households.buildings).some(destination =>
+                            destination.style === "GroceryShop"
+                            && destination.households.includes(t.goal[1].household))
                         && document.querySelector(`[data-town-trip="${t.state.InTrip}"]`));
                     if (member >= 0) return { household: h, member,
                         trip: tasks[member].state.InTrip, originStyle: b.style,
@@ -678,7 +680,7 @@ try {
                 window.cbRustBrowser.set_sim_speed(10);
             });
             await page.waitForFunction(() => Object.values(window.cbReactApp.state.households.buildings)
-                .some(b => ["GroceryShop", "Mill", "Bakery"].includes(b.style) && b.households.length > 0),
+                .some(b => b.style === "GroceryShop" && b.households.length > 0),
                 undefined, { timeout: Math.max(browserTimeoutMs, 180_000) });
             const mixedUse = await page.evaluate(() => ({
                 buildings: window.cbReactApp.state.households.buildings,
