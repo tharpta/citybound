@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 
-import { spawn } from "node:child_process";
+import { spawn, execFileSync } from "node:child_process";
 import { once } from "node:events";
-import { access, mkdir, mkdtemp, readdir, rm, writeFile } from "node:fs/promises";
+import { access, mkdir, mkdtemp, readdir, readFile, rm, writeFile } from "node:fs/promises";
 import { createHash } from "node:crypto";
 import { createServer } from "node:net";
 import { tmpdir } from "node:os";
@@ -12,6 +12,7 @@ import { fileURLToPath } from "node:url";
 import { chromium } from "playwright-core";
 import { installSignalCleanup } from "./signal-cleanup.mjs";
 import { roadGeometry } from "./road-reload-geometry.mjs";
+import { firstTownState, validateFirstTown, assertFirstTownContinuity } from "./first-town-continuity.mjs";
 
 const scriptDir = dirname(fileURLToPath(import.meta.url));
 const repoRoot = resolve(scriptDir, "..");
@@ -43,7 +44,9 @@ const explicitCityDir = process.env.CITYBOUND_BROWSER_SMOKE_CITY_DIR;
 const testRoadReload = process.argv.includes("--road-reload");
 const roadEvidenceDir = process.env.CITYBOUND_ROAD_EVIDENCE_DIR;
 const testConnectedTown = process.argv.includes("--connected-town");
-const testFirstTown = process.argv.includes("--first-town") || testConnectedTown;
+const recoveryDir = process.env.CITYBOUND_CONTINUITY_RECOVERY_DIR;
+const testContinuity = process.argv.includes("--first-town-continuity") || !!recoveryDir;
+const testFirstTown = testContinuity || process.argv.includes("--first-town") || testConnectedTown;
 const testFamilyHouseReload = process.argv.includes("--family-house-reload") || testFirstTown;
 const testZoneReload = process.argv.includes("--zone-reload") || testFamilyHouseReload;
 
@@ -52,6 +55,19 @@ let server;
 let temporaryCityDir;
 let serverLog = "";
 let cleanupPromise;
+let continuityDir;
+let continuityManifest;
+let continuityBefore;
+const serverLogs = [];
+const binarySha256 = async () => createHash("sha256").update(await readFile(serverPath)).digest("hex");
+async function browserSha256() {
+    const root = join(repoRoot, "cb_browser_ui", "dist");
+    const hash = createHash("sha256");
+    for (const name of (await readdir(root)).sort()) {
+        hash.update(name).update("\0").update(await readFile(join(root, name))).update("\0");
+    }
+    return hash.digest("hex");
+}
 
 function rememberServerOutput(chunk) {
     serverLog = `${serverLog}${chunk}`;
@@ -167,8 +183,11 @@ async function stopServer() {
 async function cleanupOnce() {
     await browser?.close();
     const stopped = await stopServer();
+    if (!stopped) process.exitCode = 1;
 
-    if (temporaryCityDir && stopped) {
+    if (continuityDir) {
+        console.log(`Continuity save and evidence preserved at ${continuityDir}.`);
+    } else if (temporaryCityDir && stopped) {
         await rm(temporaryCityDir, { recursive: true, force: true });
     } else if (temporaryCityDir) {
         console.error(`Disposable city preserved at ${temporaryCityDir}.`);
@@ -194,7 +213,39 @@ try {
     await access(serverPath);
     await access(join(repoRoot, "cb_browser_ui", "dist", "index.html"));
 
-    const cityDir =
+    if (testContinuity) {
+        if (testConnectedTown || testRoadReload || explicitCityDir) {
+            throw new Error("First-town continuity requires its own residential fixture.");
+        }
+        const evidenceDir = recoveryDir ? resolve(recoveryDir)
+            : await mkdtemp(join(tmpdir(), "citybound-first-town-continuity-"));
+        if (evidenceDir === repoRoot || evidenceDir.startsWith(`${repoRoot}/`)) {
+            throw new Error("Continuity evidence must be outside the repository.");
+        }
+        if (recoveryDir) {
+            continuityManifest = JSON.parse(await readFile(join(evidenceDir, "manifest.json"), "utf8"));
+            if (continuityManifest.fixture !== "citybound-first-town-continuity-v1"
+                || continuityManifest.binarySha256 !== await binarySha256()
+                || continuityManifest.browserSha256 !== await browserSha256()
+                || continuityManifest.cityDir !== join(evidenceDir, "city")
+                || continuityManifest.phase !== "safe-first-shutdown") {
+                throw new Error("Recovery requires this probe's safely stopped fixture and identical binary.");
+            }
+            continuityDir = evidenceDir;
+            continuityBefore = JSON.parse(await readFile(join(continuityDir, "before-reload.json"), "utf8"));
+            validateFirstTown(continuityBefore);
+        } else {
+            continuityDir = evidenceDir;
+            continuityManifest = {
+                fixture: "citybound-first-town-continuity-v1",
+                acceptedBaseline: "f804d15c4c6ab4b713c7c8a2422b3e94a9c61fcc",
+                sourceHead: execFileSync("git", ["rev-parse", "HEAD"], { cwd: repoRoot, encoding: "utf8" }).trim(),
+                binarySha256: await binarySha256(), browserSha256: await browserSha256(), cityDir: join(continuityDir, "city"), phase: "building",
+            };
+            await writeFile(join(continuityDir, "manifest.json"), JSON.stringify(continuityManifest, null, 2));
+        }
+    }
+    const cityDir = testContinuity ? continuityManifest.cityDir :
         explicitCityDir
         ?? (temporaryCityDir = await mkdtemp(join(tmpdir(), "citybound-browser-smoke-")));
 
@@ -440,7 +491,32 @@ try {
     if (testZoneReload) {
         let houseIds = [];
         const townSnapshots = {};
-        const townEvidenceDir = process.env.CITYBOUND_FIRST_TOWN_EVIDENCE_DIR;
+        const townEvidenceDir = continuityDir ?? process.env.CITYBOUND_FIRST_TOWN_EVIDENCE_DIR;
+        const captureContinuity = async (target, phase) => {
+            await target.waitForFunction(() => window.cbReactApp.state.time.speed === 0,
+                undefined, { timeout: browserTimeoutMs });
+            // Allow outstanding simulation replies and the 500ms household refresh to drain.
+            const turns = await target.evaluate(() => ({ ...window.cbReactApp.state.system.networkingTurns }));
+            await target.waitForFunction(previous => Object.entries(previous).every(([id, turn]) =>
+                window.cbReactApp.state.system.networkingTurns[id] > turn + 3),
+            turns, { timeout: browserTimeoutMs });
+            await target.waitForTimeout(1_000);
+            const snapshot = await target.evaluate(firstTownState);
+            snapshot.roads = await target.evaluate(roadGeometry);
+            await writeFile(join(continuityDir, `${phase}.json`), JSON.stringify(snapshot, null, 2));
+            validateFirstTown(snapshot);
+            const presentation = await target.evaluate(() => ({
+                currentProject: window.cbReactApp.state.planning.currentProject,
+                projects: Object.keys(window.cbReactApp.state.planning.projects),
+                errorOverlay: document.getElementById("errors")?.classList.contains("errorsHappened"),
+            }));
+            if (presentation.currentProject != null || presentation.projects.length || presentation.errorOverlay) {
+                throw new Error(`${phase}: unexpected continuity presentation ${JSON.stringify(presentation)}`);
+            }
+            if (continuityBefore) assertFirstTownContinuity(continuityBefore, snapshot, phase);
+            else continuityBefore = snapshot;
+            console.log(`First-town continuity ${phase}: ${Object.keys(snapshot.buildings).length} buildings, ${Object.keys(snapshot.households).length} households, paused tick ${snapshot.ticks}; exact semantic state and geometry matched.`);
+        };
         const checkTown = async (target, phase) => {
             await target.waitForFunction(() => Object.values(window.cbReactApp.state.households.buildings)
                 .some(b => b.style === "FamilyHouse" && b.households.length > 0),
@@ -490,62 +566,6 @@ try {
             window.cbReactApp.state.landUse.rendering.buildingMeshes.WoodenFence,
         ).filter(([, mesh]) => mesh.vertices.length > 0 && mesh.indices.length > 0)
             .map(([id]) => id).sort();
-        if (testFamilyHouseReload) {
-            // A straight road beside the fixed residential polygon permits normal
-            // immigration/development; no actor state or save files are injected.
-            await page.evaluate(connected => {
-                const id = "00000000-0000-4000-8000-000000000062";
-                window.cbRustBrowser.start_new_project(id);
-                let intent = { Road: window.cbRustBrowser.new_road_intent(1, 1) };
-                for (const point of [[-320, -300], [-220, -300]]) {
-                    intent = window.cbRustBrowser.with_control_point_added(intent, point, true);
-                }
-                window.cbRustBrowser.start_new_gesture(id,
-                    "00000000-0000-4000-8000-000000006200", intent);
-                if (connected) {
-                    let junction = { Road: window.cbRustBrowser.new_road_intent(1, 1) };
-                    for (const point of [[-220, -400], [-220, -200]]) {
-                        junction = window.cbRustBrowser.with_control_point_added(junction, point, true);
-                    }
-                    window.cbRustBrowser.start_new_gesture(id,
-                        "00000000-0000-4000-8000-000000006201", junction);
-                }
-                window.cbReactApp.boundSetState(old => ({
-                    ...old, planning: { ...old.planning, currentProject: id },
-                }));
-            }, testConnectedTown);
-            await page.waitForFunction(() => [...window.cbReactApp.state.planning
-                .rendering.currentPreview.lanesToConstructGroups.values()]
-                .some(mesh => mesh.vertices.length > 0 && mesh.indices.length > 0),
-                undefined, { timeout: browserTimeoutMs });
-            console.log("FamilyHouse regression: road preview received.");
-            await page.evaluate(() => {
-                window.cbRustBrowser.implement_project("00000000-0000-4000-8000-000000000062");
-                window.cbReactApp.boundSetState(old => ({
-                    ...old, planning: { ...old.planning, currentProject: null },
-                }));
-            });
-            await page.waitForFunction(() =>
-                window.cbReactApp.state.planning.projects[
-                    "00000000-0000-4000-8000-000000000062"] == null,
-                undefined, { timeout: browserTimeoutMs });
-        }
-        console.log("Reload regression: creating residential zone.");
-        // Use the same exported Rust commands as the planning UI, with fixed
-        // geometry away from starter roads so this remains a zoning-only probe.
-        const projectId = "00000000-0000-4000-8000-000000000064";
-        await page.evaluate(id => {
-            const gestureId = "00000000-0000-4000-8000-000000006400";
-            window.cbRustBrowser.start_new_project(id);
-            let intent = { Zone: window.cbRustBrowser.new_zone_intent("Residential") };
-            for (const point of [[-300, -300], [-240, -300], [-240, -240], [-300, -240]]) {
-                intent = window.cbRustBrowser.with_control_point_added(intent, point, true);
-            }
-            window.cbRustBrowser.start_new_gesture(id, gestureId, intent);
-            window.cbReactApp.boundSetState(old => ({
-                ...old, planning: { ...old.planning, currentProject: id },
-            }));
-        }, projectId);
         const hasZoneMeshes = () => {
             const preview = window.cbReactApp?.state?.planning?.rendering?.currentPreview;
             return [preview?.zoneGroups, preview?.zoneOutlineGroups].every(
@@ -553,33 +573,115 @@ try {
                     .some(mesh => mesh.vertices.length > 0 && mesh.indices.length > 0),
             );
         };
-        await page.waitForFunction(hasZoneMeshes, undefined, { timeout: browserTimeoutMs });
-        console.log("Zone regression: preview geometry received.");
-        await page.evaluate(id => {
-            window.cbRustBrowser.implement_project(id);
-            window.cbReactApp.boundSetState(old => ({
-                ...old, planning: { ...old.planning, currentProject: null },
-            }));
-        }, projectId);
-        await page.waitForFunction(id => (
-            window.cbReactApp.state.planning.projects[id] == null
-            && window.cbReactApp.state.planning.currentProject == null
-            && window.cbReactApp.state.planning.master.gestures[
-                "00000000-0000-4000-8000-000000006400"
-            ] != null
-        ), projectId, { timeout: browserTimeoutMs });
-        await page.waitForFunction(hasZoneMeshes, undefined, { timeout: browserTimeoutMs });
+        if (recoveryDir) {
+            houseIds = Object.keys(continuityBefore.buildings);
+            await page.waitForFunction(() => window.cbReactApp.state.time.speed === 0,
+                undefined, { timeout: browserTimeoutMs });
+            await checkTown(page, "recovered");
+            await captureContinuity(page, "recovered");
+        } else {
+            if (testFamilyHouseReload) {
+                // A straight road beside the fixed residential polygon permits normal
+                // immigration/development; no actor state or save files are injected.
+                await page.evaluate(connected => {
+                    const id = "00000000-0000-4000-8000-000000000062";
+                    window.cbRustBrowser.start_new_project(id);
+                    let intent = { Road: window.cbRustBrowser.new_road_intent(1, 1) };
+                    for (const point of [[-320, -300], [-220, -300]]) {
+                        intent = window.cbRustBrowser.with_control_point_added(intent, point, true);
+                    }
+                    window.cbRustBrowser.start_new_gesture(id,
+                        "00000000-0000-4000-8000-000000006200", intent);
+                    if (connected) {
+                        let junction = { Road: window.cbRustBrowser.new_road_intent(1, 1) };
+                        for (const point of [[-220, -400], [-220, -200]]) {
+                            junction = window.cbRustBrowser.with_control_point_added(junction, point, true);
+                        }
+                        window.cbRustBrowser.start_new_gesture(id,
+                            "00000000-0000-4000-8000-000000006201", junction);
+                    }
+                    window.cbReactApp.boundSetState(old => ({
+                        ...old, planning: { ...old.planning, currentProject: id },
+                    }));
+                }, testConnectedTown || testContinuity);
+                await page.waitForFunction(() => [...window.cbReactApp.state.planning
+                    .rendering.currentPreview.lanesToConstructGroups.values()]
+                    .some(mesh => mesh.vertices.length > 0 && mesh.indices.length > 0),
+                    undefined, { timeout: browserTimeoutMs });
+                console.log("FamilyHouse regression: road preview received.");
+                await page.evaluate(() => {
+                    window.cbRustBrowser.implement_project("00000000-0000-4000-8000-000000000062");
+                    window.cbReactApp.boundSetState(old => ({
+                        ...old, planning: { ...old.planning, currentProject: null },
+                    }));
+                });
+                await page.waitForFunction(() =>
+                    window.cbReactApp.state.planning.projects[
+                        "00000000-0000-4000-8000-000000000062"] == null,
+                    undefined, { timeout: browserTimeoutMs });
+                if (testContinuity) {
+                    await page.waitForFunction(() => {
+                        const r = window.cbReactApp.state.transport.rendering;
+                        const count = layer => [...r[layer].values()].reduce((n, mesh) => n + mesh.indices.length, 0);
+                        return count("laneAsphaltGroups") >= 132 && count("laneMarkerGroups") >= 24
+                            && window.cbReactApp.state.planning.master.gestures[
+                                "00000000-0000-4000-8000-000000006201"] != null;
+                    }, undefined, { timeout: browserTimeoutMs });
+                }
+            }
+            console.log("Reload regression: creating residential zone.");
+            // Use the same exported Rust commands as the planning UI, with fixed
+            // geometry away from starter roads so this remains a zoning-only probe.
+            const projectId = "00000000-0000-4000-8000-000000000064";
+            await page.evaluate(id => {
+                const gestureId = "00000000-0000-4000-8000-000000006400";
+                window.cbRustBrowser.start_new_project(id);
+                let intent = { Zone: window.cbRustBrowser.new_zone_intent("Residential") };
+                for (const point of [[-300, -300], [-240, -300], [-240, -240], [-300, -240]]) {
+                    intent = window.cbRustBrowser.with_control_point_added(intent, point, true);
+                }
+                window.cbRustBrowser.start_new_gesture(id, gestureId, intent);
+                window.cbReactApp.boundSetState(old => ({
+                    ...old, planning: { ...old.planning, currentProject: id },
+                }));
+            }, projectId);
+            await page.waitForFunction(hasZoneMeshes, undefined, { timeout: browserTimeoutMs });
+            console.log("Zone regression: preview geometry received.");
+            await page.evaluate(id => {
+                window.cbRustBrowser.implement_project(id);
+                window.cbReactApp.boundSetState(old => ({
+                    ...old, planning: { ...old.planning, currentProject: null },
+                }));
+            }, projectId);
+            await page.waitForFunction(id => (
+                window.cbReactApp.state.planning.projects[id] == null
+                && window.cbReactApp.state.planning.currentProject == null
+                && window.cbReactApp.state.planning.master.gestures[
+                    "00000000-0000-4000-8000-000000006400"
+                ] != null
+            ), projectId, { timeout: browserTimeoutMs });
+            await page.waitForFunction(hasZoneMeshes, undefined, { timeout: browserTimeoutMs });
 
-        if (testFamilyHouseReload) {
-            await page.evaluate(() => window.cbRustBrowser.set_sim_speed(10));
-            await page.waitForFunction(() => Object.values(
-                window.cbReactApp.state.landUse.rendering.buildingMeshes.WoodenFence,
-            ).some(mesh => mesh.vertices.length > 0 && mesh.indices.length > 0),
-            undefined, { timeout: Math.max(browserTimeoutMs, 90_000) });
-            if (testFirstTown) await checkTown(page, "developed");
-            await page.evaluate(() => window.cbRustBrowser.set_sim_speed(0));
-            houseIds = await page.evaluate(renderedHouseIds);
-            console.log(`FamilyHouse regression: developed houses ${JSON.stringify(houseIds)}.`);
+            if (testContinuity) {
+                await writeFile(join(continuityDir, "fixture-ready.json"), JSON.stringify({
+                    roads: await page.evaluate(roadGeometry),
+                    planning: await page.evaluate(() => window.cbReactApp.state.planning.master),
+                    time: await page.evaluate(() => window.cbReactApp.state.time),
+                }, null, 2));
+            }
+            if (testFamilyHouseReload) {
+                await page.evaluate(speed => window.cbRustBrowser.set_sim_speed(speed), testContinuity ? 32 : 10);
+                await page.waitForFunction(() => Object.values(
+                    window.cbReactApp.state.landUse.rendering.buildingMeshes.WoodenFence,
+                ).some(mesh => mesh.vertices.length > 0 && mesh.indices.length > 0),
+                undefined, { timeout: Math.max(browserTimeoutMs, 90_000) });
+                if (testFirstTown) await checkTown(page, "developed");
+                await page.evaluate(() => window.cbRustBrowser.set_sim_speed(0));
+                houseIds = await page.evaluate(renderedHouseIds);
+                console.log(`FamilyHouse regression: developed houses ${JSON.stringify(houseIds)}.`);
+            }
+
+            if (testContinuity) await captureContinuity(page, "before-reload");
         }
 
         let connectedTraveler;
@@ -705,6 +807,7 @@ try {
         if (testFamilyHouseReload) {
             await page.waitForFunction(hasHouseMeshes, houseIds, { timeout: browserTimeoutMs });
             if (testFirstTown) await checkTown(page, "page-reload");
+            if (testContinuity) await captureContinuity(page, "page-reload");
             if (testConnectedTown) await checkConnectedTrip(page, "page-reload");
             console.log("FamilyHouse regression: page reload restored developed house meshes.");
         }
@@ -714,6 +817,28 @@ try {
         // to the same disposable mmap save. No preview project is requested.
         await page.close();
         if (!await stopServer()) throw new Error("Could not stop zone regression server.");
+        if (testContinuity) {
+            if (server.exitCode !== 0 || !serverLog.includes("Stopping Citybound safely...")) {
+                throw new Error("First-town continuity requires a clean SIGINT shutdown.");
+            }
+            serverLogs.push(serverLog);
+            await writeFile(join(continuityDir, recoveryDir ? "server-recovery.log" : "server-first.log"), serverLog);
+            const saveInventory = (await readdir(cityDir)).sort();
+            for (const required of ["Time_n", "PlanManager(CBPlanningLogic)_n", "Lane_n", "Building_n", "Family_n"]) {
+                if (!saveInventory.includes(required)) throw new Error(`Missing continuity actor storage ${required}.`);
+            }
+            const versionMarker = await readFile(join(cityDir, "__cb_version.txt"), "utf8");
+            if (recoveryDir && versionMarker !== continuityManifest.versionMarker) {
+                throw new Error("Recovery changed the saved build marker.");
+            }
+            continuityManifest.saveInventory ??= saveInventory;
+            continuityManifest.versionMarker ??= versionMarker;
+            continuityManifest.phase = "safe-first-shutdown";
+            await writeFile(join(continuityDir, "manifest.json"), JSON.stringify(continuityManifest, null, 2));
+            if (process.env.CITYBOUND_CONTINUITY_FAIL_AFTER_SAVE === "1") {
+                throw new Error("Injected continuity harness failure after safe shutdown; recover the retained same-binary fixture.");
+            }
+        }
         serverLog = "";
         await startServer(cityDir);
         const restored = await browser.newPage({ viewport: { width: 1280, height: 720 } });
@@ -739,6 +864,50 @@ try {
         if (testFamilyHouseReload) {
             await restored.waitForFunction(hasHouseMeshes, houseIds, { timeout: browserTimeoutMs });
             if (testFirstTown) await checkTown(restored, "server-restart");
+            if (testContinuity) {
+                if (!serverLog.includes("Loading from savegame") || serverLog.includes("not found, creating")
+                    || serverLog.includes("POTENTIALLY INCOMPATIBLE SAVEGAME")) {
+                    throw new Error("Continuity restart must load the identical-version save.");
+                }
+                await captureContinuity(restored, "server-restart");
+                await restored.evaluate(() => window.cbRustBrowser.set_sim_speed(4));
+                await restored.waitForFunction(before => {
+                    const s = window.cbReactApp.state;
+                    return s.time.ticks > before.ticks
+                        && JSON.stringify(s.time.time) !== JSON.stringify(before.time)
+                        && Object.entries(before.households).some(([id, core]) =>
+                            JSON.stringify(s.households.householdInfo[id]?.core.member_resources)
+                                !== JSON.stringify(core.member_resources));
+                }, continuityBefore, { timeout: browserTimeoutMs });
+                await restored.evaluate(() => window.cbRustBrowser.set_sim_speed(0));
+                await restored.waitForFunction(() => window.cbReactApp.state.time.speed === 0,
+                    undefined, { timeout: browserTimeoutMs });
+                const advanced = await restored.evaluate(() => ({ ...window.cbReactApp.state.time,
+                    visibleClock: document.querySelector(".sim-time").innerText,
+                    inspector: document.querySelector(".window.building").innerText,
+                    households: window.cbReactApp.state.households.householdInfo }));
+                await writeFile(join(continuityDir, "advanced.json"), JSON.stringify(advanced, null, 2));
+                await restored.screenshot({ path: join(continuityDir, "advanced.png") });
+                await restored.close();
+                if (!await stopServer() || server.exitCode !== 0
+                    || !serverLog.includes("Stopping Citybound safely...")) {
+                    throw new Error("Continuity restart did not stop safely.");
+                }
+                if (await binarySha256() !== continuityManifest.binarySha256
+                    || await browserSha256() !== continuityManifest.browserSha256) {
+                    throw new Error("Native binary or browser assets changed during continuity probe.");
+                }
+                const inventory = await readdir(cityDir);
+                if (continuityManifest.saveInventory.some(name => !inventory.includes(name))
+                    || await readFile(join(cityDir, "__cb_version.txt"), "utf8") !== continuityManifest.versionMarker) {
+                    throw new Error("Continuity reload changed the version marker or removed actor storage.");
+                }
+                await writeFile(join(continuityDir, "server-restart.log"), serverLog);
+                if (browserErrors.length > 0) throw new Error(browserErrors.join("\n"));
+                continuityManifest.phase = "passed";
+                await writeFile(join(continuityDir, "manifest.json"), JSON.stringify(continuityManifest, null, 2));
+                console.log(`First-town continuity passed: same paused state survived restart; simulation advanced from tick ${continuityBefore.ticks} to ${advanced.ticks}, visible clock ${advanced.visibleClock.trim()}.`);
+            }
             if (testConnectedTown) await checkConnectedTrip(restored, "server-restart");
             console.log(`FamilyHouse regression: ${houseIds.length} developed houses restored after page reload and save/server restart.`);
         }
@@ -756,6 +925,23 @@ try {
     console.error(error.stack ?? error.message);
     if (serverLog) {
         console.error("\nCitybound server log:\n", serverLog);
+    }
+    if (continuityDir) {
+        await writeFile(join(continuityDir, "failure.json"), JSON.stringify({
+            message: error.stack ?? error.message, serverLog, serverLogs,
+            cityDir: continuityManifest?.cityDir,
+        }, null, 2));
+        const diagnosticPage = browser?.contexts()[0]?.pages()[0];
+        if (diagnosticPage && !diagnosticPage.isClosed()) {
+            await diagnosticPage.screenshot({ path: join(continuityDir, "failure.png"), timeout: 5_000 }).catch(() => {});
+            const state = await diagnosticPage.evaluate(() => {
+                const s = window.cbReactApp?.state;
+                return { time: s?.time, buildings: s?.households.buildings,
+                    households: s?.households.householdInfo, master: s?.planning.master,
+                    networkingTurns: s?.system.networkingTurns };
+            }).catch(error => ({ unavailable: error.message }));
+            await writeFile(join(continuityDir, "failure-state.json"), JSON.stringify(state, null, 2));
+        }
     }
     process.exitCode = 1;
 } finally {

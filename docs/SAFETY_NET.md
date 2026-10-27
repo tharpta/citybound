@@ -11,12 +11,15 @@ Current status: passes.
 
 This is the umbrella local safety command. It currently runs:
 
+- `npm run test-first-town-continuity`
+- `npm run test-town-summary` and `npm run test-town-trips`
+- `npm run test-runtime-teardown-compat` and `npm run test-road-reload-geometry`
 - `npm run test-planning-compat`
 - `npm run check-codegen-compat`
 - `npm run check-browser-dist-compat`
 - `npm run smoke-server-compat`
 - `npm run smoke-save-reload-compat`
-- `npm run smoke-browser-compat`
+- `npm run smoke-road-reload-compat` and `npm run smoke-zone-reload-compat`
 
 ### `npm run check-browser-dist-compat`
 
@@ -171,3 +174,12 @@ test result: ok. 3 passed; 0 failed
   change.
 - `.github/workflows/revival-compat.yml` runs the planning safety tests on
   pull requests, pushes to revival branches, and manual dispatch.
+
+### `npm run smoke-first-town-continuity-compat`
+
+The [bounded first-town continuity contract](FIRST_TOWN_CONTINUITY.md) extends
+the existing first-town fixture with exact paused road/zone/building/household
+state comparisons after page reload and safe server restart, followed by
+visible simulation-time advancement. It preserves disposable saves and failure
+evidence outside git and supports an identical-binary recovery drill.
+Run `npm run test-first-town-continuity` for deterministic comparison regressions.
