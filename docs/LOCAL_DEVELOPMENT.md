@@ -55,7 +55,9 @@ This does two things:
 
 1. Builds browser Rust/WASM and Parcel assets from a temporary no-spaces checkout
    copy. The authorization is rejected outside this containment wrapper.
-2. Builds the native debug server with the macOS `.rlib` linker wrapper.
+2. Builds the native debug server with the macOS `.rlib` linker wrapper and
+   the inspected pinned nightly selected only for the Cargo child process.
+   A stable host default and directory rustup overrides are left unchanged.
 
 Generated browser assets live in `cb_browser_ui/dist/` and are ignored by git.
 
@@ -75,6 +77,11 @@ This runs:
 - `npm run smoke-server-compat`
 - `npm run smoke-save-reload-compat`
 - `npm run smoke-zone-reload-compat` (includes the browser smoke checks)
+
+The native toolchain-selection regression can also run without Rust builds or
+host mutation: `npm run test-native-toolchain-compat`. It uses disposable fake
+tooling to check pinned child selection, fail-closed inspection, and exit status
+propagation; the existing bounded wrapper CI job runs it too.
 
 The server smoke starts `target/debug/citybound`, waits for `/` to return HTTP
 `200`, then stops the process through SIGINT.
