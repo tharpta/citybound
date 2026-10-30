@@ -29,7 +29,7 @@ jobs:
           persist-credentials: false
 
       - name: Test process isolation, scratch cleanup, and exit propagation
-        run: npm run test-native-toolchain-compat && npm run test-linker-wrapper-compat && npm run test-runtime-teardown-compat
+        run: npm run test-native-toolchain-compat && npm run test-linker-wrapper-compat && npm run test-runtime-teardown-compat && npm run test-browser-smoke-timeout
 
   planning-tests:
     name: Planning safety tests
