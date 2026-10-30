@@ -329,7 +329,11 @@ try {
                     ...old, uiMode: "inspection", camera: { ...old.camera, target: [-270, -300, 0] },
                 }));
             });
-            await activePage.waitForFunction(() => window.cbReactApp.state.uiMode === "inspection");
+            await activePage.waitForFunction(
+                () => window.cbReactApp.state.uiMode === "inspection",
+                undefined,
+                { timeout: browserTimeoutMs },
+            );
             const planning = await activePage.evaluate(() => ({
                 currentProject: window.cbReactApp.state.planning.currentProject,
                 projects: Object.keys(window.cbReactApp.state.planning.projects),
