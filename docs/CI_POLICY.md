@@ -46,7 +46,7 @@ documentation before expanding CI or if repository visibility changes.
 
 | Workflow | Trigger | Runner/jobs per event | Expected use | Cost control |
 | --- | --- | --- | --- | --- |
-| `Revival Compatibility` | Pull request; push to `main` or `master`; manual dispatch | Two standard `ubuntu-latest` jobs | One linker-wrapper cleanup job capped at 5 minutes and one planning-test job capped at 15 minutes per event | Public-only guards, least-privilege token, per-PR/ref cancellation |
+| `Revival Compatibility` | Pull request; push to `main` or `master`; manual dispatch | Two standard `ubuntu-latest` jobs | One offline/unit compatibility job capped at 5 minutes and one locked Rust planning/codegen job capped at 15 minutes per event | Public-only guards, least-privilege token, per-PR/ref cancellation |
 | `Legacy Release Build Probe` | Manual dispatch only, with explicit product-owner approval acknowledgment | One standard `ubuntu-latest` job | At most one legacy compatibility probe per deliberate dispatch, capped at 45 minutes | Public-only guard, manual approval, cancellation, no matrix |
 
 The compatibility workflow no longer runs on every `codex/**` push. A branch
@@ -67,10 +67,47 @@ cache, service, runner, or cost.
 The planning job separates locked dependency retrieval from compilation and
 tests. Dependency fetch receives at most three attempts; after a failed attempt,
 CI removes only the ephemeral runner's crates.io registry index before retrying.
-Once retrieval succeeds, planning tests run with `--locked --offline`.
+Once retrieval succeeds, planning tests run with `--locked --offline`, then the
+committed actor glue is regenerated and compared with `CARGO_NET_OFFLINE=true`.
 Compilation and tests are never retried or hidden, and GitHub annotations state
-which phase failed. The separate linker-wrapper job runs only the bounded,
-offline scratch-cleanup regression and has a 5-minute timeout.
+which phase failed. The separate 5-minute job runs the bounded, offline
+toolchain/linker/teardown regressions and the pure Node compatibility contracts.
+Neither job runs a legacy browser lifecycle script or starts the real game.
+
+### `npm run test-compat` disposition
+
+The umbrella command combines tests with checks that require a locally built
+legacy browser/server and, in two cases, a real browser. Its components have
+these acceptance paths; a green hosted run is **not** a claim that the local
+runtime checks passed.
+
+| Component | Accepted-change gate | Reason |
+| --- | --- | --- |
+| `test-first-town-continuity` | Hosted, 5-minute job | Pure Node fixture and recovery-contract tests |
+| `test-town-summary` | Hosted, 5-minute job | Pure Node town-feedback test |
+| `test-town-trips` | Hosted, 5-minute job | Pure Node traffic-feedback test |
+| `test-runtime-teardown-compat` | Hosted, 5-minute job | Bounded fake-child teardown tests; already gated |
+| `test-road-reload-geometry` | Hosted, 5-minute job | Pure Node geometry-comparison test |
+| `test-planning-compat` | Hosted, 15-minute job | Locked Rust planning tests; already gated |
+| `check-codegen-compat` | Hosted, 15-minute job | Byte-identical regeneration after the existing locked dependency fetch; no second fetch |
+| `check-browser-dist-compat` | Local/runtime evidence | Requires the legacy browser distribution build |
+| `smoke-server-compat` | Local/runtime evidence | Requires the built native server and browser distribution |
+| `smoke-save-reload-compat` | Local/runtime evidence | Requires the native server and a disposable mmap city |
+| `smoke-road-reload-compat` | Local/runtime evidence | Requires built assets, native server, and headless Chromium |
+| `smoke-zone-reload-compat` | Local/runtime evidence | Requires built assets, native server, and headless Chromium |
+
+For any accepted PR that changes runtime, browser, gameplay, save/reload, or
+their build path, the PR's **Runtime compatibility evidence** section must link
+to a comment or document recording the exact head SHA, relevant local command
+and result, and visible browser evidence for affected gameplay. A reviewer
+must hold acceptance if this link is absent or the evidence is for a different
+head. For changes that cannot affect these paths, the author must state
+`Not applicable` and a short scope reason. The local path may use
+`npm run test-compat` after `npm run build-compat`, or list the relevant
+component commands; do not imply all runtime components ran from a partial
+command. Disposable save paths and teardown failures must be reported, not
+hidden by rerunning. This is a review/acceptance requirement, not a claim that
+GitHub Actions executed the historical browser stack.
 
 The planning job visibly sets `CITYBOUND_ALLOW_TOOLCHAIN_MUTATION=1` because a
 standard hosted runner is ephemeral and may need the repository-pinned
@@ -122,8 +159,8 @@ The workflow therefore:
 - persists no checkout credentials;
 - references no repository or environment secrets;
 - uploads no artifacts or caches; and
-- performs only two focused checks: the linker-wrapper cleanup regression and
-  the planning compatibility test.
+- performs only the bounded offline/unit compatibility checks and the locked
+  planning/codegen checks listed above.
 
 GitHub may hold public-fork workflows for maintainer approval. Configure
 **Settings → Actions → General → Approval for running fork pull request

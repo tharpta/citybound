@@ -28,8 +28,17 @@ jobs:
         with:
           persist-credentials: false
 
+      - name: Set up Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: "20"
+          package-manager-cache: false
+
       - name: Test process isolation, scratch cleanup, and exit propagation
         run: npm run test-native-toolchain-compat && npm run test-linker-wrapper-compat && npm run test-runtime-teardown-compat && npm run test-browser-smoke-timeout
+
+      - name: Test local compatibility contracts without starting the game
+        run: npm run test-first-town-continuity && npm run test-town-summary && npm run test-town-trips && npm run test-road-reload-geometry
 
   planning-tests:
     name: Planning safety tests
@@ -57,3 +66,6 @@ jobs:
 
       - name: Fetch dependencies, compile, and run planning safety tests
         run: repo_scripts/ci-test-planning-compat.sh
+
+      - name: Check committed actor codegen against the locked generator
+        run: CARGO_NET_OFFLINE=true npm run check-codegen-compat

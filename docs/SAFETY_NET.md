@@ -172,8 +172,10 @@ test result: ok. 3 passed; 0 failed
 - Save smoke coverage is same-build reload coverage. We still need committed
   historical fixtures and an explicit migration policy before actor layouts can
   change.
-- `.github/workflows/revival-compat.yml` runs the planning safety tests on
-  pull requests, pushes to revival branches, and manual dispatch.
+- `.github/workflows/revival-compat.yml` gates deterministic planning, codegen,
+  and pure Node compatibility checks on pull requests and integration pushes.
+  Built browser/server and real-runtime smokes require linked local PR evidence;
+  see the [check disposition](CI_POLICY.md#npm-run-test-compat-disposition).
 
 ### `npm run smoke-first-town-continuity-compat`
 
