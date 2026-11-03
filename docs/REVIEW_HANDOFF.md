@@ -90,9 +90,8 @@ task-scoped approval flow; never bypass it.
   `5a7419255e92f2a07be547e9f5f491f19f1be2d1`; it was posted before merge, with
   both hosted checks reported green.
 
-These records show the shared-account comment path working without a late
-write-approval deadlock. GitHub's public PR record does not preserve the
-original reviewer-task prompts, so it cannot establish whether those handoffs
-requested the comment action upfront. Use the prompt above on future reviewer
-tasks and record one such task/comment pair before claiming that the upfront
-handoff requirement itself has been exercised.
+The producer-task handoff records confirm both reviews requested the comment
+action upfront; both reviewers posted exact-pair comments without a late
+task-scoped write-approval deadlock. The public GitHub PR records alone do not
+expose the original task prompts, so corroborate the upfront request against
+the task record when auditing this exercise.
