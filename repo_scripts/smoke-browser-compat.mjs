@@ -12,7 +12,7 @@ import { fileURLToPath } from "node:url";
 import { chromium } from "playwright-core";
 import { installSignalCleanup } from "./signal-cleanup.mjs";
 import { roadGeometry } from "./road-reload-geometry.mjs";
-import { firstTownState, validateFirstTown, assertFirstTownContinuity, assertRecoverableFirstTown } from "./first-town-continuity.mjs";
+import { firstTownState, validateFirstTown, assertFirstTownContinuity, assertRecoverableFirstTown, assertActorStorageInventory } from "./first-town-continuity.mjs";
 
 const scriptDir = dirname(fileURLToPath(import.meta.url));
 const repoRoot = resolve(scriptDir, "..");
@@ -585,6 +585,8 @@ try {
             houseIds = Object.keys(continuityBefore.buildings);
             await page.waitForFunction(() => window.cbReactApp.state.time.speed === 0,
                 undefined, { timeout: browserTimeoutMs });
+            await page.evaluate(() => document.getElementById("planning")?.click());
+            await page.waitForFunction(hasZoneMeshes, undefined, { timeout: browserTimeoutMs });
             await checkTown(page, "recovered");
             await captureContinuity(page, "recovered");
         } else {
@@ -905,9 +907,9 @@ try {
                     throw new Error("Native binary or browser assets changed during continuity probe.");
                 }
                 const inventory = await readdir(cityDir);
-                if (continuityManifest.saveInventory.some(name => !inventory.includes(name))
-                    || await readFile(join(cityDir, "__cb_version.txt"), "utf8") !== continuityManifest.versionMarker) {
-                    throw new Error("Continuity reload changed the version marker or removed actor storage.");
+                assertActorStorageInventory(continuityManifest.saveInventory, inventory);
+                if (await readFile(join(cityDir, "__cb_version.txt"), "utf8") !== continuityManifest.versionMarker) {
+                    throw new Error("Continuity reload changed the version marker.");
                 }
                 await writeFile(join(continuityDir, "server-restart.log"), serverLog);
                 if (browserErrors.length > 0) throw new Error(browserErrors.join("\n"));

@@ -96,3 +96,14 @@ export function assertRecoverableFirstTown(manifest, expected) {
         throw new Error("Recovery requires this probe's safely stopped fixture and identical binary/browser assets.");
     }
 }
+
+export function assertActorStorageInventory(before, after) {
+    // mmap segment names encode their current capacity and can change on a
+    // successful save. The actor registration markers must remain present.
+    const registered = before.filter(name => name.endsWith("_n"));
+    const available = new Set(after);
+    const missing = registered.filter(name => !available.has(name));
+    if (!registered.length || missing.length || !available.has("__cb_version.txt")) {
+        throw new Error(`Continuity reload lost actor storage: ${missing.join(", ") || "registration/version marker"}.`);
+    }
+}

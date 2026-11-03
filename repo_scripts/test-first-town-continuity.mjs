@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { firstTownState, validateFirstTown, assertFirstTownContinuity, assertRecoverableFirstTown } from "./first-town-continuity.mjs";
+import { firstTownState, validateFirstTown, assertFirstTownContinuity, assertRecoverableFirstTown, assertActorStorageInventory } from "./first-town-continuity.mjs";
 
 function browserState() {
     const mesh = { vertices: new Float32Array([0, 0, 0, 1, 0, 0, 0, 1, 0]), indices: new Uint16Array([0, 1, 2]) };
@@ -95,4 +95,12 @@ test("recovery rejects active, failed, and mismatched fixtures", () => {
     for (const key of ["binarySha256", "browserSha256", "cityDir", "fixture"]) {
         assert.throws(() => assertRecoverableFirstTown({ ...clean, [key]: "different" }, expected));
     }
+});
+
+test("actor storage check allows mmap capacity growth but rejects lost registrations", () => {
+    const before = ["Lane_n", "Family_n", "Lane_inbx_109051904", "__cb_version.txt"];
+    const after = ["Lane_n", "Family_n", "Lane_inbx_110100480", "__cb_version.txt"];
+    assert.doesNotThrow(() => assertActorStorageInventory(before, after));
+    assert.throws(() => assertActorStorageInventory(before, after.filter(name => name !== "Family_n")), /Family_n/);
+    assert.throws(() => assertActorStorageInventory(before, after.filter(name => name !== "__cb_version.txt")), /version marker/);
 });

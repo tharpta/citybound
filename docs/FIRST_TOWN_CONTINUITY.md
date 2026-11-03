@@ -84,9 +84,13 @@ CITYBOUND_CONTINUITY_RECOVERY_DIR=/absolute/path/from/failed/run \
   npm run smoke-first-town-continuity-compat
 ```
 
-The injected-failure/recovery path is available for a future dedicated drill;
-it is not part of the bounded acceptance pass and has not yet been exercised
-end to end. Do not treat its presence as a passing recovery result.
+The developed-town injected-failure/recovery drill was exercised end to end
+with the same native binary and browser assets. The injected run exited nonzero
+after a verified clean first shutdown. Recovery compared the same paused road,
+zone, FamilyHouse, and household projections after reopening, page reload, and
+another clean server restart, then showed advancing simulation time and member
+resources. The exact disposable fixture, digests, logs, snapshots, and screenshots
+are recorded in the issue/PR evidence; their contents remain outside git.
 
 Recovery accepts only a probe manifest at the safe-first-shutdown phase, the
 recorded `city/` path, and identical native/browser digests. Every server start
@@ -97,6 +101,10 @@ fixture: it reloads and compares the retained pre-failure town, repeats the
 restart check, and proves time advances. The original `failure.json` remains
 available after recovery. Arbitrary user save paths are rejected by the reload
 probe.
+
+The post-restart inventory check requires actor registration markers and the
+same build marker. It does not require variable-sized mmap segment filenames to
+stay identical: their capacity-encoded names can grow during normal simulation.
 
 Rollback is to stop the probe, retain its evidence, and discard only its
 probe-owned disposable city when no process is using it. Code rollback is to
