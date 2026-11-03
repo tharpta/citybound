@@ -172,10 +172,13 @@ not fix or reduce those advisories.
 ## Continuous Integration
 
 Repository automation follows the [zero-cost CI policy](CI_POLICY.md). Pull
-requests run two focused Linux checks: a linker-wrapper cleanup regression
-capped at 5 minutes and a planning safety suite capped at 15 minutes. Redundant
-branch-push runs and the historical three-platform release matrix are
-intentionally disabled.
+requests run two focused Linux checks: bounded toolchain, teardown, and pure
+Node compatibility contracts capped at 5 minutes, and locked Rust planning
+plus byte-identical codegen capped at 15 minutes. Browser distribution, server,
+save/reload, and real-browser smokes remain local acceptance evidence under
+the [explicit check disposition](CI_POLICY.md#npm-run-test-compat-disposition).
+Redundant branch-push runs and the historical three-platform release matrix
+are intentionally disabled.
 
 ## Known Local Traps
 

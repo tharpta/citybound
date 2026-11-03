@@ -19,6 +19,10 @@ Commands and results:
 
 <!-- Exact commands, results, screenshots, logs, or retained fixtures. -->
 
+Runtime compatibility evidence:
+
+<!-- For runtime/browser/gameplay/save/build changes, link exact-head local smoke results and visible gameplay evidence where affected. Otherwise write "Not applicable" with a scope reason. See docs/CI_POLICY.md. -->
+
 ## Dependencies and links
 
 <!-- Related issues, PRs, ADRs, branches, blockers, and follow-ups. -->
