@@ -161,6 +161,8 @@ source of truth for delivery and verification.
 
 The permanent branch, merge, release, hotfix, and migration rules are defined
 in [the branch and release policy](BRANCH_AND_RELEASE_POLICY.md).
+Independent reviewer handoffs and their shared-account GitHub evidence are
+defined in [the review handoff protocol](REVIEW_HANDOFF.md).
 
 Every nontrivial change starts from a GitHub issue and uses:
 
